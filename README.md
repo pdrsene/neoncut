@@ -39,6 +39,8 @@ Depois, abra http://localhost:8000
 | `FILE_TTL` | 3600 | Segundos até apagar os vídeos baixados |
 | `YTDLP_COOKIES` | (vazio) | Caminho de um `cookies.txt`, se o YouTube bloquear |
 | `YTDLP_PROXY` | (vazio) | Proxy residencial, se o YouTube bloquear |
+| `YT_ENABLED` | (vazio) | `1` liga os links do YouTube. Sem isso o YouTube fica "em manutenção" (liga sozinho se houver cookies ou proxy) |
+| `DIAG_TOKEN` | (vazio) | Senha do diagnóstico `/api/diag/yt` (testa o YouTube no servidor) |
 | `CORS_ORIGINS` | `*` | Domínios que podem usar a API, se o site ficar em outro domínio |
 
 Se o site (`web/index.html`) for hospedado separado do servidor, adicione antes do `<script type="module">`:

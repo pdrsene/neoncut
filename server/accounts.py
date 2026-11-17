@@ -322,9 +322,15 @@ router = APIRouter()
 
 
 # ---------------------------------------------------------------- config pública
+# YouTube em manutenção: o IP do servidor é bloqueado pelo YouTube. Volta sozinho se configurar
+# cookies (YTDLP_COOKIES / YTDLP_COOKIES_TEXT) ou proxy (YTDLP_PROXY), ou com YT_ENABLED=1.
+YT_ENABLED = os.environ.get("YT_ENABLED", "") == "1" or bool(os.environ.get("YTDLP_COOKIES") or os.environ.get("YTDLP_COOKIES_TEXT") or os.environ.get("YTDLP_PROXY"))
+YT_MAINT_MSG = 'O YouTube está em manutenção no NEONCUT. Por enquanto use um link da Twitch ou da Kick, ou baixe o vídeo e envie pela aba "Enviar arquivo".'
+
+
 @router.get("/api/config")
 def public_config():
-    return {"brand": BRAND, "google": bool(GOOGLE_ID and GOOGLE_SECRET), "payments": bool(MP_TOKEN),
+    return {"brand": BRAND, "google": bool(GOOGLE_ID and GOOGLE_SECRET), "payments": bool(MP_TOKEN), "youtube": YT_ENABLED,
             "intro_months": INTRO_MONTHS, "hd_free_uses": HD_FREE_USES, "support_email": SUPPORT_EMAIL,
             "prices": {k: {"intro": v[0], "regular": v[1]} for k, v in PRICES.items()},
             "limits": {k: {"projects": v[0], "max_minutes": v[1], "live_minutes": v[2], **OPTIONS[k],

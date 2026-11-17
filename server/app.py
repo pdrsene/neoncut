@@ -88,7 +88,9 @@ def check_url(url: str) -> str:
         raise HTTPException(400, "Cole um link completo, começando com https://")
     p = platform_of(url)
     if not p and not ALLOW_ANY_URL:
-        raise HTTPException(400, "Por enquanto aceitamos links do YouTube, da Twitch e da Kick.")
+        raise HTTPException(400, "Por enquanto aceitamos links da Twitch e da Kick.")
+    if p == "youtube" and not accounts.YT_ENABLED:
+        raise HTTPException(400, accounts.YT_MAINT_MSG)
     return p or "outro"
 
 

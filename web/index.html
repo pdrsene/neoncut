@@ -503,6 +503,11 @@ select option:disabled{color:#6d5a8f}
 .capstat.hidden{display:none}
 .dotspin{width:10px;height:10px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
+/* YouTube em manutenção */
+.ytchip{display:inline-flex;align-items:center;gap:6px}.ytchip .ytm{display:none}
+.yt-off .ytchip{opacity:.75}.yt-off .ytchip .ytm{display:inline}
+.ytchip .ytm{font-style:normal;font-size:.82em;font-weight:700;color:#ffcf3c;background:rgba(255,207,60,.12);border:1px solid rgba(255,207,60,.3);border-radius:99px;padding:1px 7px;white-space:nowrap}
+.yt-off #ytSec{display:none!important}
 /* ================= BALÃO DE AVALIAÇÃO ================= */
 .fbb{position:fixed;left:18px;bottom:18px;z-index:60;width:min(340px,calc(100vw - 28px));background:linear-gradient(160deg,#241038,#150a24);border:1px solid rgba(255,61,139,.35);border-radius:20px;padding:16px 16px 14px;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset;transform:translateY(20px) scale(.96);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
 .fbb.in{transform:none;opacity:1}
@@ -668,7 +673,7 @@ select option:disabled{color:#6d5a8f}
 }
 </style>
 </head>
-<body>
+<body class="yt-off">
 <div class="wrap">
   <header class="nav">
     <a class="logo" href="#inicio" style="text-decoration:none;color:inherit">
@@ -692,19 +697,19 @@ select option:disabled{color:#6d5a8f}
     <section class="lp-hero">
       <div class="pill" style="display:inline-block;margin-bottom:18px">🌴 Pronto para o lançamento do GTA 6</div>
       <h1>Sua live vira <em>corte viral</em><br>em minutos</h1>
-      <p>Cole o link da live ou do VOD do YouTube, da Twitch ou da Kick. A IA encontra os momentos mais insanos, legenda o que vocês falaram e entrega cortes verticais prontos para TikTok, Reels e Shorts.</p>
+      <p>Cole o link da live ou do VOD da Twitch ou da Kick, ou envie o arquivo da sua gravação. A IA encontra os momentos mais insanos, legenda o que vocês falaram e entrega cortes verticais prontos para TikTok, Reels e Shorts.</p>
       <div class="row" style="justify-content:center;margin-top:26px">
         <button class="btn big" data-cta>⚡ Começar grátis</button>
         <a class="btn ghost big" href="#precos">Ver preços</a>
       </div>
       <p class="note" style="margin-top:14px">Sem cartão · Sem instalar nada · 3 vídeos grátis por mês</p>
-      <div class="plats lp-plats"><span>YouTube</span><span>Twitch</span><span>Kick</span><span>ou arquivo do PC</span></div>
+      <div class="plats lp-plats"><span>Twitch</span><span>Kick</span><span>ou arquivo do PC</span><span class="ytchip">YouTube<em class="ytm">🛠 em manutenção</em></span></div>
     </section>
 
     <section class="lp-sec" id="como">
       <h2 class="lp-h">Como funciona</h2>
       <div class="how">
-        <div><b>1. Cole o link</b><p>YouTube, Twitch, Kick ou o arquivo da sua gravação. Escolha o trecho, ou grave a live que está rolando agora.</p></div>
+        <div><b>1. Cole o link</b><p>Twitch, Kick ou o arquivo da sua gravação. Escolha o trecho, ou grave a live que está rolando agora.</p></div>
         <div><b>2. A IA corta</b><p>Ela mede gritos, tiros, explosões e movimento na tela, dá uma nota de viralização e legenda as falas palavra por palavra.</p></div>
         <div><b>3. Baixe e poste</b><p>Escolha um template, ajuste se quiser e baixe o vídeo vertical, com título, legenda e descrição com hashtags prontos.</p></div>
       </div>
@@ -751,12 +756,12 @@ select option:disabled{color:#6d5a8f}
       <h2 class="lp-h">Perguntas frequentes</h2>
       <div class="faq">
         <details><summary>Preciso instalar alguma coisa?</summary><p>Não. Tudo funciona no navegador. Recomendamos Chrome ou Edge no computador.</p></details>
-        <details><summary>Quais plataformas funcionam?</summary><p>Links do YouTube, da Twitch e da Kick (VODs, vídeos e lives ao vivo), ou qualquer arquivo de vídeo do seu computador.</p></details>
+        <details><summary>Quais plataformas funcionam?</summary><p>Links da Twitch e da Kick (VODs, vídeos e lives ao vivo), ou qualquer arquivo de vídeo do seu computador. Links do YouTube estão em manutenção por enquanto.</p></details>
         <details><summary>Funciona com qualquer jogo?</summary><p>Sim. A detecção usa o som e a imagem do vídeo, então funciona com GTA, FPS, corrida, react e até podcast. Os títulos sugeridos vêm no clima de GTA.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>Não. O corte, a legenda e a exportação acontecem no seu navegador. Vídeos baixados por link ficam no servidor só pelo tempo do processamento e são apagados em até 1 hora.</p></details>
         <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser. Nos 3 primeiros meses de cada plano você paga o preço promocional.</p></details>
         <details><summary>Qual a diferença entre Pro e Pro+?</summary><p>Os dois tiram a marca d'água e liberam todos os templates. O Grátis exporta só em 720p. O Pro tem 5 exportações em 1080p por mês e até 12 cortes de 60 segundos por vídeo. O Pro+ tem 1080p ilimitado, até 20 cortes de até 2 minutos por vídeo, legenda Precisa e vídeos e lives mais longos.</p></details>
-        <details><summary>O YouTube não funcionou, e agora?</summary><p>Às vezes o YouTube bloqueia downloads automáticos. Twitch e Kick funcionam normalmente. Para o YouTube, você também pode baixar o vídeo e usar a aba "Enviar arquivo".</p></details>
+        <details><summary>O YouTube não funcionou, e agora?</summary><p>Os links do YouTube estão em manutenção no momento. Enquanto isso, baixe o vídeo e envie pela aba "Enviar arquivo": o corte, a legenda e os templates funcionam igualzinho. Twitch e Kick funcionam normalmente por link.</p></details>
         <details><summary>Posso cortar vídeo de outros criadores?</summary><p>Use com o seu próprio conteúdo ou com autorização do criador. Você é responsável pelos direitos do que publica.</p></details>
       </div>
     </section>
@@ -779,8 +784,8 @@ select option:disabled{color:#6d5a8f}
   <section class="panel" id="upload">
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
     <div id="tabLink">
-      <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link do YouTube, da Twitch ou da Kick" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
-      <div class="plats" id="plats"><span data-p="youtube">YouTube</span><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span></div>
+      <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link da Twitch ou da Kick" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
+      <div class="plats" id="plats"><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span><span data-p="youtube" class="ytchip">YouTube<em class="ytm">🛠 em manutenção</em></span></div>
       <p class="note err hidden" id="linkErr" style="margin:12px 0 0"></p>
       <div class="linkinfo hidden" id="linkInfo">
         <img id="liThumb" alt="">
@@ -1218,7 +1223,7 @@ select option:disabled{color:#6d5a8f}
     <h2 style="text-align:center;font-size:28px;margin:0">Como usar o NEONCUT 📘</h2>
     <p class="sub" style="text-align:center;margin:0">Da live ao corte pronto em 4 passos.</p>
     <div class="tut">
-      <div class="tstep"><span class="tn">1</span><div><b>Traga o vídeo</b><p>Cole um link do YouTube, Twitch ou Kick, escolha uma live recomendada, ou envie um arquivo do seu PC. Para VODs longos, marque o trecho onde rolou a ação.</p></div></div>
+      <div class="tstep"><span class="tn">1</span><div><b>Traga o vídeo</b><p>Cole um link da Twitch ou da Kick, escolha uma live recomendada, ou envie um arquivo do seu PC. Para VODs longos, marque o trecho onde rolou a ação.</p></div></div>
       <div class="tstep"><span class="tn">2</span><div><b>Diga o foco</b><p>Em "O que procurar no vídeo?", escolha Viral, Ação, Humor, Podcast e etc. Isso muda como a IA procura os melhores momentos — quanto mais certo o foco, mais preciso o corte.</p></div></div>
       <div class="tstep"><span class="tn">3</span><div><b>Ajuste duração e estilo</b><p>Defina quantos cortes, a duração de cada um e um template. No plano Pro e Pro+ você solta a precisão fina e o 1080p.</p></div></div>
       <div class="tstep"><span class="tn">4</span><div><b>Gere, edite e baixe</b><p>A IA corta e legenda sozinha. Ajuste o que quiser no editor ou no 🎬 Estúdio (linha do tempo) e baixe pronto para TikTok, Reels e Shorts.</p></div></div>
@@ -2042,6 +2047,7 @@ $('#url').addEventListener('paste', () => setTimeout(() => $('#fetchInfo').click
 $('#fetchInfo').onclick = async () => {
   const url = $('#url').value.trim(); if (!url) return;
   if (!S.user) { openAuth('signup', () => $('#fetchInfo').click()); return; }
+  if (!S.cfg.youtube && /(^|\/\/|\.)(youtube\.com|youtu\.be)\//i.test(url)) { showLinkErr('O YouTube está em manutenção no NEONCUT. Por enquanto use um link da Twitch ou da Kick, ou baixe o vídeo e envie pela aba "Enviar arquivo".'); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
     const info = await api('/api/info', { url }); S.link = info;
@@ -2578,6 +2584,7 @@ function renderPrices() {
 
 async function loadConfig() {
   try { S.cfg = Object.assign(S.cfg, await api('/api/config')); } catch { }
+  document.body.classList.toggle('yt-off', !S.cfg.youtube);
   renderPrices();
   document.querySelectorAll('[data-support]').forEach(el => el.textContent = S.cfg.support_email || 'pelo e-mail de suporte do site');
   $('#gBtn').classList.toggle('hidden', !S.cfg.google); $('#gOr').classList.toggle('hidden', !S.cfg.google);
