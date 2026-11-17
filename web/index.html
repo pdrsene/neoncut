@@ -2635,7 +2635,7 @@ async function loadStreams(cat = streamCat) {
   document.querySelectorAll('[data-scat]').forEach(b => b.classList.toggle('on', b.dataset.scat === cat));
   if (!grid.children.length) grid.innerHTML = Array.from({ length: 4 }, () => '<div class="scard sskel"><div class="th"></div></div>').join('');
   let r; try { r = await api('/api/streams?cat=' + cat); } catch { r = { enabled: false }; }
-  if (!r.enabled) { sec.classList.add('hidden'); return; }
+  if (!r.enabled || S.demo) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
   if (!r.streams.length) { grid.innerHTML = `<p class="note">${esc(r.error || 'Nenhuma live de GTA em português agora. Volte daqui a pouco.')}</p>`; return; }
   if (r.note) toast(r.note, 3500);
