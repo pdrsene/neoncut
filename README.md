@@ -65,9 +65,12 @@ Sem isso, as contas e os pagamentos são apagados a cada deploy.
 | `SUPPORT_EMAIL` | `suporte@seudominio.com` | Aparece nos termos e na privacidade |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | | Ativam o botão "Continuar com Google" |
 | `BASE_URL` | `https://neoncut.up.railway.app` | Endereço público do site (use se tiver domínio próprio) |
-| `PRICE_MONTH` / `PRICE_YEAR` | `29.90` / `239` | Preços do Pro |
-| `FREE_PROJECTS` / `PRO_PROJECTS` | `3` / `100` | Vídeos por mês em cada plano |
-| `FREE_MAX_MINUTES` / `PRO_MAX_MINUTES` | `30` / `90` | Tamanho máximo de cada vídeo |
+| `PRO_INTRO_PRICE` / `PRO_PRICE` | `19.90` / `29.90` | Pro: preço promocional e preço normal |
+| `PROPLUS_INTRO_PRICE` / `PROPLUS_PRICE` | `39.90` / `49.90` | Pro+: preço promocional e preço normal |
+| `INTRO_MONTHS` | `3` | Quantos meses pagos têm o preço promocional |
+| `HD_FREE_USES` | `5` | Exportações em 1080p por mês no Grátis e no Pro (Pro+ é ilimitado) |
+| `FREE_PROJECTS` / `PRO_PROJECTS` / `PROPLUS_PROJECTS` | `3` / `100` / `250` | Vídeos por mês |
+| `FREE_MAX_MINUTES` / `PRO_MAX_MINUTES` / `PROPLUS_MAX_MINUTES` | `30` / `90` / `120` | Tamanho máximo de cada vídeo |
 
 ### 3. Login com Google (opcional)
 1. console.cloud.google.com → crie um projeto → **APIs e serviços → Tela de consentimento OAuth** (tipo Externo, preencha nome e e-mail).
@@ -76,6 +79,6 @@ Sem isso, as contas e os pagamentos são apagados a cada deploy.
 4. Copie o ID e a chave secreta para `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.
 
 ### 4. Mercado Pago
-O Pro é vendido como pagamento único (PIX ou cartão) que libera 30 ou 365 dias. O site confirma o pagamento sozinho
+Pro e Pro+ são vendidos como pagamento único (PIX ou cartão) que libera 30 dias. Os 3 primeiros meses pagos de cada plano saem com o preço promocional. O site confirma o pagamento sozinho
 pelo retorno do checkout e pelo webhook `https://SEU-SITE/api/billing/webhook` (configurado automaticamente em cada compra).
 Para dar ou tirar Pro manualmente, use o painel de administração em **Minha conta**.

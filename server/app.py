@@ -39,8 +39,8 @@ WEB_DIR = ROOT / "web"
 DATA = Path(os.environ.get("DATA_DIR", "/tmp/neoncut"))
 DATA.mkdir(parents=True, exist_ok=True)
 
-MAX_MINUTES = float(os.environ.get("MAX_MINUTES", "90"))        # tamanho máximo de um trecho
-MAX_LIVE_MINUTES = float(os.environ.get("MAX_LIVE_MINUTES", "30"))  # teto técnico; o plano de cada pessoa define o limite real
+MAX_MINUTES = float(os.environ.get("MAX_MINUTES", "120"))        # tamanho máximo de um trecho
+MAX_LIVE_MINUTES = float(os.environ.get("MAX_LIVE_MINUTES", "60"))  # teto técnico; o plano de cada pessoa define o limite real
 MAX_PARALLEL = int(os.environ.get("MAX_PARALLEL", "2"))          # downloads simultâneos
 JOBS_PER_HOUR = int(os.environ.get("JOBS_PER_HOUR", "20"))        # por IP
 FILE_TTL = int(os.environ.get("FILE_TTL", "3600"))               # apaga arquivos depois de 1h
@@ -66,11 +66,6 @@ PLATFORMS = {
     "youtube": ("youtube.com", "youtu.be", "youtube-nocookie.com"),
     "twitch": ("twitch.tv",),
     "kick": ("kick.com",),
-    "tiktok": ("tiktok.com",),
-    "instagram": ("instagram.com",),
-    "x": ("twitter.com", "x.com"),
-    "facebook": ("facebook.com", "fb.watch"),
-    "vimeo": ("vimeo.com",),
 }
 
 
@@ -88,7 +83,7 @@ def check_url(url: str) -> str:
         raise HTTPException(400, "Cole um link completo, começando com https://")
     p = platform_of(url)
     if not p and not ALLOW_ANY_URL:
-        raise HTTPException(400, "Plataforma não suportada. Use YouTube, Twitch, Kick, TikTok, Instagram, X, Facebook ou Vimeo.")
+        raise HTTPException(400, "Por enquanto aceitamos links do YouTube, da Twitch e da Kick.")
     return p or "outro"
 
 

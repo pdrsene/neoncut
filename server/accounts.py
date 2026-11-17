@@ -29,14 +29,24 @@ DB_DIR = Path(os.environ.get("DB_DIR", "/data" if Path("/data").is_dir() else "/
 DB_DIR.mkdir(parents=True, exist_ok=True)
 DB_PATH = DB_DIR / "neoncut.db"
 
-PRICE_MONTH = float(os.environ.get("PRICE_MONTH", "29.90"))
-PRICE_YEAR = float(os.environ.get("PRICE_YEAR", "239.00"))
-FREE_PROJECTS = int(os.environ.get("FREE_PROJECTS", "3"))       # vídeos por mês no grátis
-PRO_PROJECTS = int(os.environ.get("PRO_PROJECTS", "100"))       # vídeos por mês no Pro
-FREE_MAX_MIN = float(os.environ.get("FREE_MAX_MINUTES", "30"))  # trecho máximo por vídeo
-PRO_MAX_MIN = float(os.environ.get("PRO_MAX_MINUTES", "90"))
-FREE_LIVE_MIN = float(os.environ.get("FREE_LIVE_MINUTES", "10"))
-PRO_LIVE_MIN = float(os.environ.get("PRO_LIVE_MINUTES", "30"))
+def _f(name, default):
+    return float(os.environ.get(name, default))
+
+
+INTRO_MONTHS = int(os.environ.get("INTRO_MONTHS", "3"))          # meses com preço promocional
+# preço promocional (primeiros meses) e preço normal de cada plano
+PRICES = {
+    "pro": (_f("PRO_INTRO_PRICE", "19.90"), _f("PRO_PRICE", "29.90")),
+    "proplus": (_f("PROPLUS_INTRO_PRICE", "39.90"), _f("PROPLUS_PRICE", "49.90")),
+}
+HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "5"))         # exportações 1080p/mês no Grátis e no Pro
+# limites de cada plano: vídeos/mês, minutos por vídeo, minutos de live
+LIMITS = {
+    "free": (int(os.environ.get("FREE_PROJECTS", "3")), _f("FREE_MAX_MINUTES", "30"), _f("FREE_LIVE_MINUTES", "10")),
+    "pro": (int(os.environ.get("PRO_PROJECTS", "100")), _f("PRO_MAX_MINUTES", "90"), _f("PRO_LIVE_MINUTES", "30")),
+    "proplus": (int(os.environ.get("PROPLUS_PROJECTS", "250")), _f("PROPLUS_MAX_MINUTES", "120"), _f("PROPLUS_LIVE_MINUTES", "60")),
+}
+PLAN_NAMES = {"free": "Grátis", "pro": "Pro", "proplus": "Pro+"}
 
 MP_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "").strip()
 MP_API = os.environ.get("MP_API_BASE", "https://api.mercadopago.com").rstrip("/")
@@ -103,7 +113,13 @@ def init_db():
     CREATE TABLE IF NOT EXISTS payments(
       id TEXT PRIMARY KEY, user_id INTEGER, plan TEXT, amount REAL, status TEXT, created REAL
     );
+    CREATE TABLE IF NOT EXISTS hd_uses(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, created REAL NOT NULL
+    );
     """)
+    cols = [r[1] for r in db().execute("PRAGMA table_info(users)").fetchall()]
+    if "plan" not in cols:
+        db().execute("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'pro'")
 
 
 init_db()
@@ -162,24 +178,52 @@ def month_start() -> float:
     return time.mktime((t.tm_year, t.tm_mon, 1, 0, 0, 0, 0, 0, -1))
 
 
+def plan_of(u) -> str:
+    if u["email"].lower() in ADMINS:
+        return "proplus"
+    if (u["pro_until"] or 0) > time.time():
+        return u["plan"] if u["plan"] in ("pro", "proplus") else "pro"
+    return "free"
+
+
 def is_pro(u) -> bool:
-    return (u["pro_until"] or 0) > time.time() or u["email"].lower() in ADMINS
+    return plan_of(u) != "free"
+
+
+def paid_months(uid: int, plan: str) -> int:
+    return db().execute("SELECT COUNT(*) FROM payments WHERE user_id=? AND plan=? AND status='approved'",
+                        (uid, plan)).fetchone()[0]
+
+
+def price_for(uid: int, plan: str) -> float:
+    intro, regular = PRICES[plan]
+    return intro if paid_months(uid, plan) < INTRO_MONTHS else regular
+
+
+def hd_used(uid: int) -> int:
+    return db().execute("SELECT COUNT(*) FROM hd_uses WHERE user_id=? AND created>=?", (uid, month_start())).fetchone()[0]
 
 
 def plan_info(u) -> dict:
-    pro = is_pro(u)
+    plan = plan_of(u)
     used = db().execute("SELECT COUNT(*) FROM projects WHERE user_id=? AND created>=? AND charged=1",
                         (u["id"], month_start())).fetchone()[0]
+    limit, max_min, live_min = LIMITS[plan]
     return {
-        "plan": "pro" if pro else "free",
+        "plan": plan,
+        "plan_name": PLAN_NAMES[plan],
         "pro_until": u["pro_until"] or 0,
         "used": used,
-        "limit": PRO_PROJECTS if pro else FREE_PROJECTS,
-        "max_minutes": PRO_MAX_MIN if pro else FREE_MAX_MIN,
-        "max_live_minutes": PRO_LIVE_MIN if pro else FREE_LIVE_MIN,
-        "watermark": not pro,
-        "quality": 1080 if pro else 720,
-        "all_templates": pro,
+        "limit": limit,
+        "max_minutes": max_min,
+        "max_live_minutes": live_min,
+        "watermark": plan == "free",
+        "hd_unlimited": plan == "proplus",
+        "hd_left": None if plan == "proplus" else max(0, HD_FREE_USES - hd_used(u["id"])),
+        "hd_total": HD_FREE_USES,
+        "all_templates": plan != "free",
+        "next_price": {"pro": price_for(u["id"], "pro"), "proplus": price_for(u["id"], "proplus")},
+        "intro_left": {k: max(0, INTRO_MONTHS - paid_months(u["id"], k)) for k in PRICES},
     }
 
 
@@ -238,6 +282,8 @@ def http_json(url: str, method: str = "GET", data: dict | None = None, headers: 
         except Exception:
             detail = {"message": str(e)}
         raise HTTPException(502, f"Serviço externo respondeu erro: {detail.get('message') or detail}")
+    except (urllib.error.URLError, TimeoutError, OSError):
+        raise HTTPException(502, "Não consegui falar com o serviço externo agora. Tente de novo em instantes.")
 
 
 router = APIRouter()
@@ -247,9 +293,9 @@ router = APIRouter()
 @router.get("/api/config")
 def public_config():
     return {"brand": BRAND, "google": bool(GOOGLE_ID and GOOGLE_SECRET), "payments": bool(MP_TOKEN),
-            "price_month": PRICE_MONTH, "price_year": PRICE_YEAR, "free_projects": FREE_PROJECTS,
-            "pro_projects": PRO_PROJECTS, "free_max_minutes": FREE_MAX_MIN, "pro_max_minutes": PRO_MAX_MIN,
-            "support_email": SUPPORT_EMAIL}
+            "intro_months": INTRO_MONTHS, "hd_free_uses": HD_FREE_USES, "support_email": SUPPORT_EMAIL,
+            "prices": {k: {"intro": v[0], "regular": v[1]} for k, v in PRICES.items()},
+            "limits": {k: {"projects": v[0], "max_minutes": v[1], "live_minutes": v[2]} for k, v in LIMITS.items()}}
 
 
 # ---------------------------------------------------------------- auth
@@ -399,11 +445,10 @@ def start_project(body: ProjectReq, req: Request):
     limit_min = p["max_live_minutes"] if body.kind == "live" else p["max_minutes"]
     if body.minutes > limit_min + 0.5:
         raise HTTPException(402, f"No seu plano o limite é {int(limit_min)} minutos por vídeo. "
-                                 + ("Escolha um trecho menor." if p["plan"] == "pro" else "Assine o Pro para até "
-                                    f"{int(PRO_LIVE_MIN if body.kind == 'live' else PRO_MAX_MIN)} minutos."))
+                                 + ("Escolha um trecho menor." if p["plan"] == "proplus" else "Faça upgrade para vídeos maiores."))
     if p["used"] >= p["limit"]:
         raise HTTPException(402, f"Você usou os {p['limit']} vídeos do mês no plano "
-                                 + ("Pro. A cota renova no dia 1." if p["plan"] == "pro" else "grátis. Assine o Pro para continuar."))
+                                 + (p["plan_name"] + ". A cota renova no dia 1." + (" No Pro+ são mais vídeos por mês." if p["plan"] == "pro" else "") if p["plan"] != "free" else "Grátis. Assine o Pro para continuar."))
     pid = db().execute("INSERT INTO projects(user_id,created,source,kind,title,duration) VALUES(?,?,?,?,?,?)",
                        (u["id"], time.time(), body.source[:500], body.kind, body.title[:200], body.minutes * 60)).lastrowid
     return {"id": pid, "plan": plan_info(u), "charged": True}
@@ -450,28 +495,43 @@ def delete_project(pid: int, req: Request):
     return {"ok": True}
 
 
+# ---------------------------------------------------------------- 1080p
+@router.post("/api/usage/hd")
+def use_hd(req: Request):
+    """Gasta 1 exportação em 1080p (ilimitado no Pro+)."""
+    u = current_user(req)
+    p = plan_info(u)
+    if p["hd_unlimited"]:
+        return {"ok": True, "hd_left": None}
+    if p["hd_left"] <= 0:
+        raise HTTPException(402, f"Você já usou as {HD_FREE_USES} exportações em 1080p deste mês. "
+                                 "No Pro+ o 1080p é ilimitado.")
+    db().execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
+    return {"ok": True, "hd_left": p["hd_left"] - 1}
+
+
 # ---------------------------------------------------------------- pagamento (Mercado Pago)
-PLANS = {"month": ("Pro mensal (30 dias)", lambda: PRICE_MONTH, 30), "year": ("Pro anual (365 dias)", lambda: PRICE_YEAR, 365)}
+PLAN_DAYS = 30
 
 
 class CheckoutReq(BaseModel):
-    plan: str = "month"
+    plan: str = "pro"
 
 
 @router.post("/api/billing/checkout")
 def checkout(body: CheckoutReq, req: Request):
     u = current_user(req)
-    if body.plan not in PLANS:
+    if body.plan not in PRICES:
         raise HTTPException(400, "Plano inválido.")
     if not MP_TOKEN:
         raise HTTPException(503, "Pagamentos ainda não foram ativados neste site.")
-    title, price, _ = PLANS[body.plan]
+    price = price_for(u["id"], body.plan)
     base = base_url(req)
     pref = http_json(MP_API + "/checkout/preferences", "POST", {
-        "items": [{"id": f"pro-{body.plan}", "title": f"{BRAND} {title}", "quantity": 1,
-                   "unit_price": round(price(), 2), "currency_id": "BRL"}],
+        "items": [{"id": body.plan, "title": f"{BRAND} {PLAN_NAMES[body.plan]} (30 dias)", "quantity": 1,
+                   "unit_price": round(price, 2), "currency_id": "BRL"}],
         "payer": {"email": u["email"]},
-        "external_reference": f"{u['id']}:{body.plan}",
+        "external_reference": f"{u['id']}:{body.plan}:{int(round(price * 100))}",
         "back_urls": {"success": base + "/api/billing/return", "pending": base + "/api/billing/return",
                       "failure": base + "/api/billing/return"},
         "auto_return": "approved",
@@ -490,11 +550,14 @@ def apply_payment(payment_id: str) -> str:
     status = p.get("status", "")
     ref = p.get("external_reference") or ""
     try:
-        uid, plan = ref.split(":")
-        uid = int(uid)
-    except ValueError:
+        parts = ref.split(":")
+        uid, plan = int(parts[0]), parts[1]
+        expected = int(parts[2]) / 100 if len(parts) > 2 else None
+    except (ValueError, IndexError):
         return "invalid"
-    if plan not in PLANS:
+    if plan in ("month", "year"):  # compras feitas na versão antiga
+        plan = "pro"
+    if plan not in PRICES:
         return "invalid"
     exists = db().execute("SELECT status FROM payments WHERE id=?", (str(payment_id),)).fetchone()
     if exists and exists["status"] == "approved":
@@ -502,13 +565,13 @@ def apply_payment(payment_id: str) -> str:
     db().execute("INSERT OR REPLACE INTO payments(id,user_id,plan,amount,status,created) VALUES(?,?,?,?,?,?)",
                  (str(payment_id), uid, plan, p.get("transaction_amount") or 0, status, time.time()))
     if status == "approved":
-        expected = round(PLANS[plan][1](), 2)
-        if float(p.get("transaction_amount") or 0) + 0.01 < expected:
+        floor = expected if expected is not None else min(PRICES[plan])
+        if float(p.get("transaction_amount") or 0) + 0.01 < min(floor, max(PRICES[plan])):
             return "amount_mismatch"
         u = db().execute("SELECT pro_until FROM users WHERE id=?", (uid,)).fetchone()
         if u:
             start = max(time.time(), u["pro_until"] or 0)
-            db().execute("UPDATE users SET pro_until=? WHERE id=?", (start + PLANS[plan][2] * 86400, uid))
+            db().execute("UPDATE users SET pro_until=?, plan=? WHERE id=?", (start + PLAN_DAYS * 86400, plan, uid))
     return status
 
 
@@ -556,17 +619,19 @@ def admin_stats(req: Request):
     users = db().execute("SELECT * FROM users ORDER BY created DESC LIMIT 200").fetchall()
     return {
         "users": q("SELECT COUNT(*) FROM users"),
-        "pro": q("SELECT COUNT(*) FROM users WHERE pro_until>?", now),
+        "pro": q("SELECT COUNT(*) FROM users WHERE pro_until>? AND COALESCE(plan,'pro')='pro'", now),
+        "proplus": q("SELECT COUNT(*) FROM users WHERE pro_until>? AND plan='proplus'", now),
         "projects_month": q("SELECT COUNT(*) FROM projects WHERE created>=?", month_start()),
         "revenue_month": q("SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='approved' AND created>=?", month_start()),
         "list": [{"email": u["email"], "name": u["name"], "created": u["created"], "pro_until": u["pro_until"],
-                  "last_seen": u["last_seen"]} for u in users],
+                  "plan": u["plan"], "last_seen": u["last_seen"]} for u in users],
     }
 
 
 class GrantReq(BaseModel):
     email: str
     days: int
+    plan: str = "pro"
 
 
 @router.post("/api/admin/grant")
@@ -578,6 +643,7 @@ def admin_grant(body: GrantReq, req: Request):
     if body.days <= 0:
         db().execute("UPDATE users SET pro_until=0 WHERE id=?", (u["id"],))
     else:
+        plan = body.plan if body.plan in PRICES else "pro"
         start = max(time.time(), u["pro_until"] or 0)
-        db().execute("UPDATE users SET pro_until=? WHERE id=?", (start + body.days * 86400, u["id"]))
+        db().execute("UPDATE users SET pro_until=?, plan=? WHERE id=?", (start + body.days * 86400, plan, u["id"]))
     return {"ok": True}
