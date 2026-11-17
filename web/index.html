@@ -401,6 +401,36 @@ select option:disabled{color:#6d5a8f}
 .tk .mg{color:var(--muted);white-space:pre-wrap;line-height:1.5}
 .tk .act{display:flex;gap:8px;align-items:center;margin-top:2px}
 .tklist{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow:auto;margin-top:8px}
+
+.secq{margin:22px 0 4px;display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px}
+.secq i{font-style:normal}
+.secq .cnt{margin-left:auto;font-weight:700;font-size:13px;color:var(--teal)}
+.ftabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ftabs button{background:#140a26;border:1px solid var(--line);color:var(--muted);border-radius:12px;padding:11px 16px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;transition:.18s}
+.ftabs button i{font-style:normal;font-size:16px}
+.ftabs button:hover{color:var(--text);border-color:#5a3d8a}
+.ftabs button.on{color:var(--text);border-color:var(--violet);background:rgba(139,92,255,.14);box-shadow:0 0 0 1px var(--violet) inset}
+.fhint{color:var(--muted);font-size:13px;margin-top:8px}
+.durtabs{display:flex;gap:0;margin-top:12px;background:#140a26;border:1px solid var(--line);border-radius:12px;padding:5px;flex-wrap:wrap}
+.durtabs button{flex:1;min-width:92px;background:transparent;border:0;color:var(--muted);border-radius:9px;padding:11px 8px;font-weight:700;font-size:14px;transition:.18s}
+.durtabs button:hover{color:var(--text)}
+.durtabs button.on{background:#2a1640;color:var(--text)}
+.durtabs button .lk{font-size:11px;color:var(--yellow)}
+.settings.compact{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.stylehead{display:flex;align-items:center;gap:8px;margin:24px 0 2px;font-weight:800;font-size:15px}
+.stylehead .all{margin-left:auto;font-size:13px;color:var(--teal);cursor:pointer;font-weight:600}
+
+.prec{background:rgba(28,15,51,.5);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:8px}
+@media (max-width:640px){.prec{grid-template-columns:1fr}}
+.prec label.f input[type=range]{width:100%}
+.rangelbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.precchecks{display:flex;flex-direction:column;gap:10px;justify-content:center}
+.tut{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0}
+@media (max-width:640px){.tut{grid-template-columns:1fr}}
+.tstep{display:flex;gap:12px;background:#120824;border:1px solid var(--line);border-radius:14px;padding:14px}
+.tstep .tn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--sunset);color:#1a0629;font-weight:900;display:grid;place-items:center}
+.tstep b{display:block;margin-bottom:4px}
+.tstep p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -533,8 +563,28 @@ select option:disabled{color:#6d5a8f}
       <div class="filechip" id="chip"></div>
     </div>
     </div>
-    <div class="settings">
-      <label class="f">Duração de cada corte
+    <div class="secq"><i>🎯</i> O que procurar no vídeo?</div>
+    <div class="ftabs" id="focusTabs">
+      <button type="button" data-focus="viral" class="on"><i>⚡</i>Viral</button>
+      <button type="button" data-focus="humor"><i>😂</i>Humor</button>
+      <button type="button" data-focus="podcast"><i>🎙️</i>Podcast</button>
+      <button type="button" data-focus="dicas"><i>💡</i>Dicas</button>
+      <button type="button" data-focus="acao"><i>🔥</i>Ação</button>
+      <button type="button" data-focus="polemica"><i>🗯️</i>Polêmicas</button>
+    </div>
+    <div class="fhint" id="focusHint">Ganchos curtos e virais — picos de emoção, reações e viradas.</div>
+
+    <div class="secq"><i>⏱️</i> Duração de cada corte<span class="cnt" id="durEst"></span></div>
+    <div class="durtabs" id="durTabs">
+      <button type="button" data-dur="30">15 a 30 s</button>
+      <button type="button" data-dur="60" class="on">30 a 60 s</button>
+      <button type="button" data-dur="90">1 a 1,5 min</button>
+      <button type="button" data-dur="120">1,5 a 2 min</button>
+      <button type="button" data-dur="custom">Personalizar</button>
+    </div>
+
+    <div class="settings compact" id="moreSettings">
+      <label class="f" id="durCustomWrap" style="display:none">Duração exata
         <select id="optDur"><option value="15">15 segundos</option><option value="30" selected>30 segundos</option><option value="45">45 segundos</option><option value="60">60 segundos</option><option value="90">90 segundos</option><option value="120">2 minutos</option></select>
       </label>
       <label class="f">Quantos cortes
@@ -552,15 +602,30 @@ select option:disabled{color:#6d5a8f}
         <select id="optLang"><option value="portuguese" selected>Português</option><option value="english">Inglês</option><option value="spanish">Espanhol</option></select>
       </label>
     </div>
-    <div style="margin-top:20px">
-      <div style="font-size:13px;color:var(--muted);font-weight:600">Template dos cortes <span class="note" style="font-weight:400">(dá para trocar depois em cada corte)</span></div>
-      <div class="tplpick" id="tplPick"></div>
-      <input type="hidden" id="optTpl" value="stream">
+
+
+    <div class="secq"><i>🎯</i> Precisão do corte<span class="cnt" id="precHint">Ajuste fino de como a IA escolhe</span></div>
+    <div class="prec" id="precBox">
+      <label class="f">Sensibilidade
+        <input type="range" id="optSens" min="1" max="5" value="3">
+        <span class="rangelbl"><span>Só os melhores</span><span>Mais cortes</span></span>
+      </label>
+      <div class="precchecks">
+        <label class="check"><input type="checkbox" id="optVoice"> Priorizar momentos com fala</label>
+        <label class="check"><input type="checkbox" id="optSilence" checked> Cortar nas pausas (não corta no meio da frase)</label>
+      </div>
     </div>
+
+    <div class="stylehead"><i>🎨</i> Estilo da legenda e visual<span class="all" id="moreTplToggle"></span></div>
+    <div class="tplpick" id="tplPick"></div>
+    <input type="hidden" id="optTpl" value="stream">
+    <p class="note" style="margin:8px 0 0">Dá para trocar e ajustar cada corte depois, no editor.</p>
+
     <div class="row" style="margin-top:22px">
-      <label class="check"><input type="checkbox" id="optVisual" checked> Analisar a imagem também (explosões, perseguições)</label>
+      <label class="check"><input type="checkbox" id="optVisual" checked> Analisar a imagem também (ação, movimento na tela)</label>
+      <label class="check"><input type="checkbox" id="optHook"> Começar um pouco antes (gancho de abertura)</label>
       <div class="spacer"></div>
-      <button class="btn" id="go" disabled>⚡ Gerar cortes</button>
+      <button class="btn big" id="go" disabled>⚡ Gerar cortes</button>
     </div>
   </section>
 
@@ -817,6 +882,26 @@ select option:disabled{color:#6d5a8f}
   </div>
 </div>
 
+
+<!-- TUTORIAL -->
+<div class="modal hidden" id="tutModal">
+  <div class="mbox wide">
+    <button class="x" data-close>✕</button>
+    <h2 style="text-align:center;font-size:28px;margin:0">Como usar o NEONCUT 📘</h2>
+    <p class="sub" style="text-align:center;margin:0">Da live ao corte pronto em 4 passos.</p>
+    <div class="tut">
+      <div class="tstep"><span class="tn">1</span><div><b>Traga o vídeo</b><p>Cole um link do YouTube, Twitch ou Kick, escolha uma live recomendada, ou envie um arquivo do seu PC. Para VODs longos, marque o trecho onde rolou a ação.</p></div></div>
+      <div class="tstep"><span class="tn">2</span><div><b>Diga o foco</b><p>Em "O que procurar no vídeo?", escolha Viral, Ação, Humor, Podcast e etc. Isso muda como a IA procura os melhores momentos — quanto mais certo o foco, mais preciso o corte.</p></div></div>
+      <div class="tstep"><span class="tn">3</span><div><b>Ajuste duração e estilo</b><p>Defina quantos cortes, a duração de cada um e um template. No plano Pro e Pro+ você solta a precisão fina e o 1080p.</p></div></div>
+      <div class="tstep"><span class="tn">4</span><div><b>Gere, edite e baixe</b><p>A IA corta e legenda sozinha. Ajuste o que quiser no editor ou no 🎬 Estúdio (linha do tempo) e baixe pronto para TikTok, Reels e Shorts.</p></div></div>
+    </div>
+    <div class="row" style="justify-content:center;gap:12px">
+      <button class="btn" data-cta>⚡ Criar meu primeiro corte</button>
+      <a class="btn ghost" href="#faq" data-close>Ver dúvidas frequentes</a>
+    </div>
+  </div>
+</div>
+
 <!-- LOGIN -->
 <div class="modal hidden" id="authModal">
   <div class="mbox">
@@ -1001,7 +1086,8 @@ function movAvg(x, w) {
   return o;
 }
 
-function findMoments(F, V, dur, D, N) {
+function findMoments(F, V, dur, D, N, focus, opts) {
+  opts = opts || {}; const sens = clamp(opts.sens || 3, 1, 5), sf = .6 + sens * .16;  // 0.76..1.4
   const n = F ? F.loud.length : Math.floor(dur / HOP);
   const Z = {};
   if (F) for (const k of ['loud', 'voice', 'low', 'flux']) Z[k] = robustZ(F[k]);
@@ -1010,7 +1096,17 @@ function findMoments(F, V, dur, D, N) {
     for (let i = 0; i < n; i++) { const t = i * HOP, k = Math.min(V.vals.length - 1, Math.floor(t / V.step)); m[i] = V.vals[k].m; }
     Z.motion = robustZ(m);
   }
-  const wts = F ? (Z.motion ? { loud: .28, voice: .27, flux: .18, low: .09, motion: .18 } : { loud: .34, voice: .32, flux: .22, low: .12 }) : { motion: 1 };
+  const FOCUS_W = {
+    viral:    { loud: .26, voice: .26, flux: .2, low: .1, motion: .18 },
+    humor:    { loud: .18, voice: .42, flux: .28, low: .04, motion: .08 },
+    podcast:  { loud: .16, voice: .54, flux: .18, low: .04, motion: .08 },
+    dicas:    { loud: .2, voice: .48, flux: .18, low: .05, motion: .09 },
+    acao:     { loud: .3, voice: .14, flux: .2, low: .14, motion: .22 },
+    polemica: { loud: .3, voice: .34, flux: .26, low: .05, motion: .05 },
+  };
+  let wts;
+  if (!F) wts = { motion: 1 };
+  else { wts = Object.assign({}, FOCUS_W[focus] || FOCUS_W.viral); if (opts.boostVoice && wts.voice != null) wts.voice *= 1.8; if (!Z.motion) { const mv = wts.motion || 0; delete wts.motion; for (const k in wts) wts[k] *= (1 + mv); } }
   const ex = new Float32Array(n);
   for (const k in wts) if (Z[k]) for (let i = 0; i < n; i++) ex[i] += wts[k] * Z[k][i];
   const s1 = movAvg(ex, 4);
@@ -1019,12 +1115,12 @@ function findMoments(F, V, dur, D, N) {
   const raw = new Float32Array(n), stArr = new Int32Array(n);
   for (let i = 0; i < n; i++) {
     let st = clamp(i - Math.round(.62 * Dw), 0, Math.max(0, n - Dw)), en = Math.min(n, st + Dw);
-    stArr[i] = st; raw[i] = .55 * s1[i] + .45 * (P[en] - P[st]) / Math.max(1, en - st);
+    stArr[i] = st; const a = clamp(.4 + sens * .07, .35, .78); raw[i] = a * s1[i] + (1 - a) * (P[en] - P[st]) / Math.max(1, en - st);
   }
   const sortedRaw = Array.from(raw).sort((a, b) => a - b);
   const pct = v => { let lo = 0, hi = sortedRaw.length; while (lo < hi) { const m = (lo + hi) >> 1; if (sortedRaw[m] < v) lo = m + 1; else hi = m; } return lo / Math.max(1, sortedRaw.length - 1); };
   const order = Array.from({ length: n }, (_, i) => i).sort((a, b) => raw[b] - raw[a]);
-  const chosen = [], gap = Math.round(2 / HOP);
+  const chosen = [], gap = Math.max(1, Math.round((3.4 - sens * .5) / HOP));
   for (const i of order) {
     if (chosen.length >= N) break;
     const st = stArr[i], en = Math.min(n, st + Dw);
@@ -1034,8 +1130,9 @@ function findMoments(F, V, dur, D, N) {
   // borda do corte em momentos de silêncio de voz (não corta no meio da frase)
   const quiet = (i, r) => { if (!F) return i; let best = i, bv = 1e9; for (let j = Math.max(0, i - r); j <= Math.min(n - 1, i + r); j++) if (F.voice[j] < bv) { bv = F.voice[j]; best = j; } return best; };
   const r = Math.round(2 / HOP);
+  const snap = opts.snapSilence !== false;
   return chosen.map((c, k) => {
-    let a = quiet(c.st, r), b = quiet(Math.min(n - 1, c.en), r);
+    let a = snap ? quiet(c.st, r) : c.st, b = snap ? quiet(Math.min(n - 1, c.en), r) : Math.min(n - 1, c.en);
     if (b - a < Dw * .75) b = Math.min(n, a + Dw);
     const mean = key => { if (!Z[key]) return 0; let s = 0; for (let j = a; j < b; j++) s += Z[key][j]; return s / Math.max(1, b - a); };
     const mv = mean('voice'), mf = mean('flux') + .5 * mean('low'), mm = mean('motion');
@@ -1043,6 +1140,7 @@ function findMoments(F, V, dur, D, N) {
     if (mv > Math.max(mf, mm) + .25 && mv > .4) cat = 'reacao';
     else if (mf >= mm && mf > .35) cat = 'tiroteio';
     else if (mm > .35) cat = 'perseguicao';
+    if ((focus === 'podcast' || focus === 'dicas' || focus === 'humor' || focus === 'polemica') && mv > .2) cat = 'reacao';
     return {
       idx: k, start: a * HOP, end: Math.min(dur, b * HOP), peakT: c.peak * HOP,
       score: Math.round(55 + 44 * pct(c.raw)), cat, words: [], quote: null, transcribed: false,
@@ -1497,7 +1595,7 @@ $('#go').onclick = async () => {
   try { await startProject(); }
   catch (e) { go.disabled = false; if (e.status === 402) openUpgrade(e.message); else if (e.status !== 401) { if (S.mode === 'link') showLinkErr(e.message); else toast(e.message, 5000); } return; }
   go.disabled = false;
-  S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked };
+  S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: $('#optSilence') ? $('#optSilence').checked : true };
   const skip = []; if (S.mode !== 'link') skip.push(0, 1); if (!S.settings.visual) skip.push(4); if (S.settings.model === 'none') skip.push(6, 7);
   $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
   try { await pipelineRun(skip); }
@@ -1523,9 +1621,10 @@ async function pipelineRun(skip) {
   // 4) momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
-  S.clips = findMoments(S.feats, V, S.duration, D, S.settings.N);
+  S.clips = findMoments(S.feats, V, S.duration, D, S.settings.N, S.settings.focus, { sens: S.settings.sens, boostVoice: S.settings.boostVoice, snapSilence: S.settings.snapSilence });
   const kit = brandKit();
   S.clips.forEach(c => Object.assign(c, { tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
+  if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
   step(5, 'done');
   // 5) legendas
   let capErr = null;
@@ -1774,14 +1873,14 @@ function setUser(u) {
   if (u) S.plan = Object.assign({}, u);
   else S.plan = { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
-  renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick(); renderOpts();
+  renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick(); renderOpts(); if (typeof renderDurTabs === 'function') renderDurTabs();
 }
 function renderNav() {
   const u = S.user, h = location.hash || '';
   const L = (href, txt) => `<a href="${href}" class="${h === href ? 'on' : ''}">${txt}</a>`;
   $('#navLinks').innerHTML = u
-    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#precos', 'Planos')
-    : L('#como', 'Como funciona') + L('#precos', 'Preços') + L('#faq', 'Dúvidas');
+    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#estudio', '🎬 Estúdio') + L('#precos', 'Planos') + `<a href="#" data-tutorial>📘 Tutorial</a>`
+    : L('#como', 'Como funciona') + L('#precos', 'Preços') + L('#faq', 'Dúvidas') + `<a href="#" data-tutorial>📘 Tutorial</a>`;
   $('#navRight').innerHTML = u
     ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
     : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
@@ -1801,6 +1900,7 @@ function route() {
   if ((!h || h === '#inicio') && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
   if (NEEDS_LOGIN.includes(h) && !S.user) { openAuth('signup'); history.replaceState(null, '', '#inicio'); h = '#inicio'; }
   if (h === '#entrar') openAuth('login');
+  if (h === '#estudio') { history.replaceState(null, '', '#criar'); h = '#criar'; setTimeout(openStudioFromNav, 60); }
   const v = VIEWS[h] || 'vLanding';
   document.querySelectorAll('.view').forEach(el => el.classList.toggle('hidden', el.id !== v));
   if (v === 'vLanding' && ['#como', '#precos', '#faq'].includes(h)) {
@@ -2037,16 +2137,35 @@ function sampleClip() {
   const w = 'olha a polícia vindo corre'.split(' ');
   return { idx: 0, start: 0, end: 30, peakT: 99, title: 'FUGA DA POLÍCIA 🚔', words: w.map((t, i) => ({ text: t, start: .2 + i * .3, end: .45 + i * .3 })), wordsVer: 1, emojis: true, corner: 'br', camSize: 25, pan: 0, handle: '', capColor: '', capY: null, showTitle: true, showCaps: true };
 }
-const _thumbCache = {};
-function tplThumb(id) {
-  if (_thumbCache[id]) return _thumbCache[id];
+// clipe de exemplo com fala mais longa, para a legenda "andar" na animação
+const PV_WORDS = 'olha só o que aconteceu agora a polícia chegou e todo mundo correu não acredito'.split(' ');
+function sampleClipAnim() { return { idx: 0, start: 0, end: 6, peakT: 1.4, title: 'EXEMPLO DE TÍTULO DO CORTE', words: PV_WORDS.map((t, i) => ({ text: t, start: .25 + i * .34, end: .5 + i * .34 })), wordsVer: 1, emojis: true, corner: 'br', camSize: 25, pan: 0, handle: '@seucanal', capColor: '', capY: null, showTitle: true, showCaps: true }; }
+const _animClip = sampleClipAnim();
+let _animList = [], _animRAF = 0, _animLast = 0;
+function paint(canvas, id) { canvas._tplId = id; if (!_animList.includes(canvas)) _animList.push(canvas); drawPreviewFrame(canvas, id, 0); startPreviewLoop(); }
+function drawPreviewFrame(canvas, id, t) {
+  const ctx = canvas.getContext('2d'), sc = canvas.width / W, tt = t % _animClip.end;
   _scene = _scene || sampleScene();
-  const big = document.createElement('canvas'); big.width = W; big.height = H;
-  S._preview = true; try { renderFrame(big.getContext('2d'), _scene, sampleClip(), 1.0, id); } finally { S._preview = false; }
-  const small = document.createElement('canvas'); small.width = 270; small.height = 480; small.getContext('2d').drawImage(big, 0, 0, 270, 480);
-  return (_thumbCache[id] = small);
+  // movimento de "vídeo": leve pan lateral + zoom pulsando a cada ~2,2s
+  _animClip.pan = Math.round(Math.sin(tt * 0.9) * 42);
+  _animClip.peakT = Math.floor(tt / 2.2) * 2.2 + 0.35;
+  S._preview = true;
+  try { ctx.setTransform(sc, 0, 0, sc, 0, 0); renderFrame(ctx, _scene, _animClip, tt, id); ctx.setTransform(1, 0, 0, 1, 0, 0); } finally { S._preview = false; }
 }
-function paint(canvas, id) { canvas.getContext('2d').drawImage(tplThumb(id), 0, 0, canvas.width, canvas.height); }
+function startPreviewLoop() { if (_animRAF) return; _animRAF = requestAnimationFrame(previewLoop); }
+function previewLoop(ts) {
+  _animRAF = 0;
+  if (ts - _animLast > 45) {  // ~22 fps, movimento de vídeo
+    _animLast = ts;
+    const t = (ts / 1000) % _animClip.end;
+    _animList = _animList.filter(c => c.isConnected);
+    let any = false;
+    for (const c of _animList) { const r = c.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight && r.width) { drawPreviewFrame(c, c._tplId, t); any = true; } }
+    if (!any && !_animList.length) return;  // ninguém visível e lista vazia: para
+  }
+  _animRAF = requestAnimationFrame(previewLoop);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) startPreviewLoop(); });
 function renderTplPick() {
   const box = $('#tplPick'); if (!box) return;
   const cur = $('#optTpl').value;
@@ -2352,6 +2471,7 @@ document.addEventListener('click', e => {
 // SUPORTE / TICKETS
 // ============================================================
 let ticketKind = 'duvida';
+document.addEventListener('click', e => { const t = e.target.closest('[data-tutorial]'); if (t) { e.preventDefault(); $('#tutModal').classList.remove('hidden'); } });
 $('#supportFab').onclick = () => {
   $('#ticketModal').classList.remove('hidden');
   $('#tkErr').classList.add('hidden');
@@ -2378,11 +2498,68 @@ $('#tkSend').onclick = async () => {
   btn.disabled = false;
 };
 
+
+// ---------- foco (o que procurar) ----------
+S.focus = 'viral';
+const FOCUS_HINT = {
+  viral: 'Ganchos curtos e virais — picos de emoção, reações e viradas.',
+  humor: 'Momentos engraçados — risadas, reações e tiradas.',
+  podcast: 'Melhores trechos de fala — ideias completas e falas marcantes.',
+  dicas: 'Dicas e ensinamentos — trechos informativos e diretos.',
+  acao: 'Cenas de ação — tiros, explosões, perseguições e movimento.',
+  polemica: 'Discussões e opiniões fortes — bate-boca e falas polêmicas.',
+};
+const FOCUS_VISUAL = { acao: true, viral: true, humor: false, podcast: false, dicas: false, polemica: false };
+$('#focusTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-focus]'); if (!b) return;
+  S.focus = b.dataset.focus;
+  document.querySelectorAll('#focusTabs [data-focus]').forEach(x => x.classList.toggle('on', x === b));
+  $('#focusHint').textContent = FOCUS_HINT[S.focus];
+  $('#optVisual').checked = FOCUS_VISUAL[S.focus];
+  if ($('#optVoice')) $('#optVoice').checked = ['podcast', 'dicas', 'humor'].includes(S.focus);
+});
+// ---------- duração em faixas ----------
+S.durTab = '60';
+function syncDur() {
+  const est = estClips(); $('#durEst').textContent = est;
+}
+function estClips() {
+  const L = (S.cfg.limits && S.cfg.limits[S.plan.plan || 'free']) || {}, maxN = L.max_clips || 12;
+  return `≈ ${Math.max(3, Math.round(maxN * .4))} a ${maxN} cortes`;
+}
+$('#durTabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-dur]'); if (!b) return;
+  const v = b.dataset.dur;
+  if (v === 'custom') { S.durTab = 'custom'; $('#durCustomWrap').style.display = ''; document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x === b)); return; }
+  // respeita o plano
+  const need = typeof needPlan === 'function' ? needPlan('dur', v) : 'free';
+  const rank = { free: 0, pro: 1, proplus: 2 };
+  if (rank[need] > rank[S.plan.plan || 'free']) { openUpgrade(`Cortes de até ${+v >= 120 ? '2 min' : v + 's'} são do plano ${need === 'pro' ? 'Pro' : 'Pro+'}.`); return; }
+  S.durTab = v; $('#optDur').value = v; $('#durCustomWrap').style.display = 'none';
+  document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x === b));
+});
+function renderDurTabs() {
+  const rank = { free: 0, pro: 1, proplus: 2 }, mine = rank[S.plan.plan || 'free'];
+  document.querySelectorAll('#durTabs [data-dur]').forEach(b => {
+    if (b.dataset.dur === 'custom') return;
+    const need = typeof needPlan === 'function' ? needPlan('dur', b.dataset.dur) : 'free';
+    b.querySelector('.lk')?.remove();
+    if (rank[need] > mine) b.insertAdjacentHTML('beforeend', ` <span class="lk">🔒</span>`);
+  });
+  syncDur();
+}
+// ---------- botão Estúdio no menu ----------
+function openStudioFromNav() {
+  if (!isPro()) { openUpgrade('O Estúdio (editor avançado) é do Pro e do Pro+.'); return; }
+  if (S.clips && S.clips.length) { location.hash = '#criar'; openAdvanced(S.clips[0]); }
+  else { location.hash = '#criar'; toast('Gere cortes primeiro, depois abra o Estúdio 🎬', 3500); }
+}
+
 // ---------- início ----------
 (async () => {
   await Promise.all([loadConfig(), loadMe()]);
   await document.fonts.ready.catch(() => { });
-  for (const k in _thumbCache) delete _thumbCache[k];
+  _scene = null;  // recria a cena de exemplo com novas cores/fontes
   renderShowcase(); renderTplPick(); renderQSel(); renderOpts(); observeReveal(); startStreams();
   applyKitToForm();
   const q = new URLSearchParams(location.search);
