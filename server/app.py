@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import threading
@@ -91,10 +92,27 @@ def check_url(url: str) -> str:
     return p or "outro"
 
 
-def ytdlp_base() -> list[str]:
-    cmd = ["yt-dlp", "--no-playlist", "--no-warnings", "--ignore-config",
+YT_ALT_CLIENTS = "youtube:player_client=tv,web_safari,mweb"
+_yt_alt_until = 0.0  # quando os clientes alternativos do YouTube funcionaram, usa eles por um tempo
+
+
+def is_youtube(url: str) -> bool:
+    return bool(re.search(r"(^|\.)(youtube\.com|youtu\.be)", (urlparse(url).hostname or "") if url else ""))
+
+
+def is_bot_check(text: str) -> bool:
+    t = (text or "").lower()
+    return "sign in to confirm" in t or "not a bot" in t
+
+
+def ytdlp_base(url: str = "", alt: bool | None = None) -> list[str]:
+    cmd = ["yt-dlp", "--no-playlist", "--no-warnings", "--ignore-config", "--force-ipv4",
            "-N", "8",  # baixa até 8 pedaços em paralelo (Twitch/Kick/YouTube em HLS/DASH)
            "--socket-timeout", "20", "--retries", "5", "--fragment-retries", "10"]
+    if url and is_youtube(url) and (alt if alt is not None else time.time() < _yt_alt_until):
+        cmd += ["--extractor-args", YT_ALT_CLIENTS]
+    if Path("/app/yt-plugins").exists():  # plugin do provedor de PO token (YouTube)
+        cmd += ["--plugin-dirs", "/app/yt-plugins"]
     if COOKIES and Path(COOKIES).exists():
         cmd += ["--cookies", COOKIES]
     if PROXY:
@@ -105,7 +123,7 @@ def ytdlp_base() -> list[str]:
 def friendly_error(text: str) -> str:
     t = text.lower()
     if "sign in to confirm" in t or "not a bot" in t:
-        return "O YouTube bloqueou o servidor (pediu login anti-robô). Configure cookies ou um proxy no servidor (veja o README)."
+        return "O YouTube não liberou este vídeo para nós agora. Tente de novo em alguns minutos, use um link da Twitch ou da Kick, ou baixe o vídeo e envie pela aba \"Enviar arquivo\"."
     if "private" in t:
         return "Esse vídeo é privado."
     if "subscriber" in t or "sub-only" in t or "subscribers-only" in t:
@@ -195,9 +213,17 @@ def info(body: InfoReq, req: Request):
     u = accounts.current_user(req)
     plan = accounts.plan_info(u)
     plat = check_url(body.url)
+    global _yt_alt_until
     try:
-        r = subprocess.run(ytdlp_base() + ["-J", "--skip-download", body.url],
+        r = subprocess.run(ytdlp_base(body.url) + ["-J", "--skip-download", body.url],
                            capture_output=True, text=True, timeout=60)
+        if r.returncode != 0 and is_youtube(body.url) and is_bot_check(r.stderr + r.stdout) and time.time() >= _yt_alt_until:
+            # o YouTube pediu a verificação anti-robô: tenta de novo com outros clientes do YouTube
+            r2 = subprocess.run(ytdlp_base(body.url, alt=True) + ["-J", "--skip-download", body.url],
+                                capture_output=True, text=True, timeout=60)
+            if r2.returncode == 0:
+                _yt_alt_until = time.time() + 1800
+            r = r2
     except subprocess.TimeoutExpired:
         raise HTTPException(504, "A plataforma demorou demais para responder.")
     if r.returncode != 0:
@@ -216,6 +242,33 @@ def info(body: InfoReq, req: Request):
         "max_minutes": min(MAX_MINUTES, plan["max_minutes"]),
         "max_live_minutes": min(MAX_LIVE_MINUTES, plan["max_live_minutes"]),
     }
+
+
+@app.get("/api/diag/yt")
+def diag_yt(req: Request, token: str = "", v: str = "jNQXAC9IVRw"):
+    """Diagnóstico do YouTube no servidor (só com DIAG_TOKEN ou conta admin). Não mostra segredos."""
+    tok = os.environ.get("DIAG_TOKEN", "")
+    if not (tok and secrets.compare_digest(token, tok)):
+        accounts.require_admin(req)
+    out: dict = {"cookies": bool(COOKIES and Path(COOKIES).exists()), "proxy": bool(PROXY),
+                 "plugins": Path("/app/yt-plugins/bgutil.zip").exists(), "alt_active": time.time() < _yt_alt_until}
+    try:
+        import urllib.request
+        out["pot_server"] = urllib.request.urlopen("http://127.0.0.1:4416/ping", timeout=3).read().decode()[:80]
+    except Exception as e:  # noqa
+        out["pot_server"] = "off: " + str(e)[:60]
+    out["deno"] = shutil.which("deno") or None
+    url = "https://www.youtube.com/watch?v=" + re.sub(r"[^A-Za-z0-9_-]", "", v)[:15]
+    for name, alt in (("padrao", False), ("alternativo", True)):
+        try:
+            r = subprocess.run(ytdlp_base(url, alt=alt) + ["-v", "--simulate", "-f", "b[height<=720]/b", url],
+                               capture_output=True, text=True, timeout=90)
+            lines = (r.stderr + r.stdout).splitlines()
+            keep = [l[:220] for l in lines if re.search(r"yt-dlp version|JS runtimes|PO Token Providers|\[pot\]|ERROR|Sign in|bot|Downloading .*player|format\(s\)", l)]
+            out[name] = {"ok": r.returncode == 0, "linhas": keep[-14:]}
+        except subprocess.TimeoutExpired:
+            out[name] = {"ok": False, "linhas": ["timeout"]}
+    return out
 
 
 class JobReq(BaseModel):
@@ -362,7 +415,7 @@ def run_job(job: dict):
             fmt = "bv*[height<=720][vcodec^=avc1]+ba[ext=m4a]/bv*[height<=720]+ba/b[height<=720]/bv*+ba/b"
             if r.get("live_minutes"):
                 secs = r["live_minutes"] * 60
-                g = subprocess.run(ytdlp_base() + ["-g", "-f", "b[height<=720]/b", job["url"]],
+                g = subprocess.run(ytdlp_base(job["url"]) + ["-g", "-f", "b[height<=720]/b", job["url"]],
                                    capture_output=True, text=True, timeout=60)
                 if g.returncode != 0 or not g.stdout.strip():
                     raise RuntimeError(friendly_error(g.stderr or g.stdout))
@@ -372,10 +425,21 @@ def run_job(job: dict):
                 code, log = stream_proc(cmd, job, secs, "Gravando a live…", secs + 300)
             else:
                 start, end = float(r.get("start") or 0), float(r["end"])
-                cmd = ytdlp_base() + ["-f", fmt, "-S", "res:720,vcodec:h264,acodec:m4a", "--merge-output-format", "mp4",
-                                      "--newline", "-o", "raw.%(ext)s"]
+                tail = ["-f", fmt, "-S", "res:720,vcodec:h264,acodec:m4a", "--merge-output-format", "mp4", "--newline", "-o", "raw.%(ext)s"]
+                cmd = ytdlp_base(job["url"]) + tail
                 code, log = stream_proc(cmd + ["--download-sections", f"*{start:.2f}-{end:.2f}", job["url"]],
                                         job, end - start, "Baixando…", MAX_MINUTES * 60 * 2 + 600)
+                if not valid_video(find_raw(d)) and is_youtube(job["url"]) and is_bot_check(log):
+                    # verificação anti-robô do YouTube: tenta de novo com outros clientes do YouTube
+                    global _yt_alt_until
+                    for p in d.iterdir():
+                        if p.name.startswith("raw."):
+                            p.unlink(missing_ok=True)
+                    cmd = ytdlp_base(job["url"], alt=True) + tail
+                    code, log = stream_proc(cmd + ["--download-sections", f"*{start:.2f}-{end:.2f}", job["url"]],
+                                            job, end - start, "Baixando…", MAX_MINUTES * 60 * 2 + 600)
+                    if valid_video(find_raw(d)):
+                        _yt_alt_until = time.time() + 1800
                 raw = find_raw(d)
                 if not valid_video(raw) and "sign in" not in log.lower():
                     # alguns sites não aceitam baixar só um trecho: baixa tudo e corta aqui

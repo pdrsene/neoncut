@@ -2022,7 +2022,11 @@ function parseTime(v) {
   return p.reduce((s, x) => s * 60 + x, 0);
 }
 const fmtH = s => { s = Math.round(s); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); };
-function showLinkErr(m) { const e = $('#linkErr'); e.textContent = m || ''; e.classList.toggle('hidden', !m); }
+function showLinkErr(m) {
+  const e = $('#linkErr'); e.textContent = m || ''; e.classList.toggle('hidden', !m);
+  // YouTube recusou: atalho para enviar o arquivo
+  if (m && /Enviar arquivo/.test(m)) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ghost small'; b.style.cssText = 'display:block;margin-top:8px'; b.textContent = '📁 Enviar o arquivo do vídeo'; b.onclick = () => { document.querySelector('[data-tab="file"]').click(); showLinkErr(''); }; e.appendChild(b); }
+}
 document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === b));
   S.mode = b.dataset.tab; $('#tabLink').classList.toggle('hidden', S.mode !== 'link'); $('#tabFile').classList.toggle('hidden', S.mode !== 'file');
