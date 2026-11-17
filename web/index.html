@@ -1573,7 +1573,8 @@ function renderGrid() {
     <div class="clip">
       <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><span class="score">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span></div>
       <div class="meta"><div class="t">${esc(c.title)}</div><div class="s">${fmt(c.start)} → ${fmt(c.end)} · ${Math.round(c.end - c.start)}s · ${c.words.length ? '💬 legendado' : 'sem fala'}</div>
-      <div class="row"><button class="btn ghost small" data-ed="${c.idx}">✏️ Editar</button><button class="btn ghost small" data-adv="${c.idx}" title="Editor avançado com linha do tempo">🎬${isPro() ? '' : ' 🔒'}</button><button class="btn small" data-dl="${c.idx}">⬇ Baixar</button></div></div>
+      <div class="row" style="margin-bottom:8px"><button class="btn ghost small" data-ed="${c.idx}" style="flex:1">✏️ Editar</button><button class="btn ghost small" data-adv="${c.idx}" style="flex:1" title="Editor avançado com linha do tempo">🎬 Estúdio${isPro() ? '' : ' 🔒'}</button></div>
+      <button class="btn small" data-dl="${c.idx}" style="width:100%">⬇ Baixar corte</button></div>
     </div>`).join('');
   S.clips.forEach(c => drawThumb(c));
 }
