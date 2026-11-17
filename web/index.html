@@ -3171,7 +3171,7 @@ async function enterDemo() {
   S.clips = DEMO_CLIPS.map((c, i) => ({
     idx: i, start: c.s, end: Math.min(S.duration, c.e), peakT: Math.min(c.peak, S.duration - .2),
     score: c.score, cat: c.cat, tpl: c.tpl, words: demoWords(c.cap, c.s, Math.min(S.duration, c.e)),
-    quote: null, transcribed: true, wordsVer: 1, title: c.title, capStyle: c.capStyle || null, titleKind: c.titleKind || null,
+    quote: null, transcribed: true, wordsVer: 1, title: c.title, capStyle: c.capStyle || null, titleKind: c.titleKind || null, titleY: .2,
     corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true,
     handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null, src: DEMO_SRC[c.src || c.tpl] || DEMO_VIDEO,
     desc: c.title.replace(/["]/g, '') + '\n\n#gta6 #gtavi #gameplay #cortes #viral #fyp',
