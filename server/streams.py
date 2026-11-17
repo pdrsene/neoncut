@@ -24,6 +24,7 @@ ID_BASE = os.environ.get("TWITCH_ID_BASE", "https://id.twitch.tv").rstrip("/")
 API_BASE = os.environ.get("TWITCH_API_BASE", "https://api.twitch.tv").rstrip("/")
 CACHE_SECONDS = 120
 GTA_NAMES = ["Grand Theft Auto VI", "Grand Theft Auto V"]
+CATS = {"gta": GTA_NAMES, "gta5": ["Grand Theft Auto V"], "gta6": ["Grand Theft Auto VI"]}
 
 router = APIRouter()
 _lock = threading.Lock()
@@ -60,10 +61,12 @@ def _game_id(name: str) -> str | None:
 
 
 def _fetch(cat: str) -> dict:
-    params: list[tuple[str, str]] = [("first", "24"), ("language", LANG), ("type", "live")]
-    if cat == "gta":
-        ids = [g for g in (_game_id(n) for n in GTA_NAMES) if g]
-        params += [("game_id", g) for g in ids]
+    # só o nicho GTA V / GTA VI, em português, das mais vistas para as menos vistas
+    params: list[tuple[str, str]] = [("first", "100"), ("language", LANG), ("type", "live")]
+    ids = [g for g in (_game_id(n) for n in CATS.get(cat, GTA_NAMES)) if g]
+    if not ids:
+        return {"enabled": True, "category": cat, "streams": [], "updated": time.time()}
+    params += [("game_id", g) for g in ids]
     streams = _helix("streams", params).get("data") or []
     streams.sort(key=lambda s: s.get("viewer_count", 0), reverse=True)
     streams = streams[:12]
@@ -94,16 +97,16 @@ def _fetch(cat: str) -> dict:
 def recommended(cat: str = "gta"):
     if not (TWITCH_ID and TWITCH_SECRET):
         return {"enabled": False, "streams": []}
-    cat = cat if cat in ("gta", "all") else "gta"
+    cat = cat if cat in CATS else "gta"
     with _lock:
         hit = _cache.get(cat)
         if hit and time.time() - hit[0] < CACHE_SECONDS:
             return hit[1]
     try:
         data = _fetch(cat)
-        if cat == "gta" and not data["streams"]:  # sem live de GTA agora: mostra as mais vistas
-            data = _fetch("all")
-            data["category"] = "all"
+        if not data["streams"] and cat != "gta":  # nenhuma live desse GTA agora: mostra GTA V e VI juntos
+            data = _fetch("gta")
+            data["note"] = "Sem lives desse jogo em português agora. Mostrando GTA V e VI."
     except (urllib.error.URLError, KeyError, ValueError, TimeoutError, OSError):
         if hit:
             return hit[1]

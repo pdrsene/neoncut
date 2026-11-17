@@ -710,8 +710,8 @@ select option:disabled{color:#6d5a8f}
 
   <!-- PROCESSING -->
   <section class="streams hidden" id="streams">
-    <div class="shead"><span class="livedot"></span><h2>Lives recomendadas</h2><span class="note">Clique em uma live para gravar e cortar agora</span></div>
-    <div class="stabs"><button type="button" class="on" data-scat="gta">GTA ao vivo</button><button type="button" data-scat="all">Mais vistas em português</button></div>
+    <div class="shead"><span class="livedot"></span><h2>Lives recomendadas</h2><span class="note">Lives em português de GTA V e GTA VI, das mais vistas para as menos vistas. Toque para gravar e cortar.</span></div>
+    <div class="stabs"><button type="button" class="on" data-scat="gta">🔥 Mais vistas · GTA V e VI</button><button type="button" data-scat="gta5">GTA V</button><button type="button" data-scat="gta6">GTA VI</button></div>
     <div class="sgrid" id="sgrid"></div>
   </section>
 
@@ -2637,7 +2637,8 @@ async function loadStreams(cat = streamCat) {
   let r; try { r = await api('/api/streams?cat=' + cat); } catch { r = { enabled: false }; }
   if (!r.enabled) { sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
-  if (!r.streams.length) { grid.innerHTML = `<p class="note">${esc(r.error || 'Nenhuma live agora.')}</p>`; return; }
+  if (!r.streams.length) { grid.innerHTML = `<p class="note">${esc(r.error || 'Nenhuma live de GTA em português agora. Volte daqui a pouco.')}</p>`; return; }
+  if (r.note) toast(r.note, 3500);
   grid.innerHTML = r.streams.map((x, i) => `<a class="scard reveal" style="--d:${i * .04}s" href="${esc(x.url)}" data-live="${esc(x.url)}" title="${esc(x.title)}">
     <div class="th"><img src="${esc(x.thumbnail)}?t=${Math.floor(Date.now() / 120000)}" alt="" loading="lazy"><span class="live">${fmtViewers(x.viewers)}</span><span class="up">${upFor(x.started_at)}</span><span class="cta">✂ Cortar esta live</span></div>
     <div class="meta">${x.avatar ? `<img class="av" src="${esc(x.avatar)}" alt="" loading="lazy">` : `<span class="av" style="display:grid;place-items:center;font-weight:900;background:var(--sunset);color:#1a0629">${esc((x.name || '?')[0].toUpperCase())}</span>`}<div style="min-width:0"><div class="nm">${esc(x.name)}</div><div class="tt">${esc(x.title)}</div>
