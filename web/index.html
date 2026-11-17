@@ -1440,7 +1440,7 @@ async function exportClip(clip, onProg) {
     const sc = q / W; canvas.width = q; canvas.height = Math.round(H * sc); ctx.setTransform(sc, 0, 0, sc, 0, 0);
     draw = t => renderFrame(ctx, ev, clip, t, clip.tpl);
   }
-  ev.muted = false; ev.pause(); await seek(ev, clip.start);
+  await ensureSrc(ev, clipSrc(clip)); ev.muted = false; ev.pause(); await seek(ev, clip.start);
   draw(clip.start);
   const stream = new MediaStream([...canvas.captureStream(30).getVideoTracks(), ...(S.pcm ? evDest.stream.getAudioTracks() : [])]);
   const mime = pickMime();
@@ -1586,7 +1586,9 @@ function step(i, state, pct) {
   const frac = state === 'done' ? 1 : (parseFloat(pct) || 0) / 100;
   $('#pbar').style.width = (100 * (idx + frac) / vis.length) + '%';
 }
-function loadMeta(v, url) { return new Promise((res, rej) => { v.src = url; v.onloadedmetadata = () => res(); v.onerror = () => rej(new Error('Não consegui abrir este vídeo no navegador. Tente MP4 (H.264).')); }); }
+function loadMeta(v, url) { return new Promise((res, rej) => { v.src = url; v.dataset.ncsrc = url; v.onloadedmetadata = () => res(); v.onerror = () => rej(new Error('Não consegui abrir este vídeo no navegador. Tente MP4 (H.264).')); }); }
+function ensureSrc(v, src) { if (!src || v.dataset.ncsrc === src) return Promise.resolve(); return loadMeta(v, src); }
+const clipSrc = c => (c && c.src) || S.url;
 
 $('#go').onclick = async () => {
   if (!S.user) { openAuth('signup', () => $('#go').click()); return; }
@@ -1656,7 +1658,7 @@ function defaultDesc(c) { return `${c.title.replace(/["]/g, '')}\n\n${brandKit()
 
 const thumbBig = document.createElement('canvas'); thumbBig.width = W; thumbBig.height = H;
 async function drawThumb(clip) {
-  const av = $('#av'); const t = clamp(clip.peakT, clip.start, clip.end - .1);
+  const av = $('#av'); await ensureSrc(av, clipSrc(clip)); const t = clamp(clip.peakT, clip.start, clip.end - .1);
   await seek(av, t);
   renderFrame(thumbBig.getContext('2d'), av, clip, t, clip.tpl);
   const c = document.querySelector(`#th${clip.idx}`); if (c) c.getContext('2d').drawImage(thumbBig, 0, 0, c.width, c.height);
@@ -1676,7 +1678,7 @@ function renderGrid() {
       <div class="row" style="margin-bottom:8px"><button class="btn ghost small" data-ed="${c.idx}" style="flex:1">✏️ Editar</button><button class="btn ghost small" data-adv="${c.idx}" style="flex:1" title="Editor avançado com linha do tempo">🎬 Estúdio${isPro() ? '' : ' 🔒'}</button></div>
       <button class="btn small" data-dl="${c.idx}" style="width:100%">⬇ Baixar corte</button></div>
     </div>`).join('');
-  S.clips.forEach(c => drawThumb(c));
+  (async () => { for (const c of S.clips) await drawThumb(c); })();
 }
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 $('#grid').addEventListener('click', e => {
@@ -1721,7 +1723,7 @@ function openEditor(clip) {
   swatches($('#inColor'), clip.capColor || '', c => { S.cur.capColor = c; drawPreview(); });
   $('#retrans').disabled = !S.pcm || S.settings.model === 'none';
   renderTpls(); renderCaps(); drawWave();
-  const pv = $('#pv'); pv.pause(); seek(pv, clip.start).then(drawPreview);
+  const pv = $('#pv'); pv.pause(); ensureSrc(pv, clipSrc(clip)).then(() => seek(pv, clip.start)).then(drawPreview);
   updatePlay();
 }
 function closeEditor() { $('#pv').pause(); cancelAnimationFrame(raf); $('#modal').classList.add('hidden'); document.body.style.overflow = ''; const c = S.cur; S.cur = null; renderGridCard(c); }
@@ -2266,7 +2268,7 @@ function openAdvanced(clip) {
   $('#adv').classList.remove('hidden'); document.body.style.overflow = 'hidden';
   $('#advBadge').textContent = S.plan.plan === 'proplus' ? 'PRO+' : 'PRO';
   advUndoBtns(); renderQSel(); advFit(true);
-  const pv = advPV(); pv.pause(); seek(pv, clip.start).then(() => { advDraw(); advLoop(); });
+  const pv = advPV(); pv.pause(); ensureSrc(pv, clipSrc(clip)).then(() => seek(pv, clip.start)).then(() => { advDraw(); advLoop(); });
   advPanel(ADV.panel); advRenderAll();
 }
 function closeAdvanced() {
@@ -2561,7 +2563,8 @@ function openStudioFromNav() {
 // ============================================================
 // MODO DECORADO (demonstração para gravar propaganda) — #decorado
 // ============================================================
-const DEMO_VIDEO = 'demo_showreel.mp4';
+const DEMO_VIDEO = 'demo/t_neon.mp4';
+const DEMO_SRC = { neon: 'demo/t_neon.mp4', fuga: 'demo/t_fuga.mp4', stream: 'demo/t_stream.mp4', cinema: 'demo/t_cinema.mp4', meme: 'demo/t_meme.mp4', raw: 'demo/t_raw.mp4' };
 const DEMO_HANDLE = '@seucanal';
 const DEMO_CLIPS = [
   { s: 1.0,  e: 13.0, peak: 6.2,  score: 97, cat: 'perseguicao', tpl: 'neon',   title: 'FUGA DA POLÍCIA EM VICE CITY 🚔', cap: 'caraca a polícia tá vindo corre corre não acredito que eu escapei' },
@@ -2622,7 +2625,7 @@ async function enterDemo() {
     score: c.score, cat: c.cat, tpl: c.tpl, words: demoWords(c.cap, c.s, Math.min(S.duration, c.e)),
     quote: null, transcribed: true, wordsVer: 1, title: c.title,
     corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true,
-    handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null,
+    handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null, src: DEMO_SRC[c.tpl] || DEMO_VIDEO,
     desc: c.title.replace(/["]/g, '') + '\n\n#gta6 #gtavi #gameplay #cortes #viral #fyp',
   }));
   // vai direto para a tela de resultados cheia
