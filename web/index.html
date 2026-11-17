@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NEONCUT: cortes virais da sua live em minutos</title>
 <meta name="description" content="Envie seu gameplay e receba cortes verticais nos momentos mais virais, já legendados e com template pronto.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff3d8b'/%3E%3Cstop offset='1' stop-color='%23ffb03c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='19' fill='url(%23g)'/%3E%3Crect x='2' y='22' width='36' height='2.6' fill='%230d0618'/%3E%3Crect x='4' y='27' width='32' height='2.6' fill='%230d0618'/%3E%3Crect x='7' y='32' width='26' height='2.6' fill='%230d0618'/%3E%3Cpath d='M21 34C21 26 22 18 24 12M24 12C19 9 14 10 11 13M24 12C28 8 33 9 35 12M24 12C22 7 18 5 15 5M24 12C27 6 31 5 33 6' stroke='%230d0618' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0d0618">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
@@ -218,6 +220,84 @@ footer a{color:var(--muted)}
 @media (max-width:520px){.upgrid{grid-template-columns:1fr}}
 .mbox.wide{width:min(640px,100%)}
 @media (min-width:1000px){.acc .panel:first-child{grid-column:span 2}}
+
+/* ---------- logo neon ---------- */
+.logo{gap:10px}
+.logo .neon{color:#fff;letter-spacing:1.5px}
+.logo .cut{display:inline-flex;letter-spacing:1.5px;margin-left:-4px;background:none!important;-webkit-background-clip:initial!important;color:inherit!important}
+.logo .cut i{font-style:normal;display:inline-block;background:linear-gradient(90deg,#ff3d8b,#ffb03c,#29e0d0,#8b5cff,#ff3d8b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:cutWave 1.8s ease-in-out infinite,cutFlow 4s linear infinite;filter:drop-shadow(0 0 6px rgba(255,61,139,.75)) drop-shadow(0 0 14px rgba(255,138,60,.45))}
+.logo .cut i:nth-child(2){animation-delay:.15s,-.6s}
+.logo .cut i:nth-child(3){animation-delay:.3s,-1.2s}
+@keyframes cutWave{0%,100%{transform:translateY(0)}25%{transform:translateY(-4px)}50%{transform:translateY(0)}75%{transform:translateY(2px)}}
+@keyframes cutFlow{to{background-position:300% 0}}
+.logo svg{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.logo:hover svg{transform:rotate(-12deg) scale(1.08)}
+/* ---------- base clean ---------- */
+body{background:radial-gradient(900px 420px at 85% -12%,rgba(255,61,139,.13),transparent 60%),radial-gradient(800px 420px at 0% 0%,rgba(139,92,255,.12),transparent 60%),var(--bg)}
+.panel{background:rgba(28,15,51,.55);border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(8px)}
+.feats div,.price,.faq details,.proj,.how div{border-color:rgba(255,255,255,.07)}
+.nav{position:sticky;top:0;z-index:30;background:rgba(13,6,24,.72);backdrop-filter:blur(14px);margin:0 -20px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.05)}
+/* ---------- animações ---------- */
+.btn{position:relative;overflow:hidden;transition:transform .18s ease,box-shadow .25s ease,filter .2s}
+.btn:not(:disabled):hover{transform:translateY(-2px);filter:brightness(1.06)}
+.btn:not(:disabled):active{transform:translateY(0) scale(.98)}
+.btn:not(.ghost)::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.45) 50%,transparent 70%);transform:translateX(-120%)}
+.btn:not(.ghost):not(:disabled):hover::after{transition:transform .7s ease;transform:translateX(120%)}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0s)}
+.reveal.in{opacity:1;transform:none}
+.view:not(.hidden){animation:viewIn .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.modal:not(.hidden){animation:fadeIn .25s ease}
+.modal:not(.hidden)>.mbox,.modal:not(.hidden)>.editor{animation:popIn .35s cubic-bezier(.2,.9,.25,1.15)}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+.feats div,.price,.clip,.proj,.tplpick button,.showcase div,.how div,.scard{transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
+.feats div:hover,.how div:hover{transform:translateY(-4px);border-color:rgba(255,61,139,.45);box-shadow:0 14px 40px rgba(255,61,139,.12)}
+.price:hover{transform:translateY(-6px)}
+.tplpick button:hover{transform:translateY(-3px)}
+.showcase div:hover canvas{transform:scale(1.03);box-shadow:0 18px 50px rgba(255,61,139,.25)}
+.showcase canvas{transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s}
+.lp-hero h1 em{background:linear-gradient(90deg,#ff3d8b,#ff8a3c,#ffcf3c,#ff3d8b);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:cutFlow 6s linear infinite}
+.lp-hero>*{animation:heroIn .8s cubic-bezier(.2,.8,.2,1) both}
+.lp-hero>*:nth-child(2){animation-delay:.08s}.lp-hero>*:nth-child(3){animation-delay:.16s}.lp-hero>*:nth-child(4){animation-delay:.24s}.lp-hero>*:nth-child(5){animation-delay:.32s}.lp-hero>*:nth-child(6){animation-delay:.4s}
+@keyframes heroIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.step{transition:border-color .3s,background .3s}
+.bar>i{transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.toast{animation:toastIn .35s cubic-bezier(.2,.9,.25,1.15)}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+select,input[type=text],input[type=email],input[type=password],input[type=number],textarea{transition:border-color .2s,box-shadow .2s}
+select:focus,input:focus,textarea:focus{outline:none;border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,61,139,.18)}
+.planpill.proplus{background-size:200% 100%;animation:cutFlow 4s linear infinite;background-image:linear-gradient(90deg,#29e0d0,#8b5cff,#29e0d0)}
+select option:disabled{color:#6d5a8f}
+/* ---------- streams recomendadas ---------- */
+.streams{margin:26px 0}
+.streams .shead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.streams .shead h2{font-size:26px}
+.livedot{width:10px;height:10px;border-radius:50%;background:var(--pink);box-shadow:0 0 0 0 rgba(255,61,139,.7);animation:livePulse 1.6s infinite;display:inline-block}
+@keyframes livePulse{70%{box-shadow:0 0 0 10px rgba(255,61,139,0)}100%{box-shadow:0 0 0 0 rgba(255,61,139,0)}}
+.stabs{display:flex;gap:4px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:16px}
+.stabs button{background:none;border:0;color:var(--muted);font-weight:800;font-size:14px;padding:10px 12px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.stabs button.on{color:var(--pink);border-bottom-color:var(--pink)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px 18px}
+.scard{cursor:pointer;color:var(--text);text-decoration:none;display:block}
+.scard .th{position:relative;aspect-ratio:16/9;border-radius:8px;background:#120824;transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+.scard .th img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:block}
+.scard:hover .th{transform:translate(6px,-6px);box-shadow:-6px 6px 0 var(--pink)}
+.scard .live{position:absolute;top:8px;left:8px;font-size:12px;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(13,6,24,.85);color:#fff;display:flex;align-items:center;gap:5px;animation:none}
+.scard .live:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink)}
+.scard .up{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px;background:rgba(13,6,24,.85);color:#fff}
+.scard .cta{position:absolute;inset:auto 8px 8px auto;font-size:11px;font-weight:900;padding:5px 9px;border-radius:7px;background:var(--sunset);color:#1a0629;opacity:0;transform:translateY(4px);transition:.25s}
+.scard:hover .cta{opacity:1;transform:none}
+.scard .meta{display:flex;gap:10px;margin-top:10px}
+.scard .av{width:36px;height:36px;border-radius:50%;flex:none;background:#24143f;object-fit:cover}
+.scard .nm{font-weight:800;font-size:14px}
+.scard .tt{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.scard .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.scard .tags span{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;background:#120824;border:1px solid rgba(255,255,255,.08);color:var(--muted)}
+.sskel .th{animation:skel 1.2s ease-in-out infinite}
+@keyframes skel{50%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -231,7 +311,7 @@ footer a{color:var(--muted)}
         <path d="M21 34 C21 26 22 18 24 12" stroke="#0d0618" stroke-width="2.4" fill="none"/>
         <path d="M24 12 C19 9 14 10 11 13 M24 12 C28 8 33 9 35 12 M24 12 C22 7 18 5 15 5 M24 12 C27 6 31 5 33 6" stroke="#0d0618" stroke-width="2.2" fill="none" stroke-linecap="round"/>
       </svg>
-      NEON<span>CUT</span>
+      <span class="neon">NEON</span><span class="cut" aria-label="CUT"><i>C</i><i>U</i><i>T</i></span>
     </a>
     <nav class="links" id="navLinks"></nav>
     <div class="right" id="navRight"></div>
@@ -293,7 +373,7 @@ footer a{color:var(--muted)}
         <details><summary>Funciona com qualquer jogo?</summary><p>Sim. A detecção usa o som e a imagem do vídeo, então funciona com GTA, FPS, corrida, react e até podcast. Os títulos sugeridos vêm no clima de GTA.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>Não. O corte, a legenda e a exportação acontecem no seu navegador. Vídeos baixados por link ficam no servidor só pelo tempo do processamento e são apagados em até 1 hora.</p></details>
         <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser. Nos 3 primeiros meses de cada plano você paga o preço promocional.</p></details>
-        <details><summary>Qual a diferença entre Pro e Pro+?</summary><p>Os dois tiram a marca d'água e liberam todos os templates. No Grátis e no Pro você tem 5 exportações em 1080p por mês (o resto sai em 720p). No Pro+ o 1080p é ilimitado, e você tem mais vídeos por mês e vídeos e lives mais longos.</p></details>
+        <details><summary>Qual a diferença entre Pro e Pro+?</summary><p>Os dois tiram a marca d'água e liberam todos os templates. O Grátis exporta só em 720p. O Pro tem 5 exportações em 1080p por mês e até 12 cortes de 60 segundos por vídeo. O Pro+ tem 1080p ilimitado, até 20 cortes de até 2 minutos por vídeo, legenda Precisa e vídeos e lives mais longos.</p></details>
         <details><summary>O YouTube não funcionou, e agora?</summary><p>Às vezes o YouTube bloqueia downloads automáticos. Twitch e Kick funcionam normalmente. Para o YouTube, você também pode baixar o vídeo e usar a aba "Enviar arquivo".</p></details>
         <details><summary>Posso cortar vídeo de outros criadores?</summary><p>Use com o seu próprio conteúdo ou com autorização do criador. Você é responsável pelos direitos do que publica.</p></details>
       </div>
@@ -352,10 +432,10 @@ footer a{color:var(--muted)}
     </div>
     <div class="settings">
       <label class="f">Duração de cada corte
-        <select id="optDur"><option value="15">15 segundos</option><option value="30" selected>30 segundos</option><option value="45">45 segundos</option><option value="60">60 segundos</option></select>
+        <select id="optDur"><option value="15">15 segundos</option><option value="30" selected>30 segundos</option><option value="45">45 segundos</option><option value="60">60 segundos</option><option value="90">90 segundos</option><option value="120">2 minutos</option></select>
       </label>
       <label class="f">Quantos cortes
-        <select id="optN"><option>3</option><option>5</option><option selected>8</option><option>12</option></select>
+        <select id="optN"><option value="3">3</option><option value="5" selected>5</option><option value="8">8</option><option value="12">12</option><option value="20">20</option></select>
       </label>
       <label class="f">Legendas (IA de fala)
         <select id="optModel">
@@ -372,7 +452,7 @@ footer a{color:var(--muted)}
     <div style="margin-top:20px">
       <div style="font-size:13px;color:var(--muted);font-weight:600">Template dos cortes <span class="note" style="font-weight:400">(dá para trocar depois em cada corte)</span></div>
       <div class="tplpick" id="tplPick"></div>
-      <input type="hidden" id="optTpl" value="neon">
+      <input type="hidden" id="optTpl" value="stream">
     </div>
     <div class="row" style="margin-top:22px">
       <label class="check"><input type="checkbox" id="optVisual" checked> Analisar a imagem também (explosões, perseguições)</label>
@@ -383,6 +463,12 @@ footer a{color:var(--muted)}
 
 
   <!-- PROCESSING -->
+  <section class="streams hidden" id="streams">
+    <div class="shead"><span class="livedot"></span><h2>Lives recomendadas</h2><span class="note">Clique em uma live para gravar e cortar agora</span></div>
+    <div class="stabs"><button type="button" class="on" data-scat="gta">GTA ao vivo</button><button type="button" data-scat="all">Mais vistas em português</button></div>
+    <div class="sgrid" id="sgrid"></div>
+  </section>
+
   <section class="panel hidden" id="proc">
     <h2>Cortando seu gameplay…</h2>
     <p class="sub">Deixe esta aba aberta. Na primeira vez, a IA de legendas é baixada e fica salva no navegador.</p>
@@ -561,7 +647,7 @@ footer a{color:var(--muted)}
 <div class="modal hidden" id="authModal">
   <div class="mbox">
     <button class="x" data-close>✕</button>
-    <div class="logo" style="font-size:24px;justify-content:center;margin-bottom:6px">NEON<span>CUT</span></div>
+    <div class="logo" style="font-size:26px;justify-content:center;margin-bottom:6px"><span class="neon">NEON</span><span class="cut" aria-label="CUT"><i>C</i><i>U</i><i>T</i></span></div>
     <div class="tabs" style="justify-content:center"><button class="tab on" data-auth="signup">Criar conta</button><button class="tab" data-auth="login">Entrar</button></div>
     <a class="btn ghost gbtn hidden" id="gBtn" href="/api/auth/google"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continuar com Google</a>
     <div class="or hidden" id="gOr"><span>ou</span></div>
@@ -616,12 +702,12 @@ const TPL_DESC = { neon: 'Fundo desfocado e legenda neon', fuga: 'Tela cheia com
 const TEMPLATES = [
   { id: 'neon',   name: 'Neon Sunset',   layout: 'blur',    caption: 'neon',    title: 'sunset', progress: true,  punch: true },
   { id: 'fuga',   name: 'Fuga 5 Estrelas', layout: 'full',  caption: 'shorts',  title: 'alert',  progress: true,  punch: true },
-  { id: 'stream', name: 'Streamer Cam',  layout: 'facecam', caption: 'shorts',  title: 'sunset', progress: true,  punch: false },
+  { id: 'stream', name: 'Webcam do Streamer', layout: 'facecam', caption: 'shorts',  title: 'sunset', progress: true,  punch: false },
   { id: 'cinema', name: 'Cinema',        layout: 'cinema',  caption: 'minimal', title: 'cinema', progress: false, punch: false },
   { id: 'meme',   name: 'Meme Bruto',    layout: 'blur',    caption: 'meme',    title: 'meme',   progress: false, punch: true },
   { id: 'raw',    name: 'Só o corte',    layout: 'raw',     caption: 'shorts',  title: 'none',   progress: false, punch: false },
 ];
-const FREE_TPLS_EARLY = ['neon', 'fuga', 'raw'];
+const FREE_TPLS_EARLY = ['raw', 'stream'];
 const tplById = id => TEMPLATES.find(t => t.id === id) || TEMPLATES[0];
 
 // ---------------- Títulos ----------------
@@ -1239,7 +1325,7 @@ $('#go').onclick = async () => {
   go.disabled = false;
   S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked };
   const skip = []; if (S.mode !== 'link') skip.push(0, 1); if (!S.settings.visual) skip.push(4); if (S.settings.model === 'none') skip.push(6, 7);
-  $('#upload').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
+  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
   try { await pipelineRun(skip); }
   catch (e) { console.error(e); $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(e.message)}</p><p class="note">Esse vídeo não foi descontado da sua cota se você reabrir pelo menu Meus projetos.</p><button class="btn ghost small" onclick="location.reload()">Tentar de novo</button>`); }
 };
@@ -1465,31 +1551,33 @@ $('#retrans').onclick = async e => {
 // ============================================================
 const FREE_TPLS = FREE_TPLS_EARLY;
 const COLORS = ['#ffcf3c', '#ffe600', '#39ff14', '#29e0d0', '#ff3d8b', '#ff8a3c', '#ffffff'];
-S.cfg = { intro_months: 3, hd_free_uses: 5, prices: { pro: { intro: 19.9, regular: 29.9 }, proplus: { intro: 39.9, regular: 49.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60 } } };
+S.cfg = { intro_months: 3, hd_free_uses: 5, prices: { pro: { intro: 19.9, regular: 29.9 }, proplus: { intro: 39.9, regular: 49.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: 5 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
 S.exportQ = 720;
 S.user = null;
 S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
 const money = v => Number(v).toFixed(2).replace('.', ',').replace(',00', '');
-const brandKit = () => Object.assign({ handle: '', tpl: 'neon', color: '', emojis: true, tags: '#gta6 #gtavi #gta #gameplay #cortes #viral #fyp' }, (S.user && S.user.settings) || {});
+const brandKit = () => Object.assign({ handle: '', tpl: isPro() ? 'neon' : 'stream', color: '', emojis: true, tags: '#gta6 #gtavi #gta #gameplay #cortes #viral #fyp' }, (S.user && S.user.settings) || {});
 const isPro = () => S.plan && S.plan.plan !== 'free';
 const PLAN_LABEL = { free: 'GRÁTIS', pro: 'PRO', proplus: 'PRO+' };
 function priceFor(plan) { const p = S.cfg.prices[plan]; if (S.user && S.plan.next_price) return S.plan.next_price[plan]; return p.intro; }
 function planCard(plan, opts = {}) {
   const L = S.cfg.limits[plan], P = S.cfg.prices[plan], m = S.cfg.intro_months, hd = S.cfg.hd_free_uses;
+  const dur = d => d >= 120 ? '2 min' : d + 's';
+  const clip = L.max_clips ? `Até ${L.max_clips} cortes por vídeo, de até ${dur(L.max_duration)}` : '';
   if (plan === 'free') return `<div class="price"><h3>Grátis</h3><div class="amt">R$ 0</div><ul>
-    <li>${L.projects} vídeos por mês</li><li>Até ${Math.round(L.max_minutes)} min por vídeo</li><li>Lives de até ${Math.round(L.live_minutes)} min</li>
-    <li>720p + ${hd} exportações em 1080p/mês</li><li>3 templates</li><li class="off">Marca d'água do NEONCUT</li></ul>
+    <li>${L.projects} vídeos por mês</li><li>Até ${Math.round(L.max_minutes)} min por vídeo</li>${clip ? `<li>${clip}</li>` : ''}<li>Lives de até ${Math.round(L.live_minutes)} min</li>
+    <li>Só o corte + Webcam do Streamer</li><li class="off">Exporta só em 720p</li><li class="off">Marca d'água do NEONCUT</li></ul>
     <button class="btn ghost" data-cta style="width:100%">Começar grátis</button></div>`;
   const now = priceFor(plan), promo = now < P.regular;
   const feats = plan === 'pro'
-    ? [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, `Lives de até ${Math.round(L.live_minutes)} min`, `720p + ${hd} exportações em 1080p/mês`, 'Todos os templates', "Sem marca d'água", 'Kit da sua marca']
-    : [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Todos os templates', "Sem marca d'água", 'Kit da sua marca'];
+    ? [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, clip, `Lives de até ${Math.round(L.live_minutes)} min`, `720p + ${L.hd ?? hd} exportações em 1080p/mês`, 'Todos os templates', "Sem marca d'água", 'Kit da sua marca']
+    : [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, `<b>${clip}</b>`, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Legenda Precisa (IA maior)', 'Todos os templates', "Sem marca d'água", 'Kit da sua marca'];
   const cur = S.user && S.plan.plan === plan;
   return `<div class="price ${plan === 'pro' && !opts.compact ? 'hot' : ''}">${plan === 'pro' && !opts.compact ? '<div class="tag">MAIS ESCOLHIDO</div>' : ''}
     <h3>${plan === 'pro' ? 'Pro' : 'Pro+'}</h3>
     <div class="amt">R$ ${money(now)}<small>/mês</small></div>
     <div class="old">${promo ? `nos ${S.user ? (S.plan.intro_left ? S.plan.intro_left[plan] : m) : m} primeiros meses, depois R$ ${money(P.regular)}/mês` : 'por 30 dias'}</div>
-    <ul>${feats.map(f => `<li>${f}</li>`).join('')}</ul>
+    <ul>${feats.filter(Boolean).map(f => `<li>${f}</li>`).join('')}</ul>
     <button class="btn ${plan === 'pro' ? '' : 'teal'}" data-buy="${plan}" style="width:100%">${cur ? 'Renovar +30 dias' : 'Assinar ' + (plan === 'pro' ? 'Pro' : 'Pro+')}</button></div>`;
 }
 function renderPrices() {
@@ -1509,9 +1597,9 @@ async function loadMe() {
 function setUser(u) {
   S.user = u;
   if (u) S.plan = Object.assign({}, u);
-  else S.plan = { plan: 'free', watermark: true, all_templates: false, hd_left: S.cfg.hd_free_uses, hd_unlimited: false };
+  else S.plan = { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
-  renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick();
+  renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick(); renderOpts();
 }
 function renderNav() {
   const u = S.user, h = location.hash || '';
@@ -1527,7 +1615,7 @@ function renderUsage() {
   const b = $('#usageBox'); if (!b) return;
   if (!S.user) { b.innerHTML = ''; return; }
   const p = S.plan, pct = Math.min(100, 100 * p.used / Math.max(1, p.limit));
-  b.innerHTML = `<b style="color:var(--text)">${p.used}/${p.limit}</b> vídeos este mês · ${p.plan_name || 'Grátis'} · 1080p: ${p.hd_unlimited ? 'ilimitado' : (p.hd_left ?? 0) + ' restantes'}${p.plan === 'proplus' ? '' : ' · <a href="#" data-up>Upgrade</a>'}<div class="bar"><i style="width:${pct}%"></i></div>`;
+  b.innerHTML = `<b style="color:var(--text)">${p.used}/${p.limit}</b> vídeos este mês · ${p.plan_name || 'Grátis'} · 1080p: ${p.hd_unlimited ? 'ilimitado' : p.plan === 'free' ? 'só no Pro' : (p.hd_left ?? 0) + ' restantes'}${p.plan === 'proplus' ? '' : ' · <a href="#" data-up>Upgrade</a>'}<div class="bar"><i style="width:${pct}%"></i></div>`;
 }
 
 // ---------- rotas ----------
@@ -1545,6 +1633,7 @@ function route() {
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
   if (v === 'vProjects') renderProjects();
+  if (v === 'vApp' && typeof loadStreams === 'function' && !$('#upload').classList.contains('hidden')) loadStreams();
   if (v === 'vAccount') renderAccount();
   renderNav();
 }
@@ -1658,7 +1747,7 @@ function renderAccount() {
   const p = S.plan, pct = Math.min(100, 100 * p.used / Math.max(1, p.limit));
   $('#planBox').innerHTML = `<div class="bigplan">${PLAN_LABEL[p.plan]}${p.plan === 'free' ? '' : ' ✨'}</div>
     <p class="note">${p.plan === 'free' ? 'Plano gratuito.' : (until ? 'Válido até <b>' + until + '</b>. Renove antes para somar os dias.' : 'Acesso de administrador.')}</p>
-    <p class="note">${p.used}/${p.limit} vídeos usados este mês · até ${Math.round(p.max_minutes)} min por vídeo · 1080p: ${p.hd_unlimited ? 'ilimitado' : (p.hd_left ?? 0) + ' de ' + p.hd_total + ' restantes'}${p.watermark ? " · com marca d'água" : ''}</p>
+    <p class="note">${p.used}/${p.limit} vídeos usados este mês · até ${Math.round(p.max_minutes)} min por vídeo · 1080p: ${p.hd_unlimited ? 'ilimitado' : p.plan === 'free' ? 'não incluso (só 720p)' : (p.hd_left ?? 0) + ' de ' + p.hd_total + ' restantes'}${p.watermark ? " · com marca d'água" : ''}</p>
     <div class="bar"><i style="width:${pct}%"></i></div>
     <div class="upgrid" style="margin-top:16px">${planCard('pro', { compact: true })}${planCard('proplus', { compact: true })}</div>
     <p class="note" style="margin-top:8px">PIX ou cartão pelo Mercado Pago. Sem renovação automática. Trocar de plano soma os dias que você já tem.</p>`;
@@ -1700,9 +1789,33 @@ async function loadAdmin() {
 }
 $('#adGrant').onclick = async () => { try { await api('/api/admin/grant', { email: $('#adEmail').value, days: +$('#adDays').value, plan: $('#adPlan').value }); toast('Feito ✅'); loadAdmin(); } catch (e) { toast(e.message); } };
 
+const OPT_LABEL = { dur: v => v >= 120 ? '2 minutos' : v + ' segundos', n: v => v + ' cortes', model: v => ({ none: 'Sem legendas', tiny: 'Rápida (baixa ~40 MB)', base: 'Equilibrada (baixa ~80 MB)', small: 'Precisa (baixa ~250 MB, mais lenta)' }[v]) };
+function needPlan(kind, v) {
+  const L = S.cfg.limits || {}, ok = p => { const o = L[p]; if (!o) return true; return kind === 'dur' ? +v <= o.max_duration : kind === 'n' ? +v <= o.max_clips : (o.models || []).includes(v); };
+  return ok('free') ? 'free' : ok('pro') ? 'pro' : 'proplus';
+}
+const PLAN_RANK = { free: 0, pro: 1, proplus: 2 };
+function renderOpts() {
+  const mine = PLAN_RANK[S.plan.plan || 'free'];
+  for (const [id, kind] of [['#optDur', 'dur'], ['#optN', 'n'], ['#optModel', 'model']]) {
+    const sel = $(id); if (!sel) continue;
+    [...sel.options].forEach(o => { const need = needPlan(kind, o.value); o.textContent = OPT_LABEL[kind](o.value) + (PLAN_RANK[need] > mine ? (need === 'pro' ? '  🔒 Pro' : '  🔒 Pro+') : ''); o.dataset.need = need; });
+    if (PLAN_RANK[needPlan(kind, sel.value)] > mine) { const best = [...sel.options].filter(o => PLAN_RANK[o.dataset.need] <= mine).pop(); if (best) sel.value = best.value; }
+    sel.dataset.prev = sel.value;
+  }
+}
+for (const id of ['#optDur', '#optN', '#optModel']) $(id).addEventListener('change', e => {
+  const sel = e.target, need = sel.selectedOptions[0].dataset.need;
+  if (PLAN_RANK[need] > PLAN_RANK[S.plan.plan || 'free']) {
+    const what = sel.id === 'optDur' ? 'Cortes de ' + OPT_LABEL.dur(sel.value) : sel.id === 'optN' ? sel.value + ' cortes por vídeo' : 'A legenda Precisa';
+    sel.value = sel.dataset.prev; openUpgrade(`${what} ${sel.id === 'optModel' ? 'é' : 'são'} do plano ${need === 'pro' ? 'Pro' : 'Pro+'}.`);
+  } else sel.dataset.prev = sel.value;
+});
 function applyKitToForm() {
   const bk = brandKit();
-  if (TEMPLATES.some(t => t.id === bk.tpl)) $('#optTpl').value = (isPro() || FREE_TPLS.includes(bk.tpl)) ? bk.tpl : 'neon';
+  if (TEMPLATES.some(t => t.id === bk.tpl)) $('#optTpl').value = (isPro() || FREE_TPLS.includes(bk.tpl)) ? bk.tpl : 'stream';
+  else if (!isPro()) $('#optTpl').value = 'stream';
+  renderOpts();
   renderTplPick();
 }
 
@@ -1757,7 +1870,7 @@ function renderShowcase() {
   box.querySelectorAll('[data-sc]').forEach(c => paint(c, c.dataset.sc));
 }
 function renderQSel() {
-  const p = S.plan || {}, left = p.hd_unlimited ? 'ilimitado' : `${p.hd_left ?? 0} restantes`;
+  const p = S.plan || {}, left = p.hd_unlimited ? 'ilimitado' : p.plan === 'free' || !S.user ? '🔒 Pro' : `${p.hd_left ?? 0} restantes`;
   for (const id of ['#qsel', '#qsel2']) {
     const box = $(id); if (!box) continue;
     box.innerHTML = `<span>Qualidade:</span><button type="button" data-q="720" class="${S.exportQ === 720 ? 'on' : ''}">720p</button><button type="button" data-q="1080" class="${S.exportQ === 1080 ? 'on' : ''}">1080p <span style="font-weight:500;color:var(--muted)">(${left})</span></button>`;
@@ -1766,16 +1879,58 @@ function renderQSel() {
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-q]'); if (!b) return;
   const q = +b.dataset.q;
+  if (q === 1080 && (S.plan.plan === 'free' || !S.user)) { openUpgrade('Exportar em 1080p é do Pro (5 por mês) e do Pro+ (ilimitado).'); return; }
   if (q === 1080 && !S.plan.hd_unlimited && !(S.plan.hd_left > 0)) { openUpgrade('Você usou as exportações em 1080p deste mês. No Pro+ o 1080p é ilimitado.'); return; }
   S.exportQ = q; renderQSel();
 });
+
+// ---------- lives recomendadas ----------
+const fmtViewers = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '').replace('.', ',') + ' mi' : n >= 1000 ? (n / 1000).toFixed(n >= 1e4 ? 0 : 1).replace('.0', '').replace('.', ',') + ' mil' : String(n);
+const upFor = iso => { const m = Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 60000)); return `${Math.floor(m / 60)}:${String(m % 60).padStart(2, '0')}`; };
+let streamCat = 'gta', streamTimer = 0;
+async function loadStreams(cat = streamCat) {
+  streamCat = cat; const sec = $('#streams'), grid = $('#sgrid');
+  document.querySelectorAll('[data-scat]').forEach(b => b.classList.toggle('on', b.dataset.scat === cat));
+  if (!grid.children.length) grid.innerHTML = Array.from({ length: 4 }, () => '<div class="scard sskel"><div class="th"></div></div>').join('');
+  let r; try { r = await api('/api/streams?cat=' + cat); } catch { r = { enabled: false }; }
+  if (!r.enabled) { sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  if (!r.streams.length) { grid.innerHTML = `<p class="note">${esc(r.error || 'Nenhuma live agora.')}</p>`; return; }
+  grid.innerHTML = r.streams.map((x, i) => `<a class="scard reveal" style="--d:${i * .04}s" href="${esc(x.url)}" data-live="${esc(x.url)}" title="${esc(x.title)}">
+    <div class="th"><img src="${esc(x.thumbnail)}?t=${Math.floor(Date.now() / 120000)}" alt="" loading="lazy"><span class="live">${fmtViewers(x.viewers)}</span><span class="up">${upFor(x.started_at)}</span><span class="cta">✂ Cortar esta live</span></div>
+    <div class="meta">${x.avatar ? `<img class="av" src="${esc(x.avatar)}" alt="" loading="lazy">` : `<span class="av" style="display:grid;place-items:center;font-weight:900;background:var(--sunset);color:#1a0629">${esc((x.name || '?')[0].toUpperCase())}</span>`}<div style="min-width:0"><div class="nm">${esc(x.name)}</div><div class="tt">${esc(x.title)}</div>
+    <div class="tags">${[x.game, ...(x.tags || [])].filter(Boolean).slice(0, 2).map(t => `<span>${esc(t)}</span>`).join('')}</div></div></div></a>`).join('');
+  observeReveal(grid);
+}
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-scat]'); if (t) { loadStreams(t.dataset.scat); return; }
+  const c = e.target.closest('[data-live]'); if (!c) return;
+  e.preventDefault();
+  if (!S.user) { openAuth('signup'); return; }
+  document.querySelector('[data-tab="link"]').click();
+  $('#url').value = c.dataset.live; $('#url').dispatchEvent(new Event('input'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  $('#fetchInfo').click();
+});
+function startStreams() { if (!$('#upload').classList.contains('hidden')) loadStreams(); clearInterval(streamTimer); streamTimer = setInterval(() => { if (location.hash === '#criar' && !document.hidden && !$('#upload').classList.contains('hidden')) loadStreams(); }, 120000); }
+
+// ---------- revelar ao rolar ----------
+const revealObs = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealObs.unobserve(en.target); } }), { threshold: .12 }) : null;
+function observeReveal(root = document) {
+  root.querySelectorAll('.lp-sec, .feats > div, .how > div, .prices > .price, .showcase > div, .faq details, .proj, .clip, .reveal, .acc > .panel').forEach((el, i) => {
+    if (el.classList.contains('in')) return;
+    el.classList.add('reveal'); if (!el.style.getPropertyValue('--d')) el.style.setProperty('--d', ((i % 6) * .06) + 's');
+    revealObs ? revealObs.observe(el) : el.classList.add('in');
+  });
+}
+let _rv = 0; new MutationObserver(() => { if (_rv) return; _rv = requestAnimationFrame(() => { _rv = 0; observeReveal(); }); }).observe(document.body, { childList: true, subtree: true });
 
 // ---------- início ----------
 (async () => {
   await Promise.all([loadConfig(), loadMe()]);
   await document.fonts.ready.catch(() => { });
   for (const k in _thumbCache) delete _thumbCache[k];
-  renderShowcase(); renderTplPick(); renderQSel();
+  renderShowcase(); renderTplPick(); renderQSel(); renderOpts(); observeReveal(); startStreams();
   applyKitToForm();
   const q = new URLSearchParams(location.search);
   if (q.get('erro')) { toast('Não foi possível entrar com o Google. Tente de novo.', 5000); history.replaceState(null, '', location.pathname + location.hash); }

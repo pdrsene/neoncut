@@ -29,9 +29,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 try:
-    from . import accounts
+    from . import accounts, streams
 except ImportError:  # executado como script
     import accounts  # type: ignore
+    import streams  # type: ignore
 
 # ---------------------------------------------------------------- config
 ROOT = Path(__file__).resolve().parent.parent
@@ -126,6 +127,7 @@ def friendly_error(text: str) -> str:
 # ---------------------------------------------------------------- app
 app = FastAPI(title="NEONCUT API")
 app.include_router(accounts.router)
+app.include_router(streams.router)
 app.add_middleware(CORSMiddleware, allow_origins=CORS, allow_methods=["*"], allow_headers=["*"],
                    expose_headers=["Content-Length", "Content-Range", "Accept-Ranges"])
 

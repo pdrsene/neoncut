@@ -47,6 +47,13 @@ LIMITS = {
     "proplus": (int(os.environ.get("PROPLUS_PROJECTS", "250")), _f("PROPLUS_MAX_MINUTES", "120"), _f("PROPLUS_LIVE_MINUTES", "60")),
 }
 PLAN_NAMES = {"free": "Grátis", "pro": "Pro", "proplus": "Pro+"}
+# opções de corte de cada plano: máx. de cortes por vídeo, duração máx. de cada corte (s), modelos de legenda
+OPTIONS = {
+    "free": {"max_clips": 5, "max_duration": 45, "models": ["none", "tiny", "base"]},
+    "pro": {"max_clips": 12, "max_duration": 60, "models": ["none", "tiny", "base"]},
+    "proplus": {"max_clips": 20, "max_duration": 120, "models": ["none", "tiny", "base", "small"]},
+}
+HD_USES = {"free": 0, "pro": HD_FREE_USES}  # exportações 1080p por mês (Pro+ é ilimitado)
 
 MP_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "").strip()
 MP_API = os.environ.get("MP_API_BASE", "https://api.mercadopago.com").rstrip("/")
@@ -219,8 +226,9 @@ def plan_info(u) -> dict:
         "max_live_minutes": live_min,
         "watermark": plan == "free",
         "hd_unlimited": plan == "proplus",
-        "hd_left": None if plan == "proplus" else max(0, HD_FREE_USES - hd_used(u["id"])),
-        "hd_total": HD_FREE_USES,
+        "hd_left": None if plan == "proplus" else max(0, HD_USES[plan] - hd_used(u["id"])),
+        "hd_total": None if plan == "proplus" else HD_USES[plan],
+        "options": OPTIONS[plan],
         "all_templates": plan != "free",
         "next_price": {"pro": price_for(u["id"], "pro"), "proplus": price_for(u["id"], "proplus")},
         "intro_left": {k: max(0, INTRO_MONTHS - paid_months(u["id"], k)) for k in PRICES},
@@ -295,7 +303,8 @@ def public_config():
     return {"brand": BRAND, "google": bool(GOOGLE_ID and GOOGLE_SECRET), "payments": bool(MP_TOKEN),
             "intro_months": INTRO_MONTHS, "hd_free_uses": HD_FREE_USES, "support_email": SUPPORT_EMAIL,
             "prices": {k: {"intro": v[0], "regular": v[1]} for k, v in PRICES.items()},
-            "limits": {k: {"projects": v[0], "max_minutes": v[1], "live_minutes": v[2]} for k, v in LIMITS.items()}}
+            "limits": {k: {"projects": v[0], "max_minutes": v[1], "live_minutes": v[2], **OPTIONS[k],
+                           "hd": None if k == "proplus" else HD_USES[k]} for k, v in LIMITS.items()}}
 
 
 # ---------------------------------------------------------------- auth
@@ -503,8 +512,10 @@ def use_hd(req: Request):
     p = plan_info(u)
     if p["hd_unlimited"]:
         return {"ok": True, "hd_left": None}
+    if p["plan"] == "free":
+        raise HTTPException(402, "Exportar em 1080p é do Pro e do Pro+. No Pro+ é ilimitado.")
     if p["hd_left"] <= 0:
-        raise HTTPException(402, f"Você já usou as {HD_FREE_USES} exportações em 1080p deste mês. "
+        raise HTTPException(402, f"Você já usou as {HD_USES['pro']} exportações em 1080p deste mês. "
                                  "No Pro+ o 1080p é ilimitado.")
     db().execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
     return {"ok": True, "hd_left": p["hd_left"] - 1}

@@ -64,6 +64,7 @@ Sem isso, as contas e os pagamentos são apagados a cada deploy.
 | `ADMIN_EMAILS` | `voce@gmail.com` | Quem vê o painel de administração em Minha conta (separe por vírgula) |
 | `SUPPORT_EMAIL` | `suporte@seudominio.com` | Aparece nos termos e na privacidade |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | | Ativam o botão "Continuar com Google" |
+| `TWITCH_CLIENT_ID` / `TWITCH_CLIENT_SECRET` | | Ativam as "Lives recomendadas" (app criado em dev.twitch.tv/console) |
 | `BASE_URL` | `https://neoncut.up.railway.app` | Endereço público do site (use se tiver domínio próprio) |
 | `PRO_INTRO_PRICE` / `PRO_PRICE` | `19.90` / `29.90` | Pro: preço promocional e preço normal |
 | `PROPLUS_INTRO_PRICE` / `PROPLUS_PRICE` | `39.90` / `49.90` | Pro+: preço promocional e preço normal |
