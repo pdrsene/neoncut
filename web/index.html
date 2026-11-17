@@ -117,7 +117,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
 .tab{background:#120824;border:1px solid var(--line);color:var(--muted);padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px}
 .tab.on{color:var(--text);border-color:var(--pink);background:rgba(255,61,139,.12)}
 .urlrow{display:flex;gap:10px}
-.urlrow input{flex:1;font-size:16px;padding:14px 16px}
+.urlrow input{flex:1;min-width:0;font-size:16px;padding:14px 16px}.urlrow .btn{flex:none}
 .plats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .plats span{font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px;background:#120824;border:1px solid var(--line);color:var(--muted)}
 .plats span.on{color:var(--text);border-color:var(--teal)}
@@ -631,6 +631,12 @@ select option:disabled{color:#6d5a8f}
   .editor .stage .timeline label.f{font-size:11px;gap:3px}
   .editor .stage .timeline input{padding:7px 10px}
   .mbox{margin-top:3vh;padding:22px 18px}
+}
+/* celulares pequenos: logo e botões na mesma linha */
+@media (max-width:420px){
+  .nav .logo{font-size:.78em;gap:6px}.nav .logo svg{width:28px;height:28px}
+  .nav .right{gap:6px;flex-wrap:nowrap}
+  .nav .right .btn.small{padding:7px 10px;font-size:12.5px;white-space:nowrap}
 }
 /* Estúdio no celular/tablet: vídeo em cima, ferramentas no meio, linha do tempo embaixo */
 @media (max-width:900px){
@@ -2147,7 +2153,7 @@ $('#go').onclick = async () => {
   go.disabled = false;
   S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: $('#optSilence') ? $('#optSilence').checked : true };
   const skip = []; if (S.mode !== 'link') skip.push(0, 1); if (!S.settings.visual) skip.push(4); if (S.settings.model === 'none') skip.push(6, 7);
-  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
+  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip); window.scrollTo({ top: 0, behavior: 'smooth' });
   try { await pipelineRun(skip); }
   catch (e) { console.error(e); $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(e.message)}</p><p class="note">Esse vídeo não foi descontado da sua cota se você reabrir pelo menu Meus projetos.</p><button class="btn ghost small" onclick="location.reload()">Tentar de novo</button>`); }
 };
@@ -2195,6 +2201,7 @@ async function pipelineRun(skip) {
   step(8, 'done'); mark('cortes_na_tela');
   if (!S.demo) { track('clip_generated', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file' }); afterClipGenerated(); }
   saveProject();
+  if (S.project && S.project.id && S.file) VDB.put(S.project.id, S.file); // guarda o vídeo no aparelho: reabrir o projeto depois não pede o arquivo de novo
   if (capsNow) captionInBackground(S.clips, asrP).then(() => { mark('legendas'); console.info('NEONCUT tempos (ms):', lap); S.lastLap = lap; });
   else { console.info('NEONCUT tempos (ms):', lap); S.lastLap = lap; }
 }
@@ -2271,6 +2278,8 @@ function showResults(capErr) {
   if (capErr) { $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = '⚠ Legendas indisponíveis: ' + capErr + ' Os cortes funcionam normalmente sem legenda.'; }
   $('#resSub').textContent = resSubText();
   renderGrid();
+  // leva a pessoa ao topo dos cortes (no celular a página ficava parada lá embaixo, no rodapé)
+  requestAnimationFrame(() => { const r = $('#results'); if (!r) return; const top = r.getBoundingClientRect().top; if (top < 0 || top > innerHeight * .6) window.scrollTo({ top: Math.max(0, scrollY + top - 70), behavior: 'smooth' }); });
 }
 function resSubText() {
   const asr = S.asrInfo ? ` · Legendas: ${S.asrInfo.device === 'webgpu' ? 'GPU' : 'CPU'}${S.asrInfo.wordMode ? ', palavra a palavra' : ''}` : '';
@@ -3641,10 +3650,12 @@ function afterClipGenerated() {
   const st = lsGet(NCK.fb) || ''; // '' nunca perguntou · 'later1' adiou uma vez · 'done' respondeu · 'no' recusou de vez
   if (st === 'done' || st === 'no') return;
   if (st === 'later1' && n < 3) return;
-  setTimeout(() => { if (!$('#results') || $('#results').classList.contains('hidden') || $('#modal:not(.hidden)')) { setTimeout(showFeedbackBalloon, 15000); return; } showFeedbackBalloon(); }, 9000);
+  setTimeout(() => showFeedbackBalloon(), 9000);
 }
-function showFeedbackBalloon() {
+function busyUI() { return !!document.querySelector('#modal:not(.hidden), #adv:not(.hidden), #upModal:not(.hidden), #authModal:not(.hidden), #ticketModal:not(.hidden), #tutModal:not(.hidden), #proc:not(.hidden)'); }
+function showFeedbackBalloon(tries = 0) {
   if ($('#fbBalloon') || S.demo) return;
+  if (busyUI()) { if (tries < 40) setTimeout(() => showFeedbackBalloon(tries + 1), 6000); return; } // espera sair do editor/Estúdio
   const st = lsGet(NCK.fb) || '';
   if (st === 'done' || st === 'no') return;
   track('feedback_shown');
