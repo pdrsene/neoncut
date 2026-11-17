@@ -385,6 +385,22 @@ select option:disabled{color:#6d5a8f}
 .tl-ph-grab{position:absolute;top:0;width:16px;height:24px;margin-left:-7px;cursor:ew-resize;z-index:6}
 .pro-badge{font-size:10px;font-weight:900;padding:2px 6px;border-radius:6px;background:var(--sunset);color:#1a0629;margin-left:4px}
 @media (max-width:900px){.adv-mid{grid-template-columns:60px 1fr}.adv-panel{display:none}}
+
+.fab{position:fixed;right:18px;bottom:18px;z-index:45;display:flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 16px;font-weight:800;font-size:14px;color:#1a0629;background:var(--sunset);box-shadow:0 10px 30px rgba(255,61,139,.4);cursor:pointer;transition:transform .2s,box-shadow .2s}
+.fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 38px rgba(255,61,139,.5)}
+.fab i{font-style:normal;font-size:17px}
+@media (max-width:600px){.fab span{display:none}.fab{padding:14px}}
+.kinds{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.kinds button{background:#120824;border:1px solid var(--line);color:var(--muted);border-radius:12px;padding:12px 4px;font-weight:700;font-size:12px;display:flex;flex-direction:column;gap:5px;align-items:center;transition:.2s}
+.kinds button i{font-style:normal;font-size:20px}
+.kinds button.on{border-color:var(--pink);color:var(--text);background:rgba(255,61,139,.12)}
+.tk{display:flex;flex-direction:column;gap:7px;background:#120824;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px}
+.tk .th{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tk .kb{font-size:11px;font-weight:800;padding:2px 8px;border-radius:7px;background:rgba(139,92,255,.2);color:#c9b6ff}
+.tk .kb.bug{background:rgba(255,84,112,.2);color:#ff93a6}.tk .kb.ideia{background:rgba(41,224,208,.18);color:#7ff0e6}
+.tk .mg{color:var(--muted);white-space:pre-wrap;line-height:1.5}
+.tk .act{display:flex;gap:8px;align-items:center;margin-top:2px}
+.tklist{display:flex;flex-direction:column;gap:10px;max-height:340px;overflow:auto;margin-top:8px}
 </style>
 </head>
 <body>
@@ -624,6 +640,8 @@ select option:disabled{color:#6d5a8f}
         </div>
         <button class="btn small" id="adGrant" style="margin-top:12px">Aplicar</button>
         <div id="adminList" class="adlist"></div>
+        <h4 class="h4" style="margin-top:18px">Tickets <span id="tkCount" class="note" style="text-transform:none;letter-spacing:0"></span></h4>
+        <div id="tkAdmin" class="tklist"></div>
       </div>
     </div>
   </main>
@@ -773,6 +791,29 @@ select option:disabled{color:#6d5a8f}
       <div class="tl-heads"><div>Título</div><div>Seu @</div><div>Legendas</div><div>Vídeo</div></div>
       <div class="tl-scroll" id="tlScroll"><div class="tl-inner" id="tlInner"></div></div>
     </div>
+  </div>
+</div>
+
+
+<!-- BOTÃO DE SUPORTE / TICKET -->
+<button class="fab" id="supportFab" title="Enviar um ticket"><i>💬</i><span>Suporte</span></button>
+<div class="modal hidden" id="ticketModal">
+  <div class="mbox">
+    <button class="x" data-close>✕</button>
+    <h2 style="text-align:center;font-size:24px;margin:0">Como podemos ajudar?</h2>
+    <p class="sub" style="text-align:center;margin:0">Reporte um bug, tire uma dúvida ou mande uma ideia.</p>
+    <div class="kinds" id="tkKinds">
+      <button type="button" data-k="bug"><i>🐞</i>Bug</button>
+      <button type="button" data-k="duvida" class="on"><i>❓</i>Dúvida</button>
+      <button type="button" data-k="ideia"><i>💡</i>Ideia</button>
+      <button type="button" data-k="outro"><i>✉️</i>Outro</button>
+    </div>
+    <label class="f" id="tkEmailWrap">Seu e-mail (para resposta)<input type="email" id="tkEmail" autocomplete="email"></label>
+    <label class="f">Assunto<input type="text" id="tkSubject" maxlength="120" placeholder="Resumo em poucas palavras"></label>
+    <label class="f">Mensagem<textarea id="tkMsg" rows="4" placeholder="Conte o que aconteceu ou o que você gostaria…"></textarea></label>
+    <p class="err note hidden" id="tkErr"></p>
+    <button class="btn" id="tkSend" style="width:100%">Enviar ticket</button>
+    <p class="note" style="text-align:center;margin:0">Respondemos pelo e-mail informado.</p>
   </div>
 </div>
 
@@ -1756,7 +1797,7 @@ const VIEWS = { '': 'vLanding', '#inicio': 'vLanding', '#como': 'vLanding', '#pr
 const NEEDS_LOGIN = ['#criar', '#projetos', '#conta'];
 function route() {
   let h = location.hash || '';
-  if (!h && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
+  if ((!h || h === '#inicio') && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
   if (NEEDS_LOGIN.includes(h) && !S.user) { openAuth('signup'); history.replaceState(null, '', '#inicio'); h = '#inicio'; }
   if (h === '#entrar') openAuth('login');
   const v = VIEWS[h] || 'vLanding';
@@ -1918,8 +1959,27 @@ async function loadAdmin() {
     const s = await api('/api/admin/stats');
     $('#adminStats').innerHTML = `<b>${s.users}</b> usuários · <b>${s.pro}</b> Pro e <b>${s.proplus}</b> Pro+ ativos · <b>${s.projects_month}</b> vídeos no mês · <b>R$ ${money(s.revenue_month)}</b> recebidos no mês`;
     $('#adminList').innerHTML = s.list.map(u => `<div><span>${esc(u.email)}</span><span>${u.pro_until * 1000 > Date.now() ? (u.plan === 'proplus' ? 'Pro+' : 'Pro') + ' até ' + new Date(u.pro_until * 1000).toLocaleDateString('pt-BR') : 'Grátis'}</span></div>`).join('');
+    loadTickets();
   } catch (e) { $('#adminStats').textContent = e.message; }
 }
+const KIND_LABEL = { bug: '🐞 Bug', duvida: '❓ Dúvida', ideia: '💡 Ideia', outro: '✉️ Outro' };
+async function loadTickets() {
+  let list; try { list = await api('/api/admin/tickets'); } catch { return; }
+  const open = list.filter(t => t.status === 'aberto').length;
+  $('#tkCount').textContent = `· ${open} aberto${open === 1 ? '' : 's'}`;
+  $('#tkAdmin').innerHTML = list.length ? list.map(t => {
+    const d = new Date(t.created * 1000);
+    return `<div class="tk" style="${t.status === 'resolvido' ? 'opacity:.55' : ''}"><div class="th"><span class="kb ${t.kind}">${KIND_LABEL[t.kind] || t.kind}</span><b>${esc(t.subject || '(sem assunto)')}</b></div>
+      <div class="mg">${esc(t.message)}</div>
+      <div class="act"><span class="note">${esc(t.email)} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${esc(t.page || '')}</span><div class="spacer"></div>
+      <a class="btn ghost small" href="mailto:${esc(t.email)}?subject=${encodeURIComponent('Re: ' + (t.subject || 'seu ticket no NEONCUT'))}">Responder</a>
+      <button class="btn ghost small" data-tk="${t.id}" data-st="${t.status === 'aberto' ? 'resolvido' : 'aberto'}">${t.status === 'aberto' ? '✓ Resolver' : '↺ Reabrir'}</button></div></div>`;
+  }).join('') : '<p class="note">Nenhum ticket ainda.</p>';
+}
+$('#tkAdmin').addEventListener('click', async e => {
+  const b = e.target.closest('[data-tk]'); if (!b) return;
+  try { await api('/api/admin/tickets/status', { id: +b.dataset.tk, status: b.dataset.st }); loadTickets(); } catch (err) { toast(err.message); }
+});
 $('#adGrant').onclick = async () => { try { await api('/api/admin/grant', { email: $('#adEmail').value, days: +$('#adDays').value, plan: $('#adPlan').value }); toast('Feito ✅'); loadAdmin(); } catch (e) { toast(e.message); } };
 
 const OPT_LABEL = { dur: v => v >= 120 ? '2 minutos' : v + ' segundos', n: v => v + ' cortes', model: v => ({ none: 'Sem legendas', tiny: 'Rápida (baixa ~40 MB)', base: 'Equilibrada (baixa ~80 MB)', small: 'Precisa (baixa ~250 MB, mais lenta)' }[v]) };
@@ -2285,6 +2345,37 @@ document.addEventListener('click', e => {
   const a = e.target.closest('[data-adv]'); if (a) { openAdvanced(S.clips[+a.dataset.adv]); return; }
   if (e.target.closest('#toAdv')) { const c = S.cur; if (c) openAdvanced(c); }
 });
+
+
+// ============================================================
+// SUPORTE / TICKETS
+// ============================================================
+let ticketKind = 'duvida';
+$('#supportFab').onclick = () => {
+  $('#ticketModal').classList.remove('hidden');
+  $('#tkErr').classList.add('hidden');
+  $('#tkEmailWrap').classList.toggle('hidden', !!S.user);
+  if (S.user && !$('#tkEmail').value) $('#tkEmail').value = S.user.email;
+  setTimeout(() => $(S.user ? '#tkSubject' : '#tkEmail').focus(), 50);
+};
+$('#tkKinds').addEventListener('click', e => {
+  const b = e.target.closest('[data-k]'); if (!b) return;
+  ticketKind = b.dataset.k;
+  document.querySelectorAll('#tkKinds [data-k]').forEach(x => x.classList.toggle('on', x === b));
+});
+$('#tkSend').onclick = async () => {
+  const btn = $('#tkSend'), err = $('#tkErr');
+  const body = { kind: ticketKind, subject: $('#tkSubject').value, message: $('#tkMsg').value, page: location.hash || '#inicio' };
+  if (!S.user) body.email = $('#tkEmail').value;
+  btn.disabled = true;
+  try {
+    await api('/api/tickets', body);
+    $('#ticketModal').classList.add('hidden');
+    $('#tkSubject').value = ''; $('#tkMsg').value = '';
+    toast('Ticket enviado! Obrigado 💜', 3500);
+  } catch (e) { err.textContent = e.message; err.classList.remove('hidden'); }
+  btn.disabled = false;
+};
 
 // ---------- início ----------
 (async () => {

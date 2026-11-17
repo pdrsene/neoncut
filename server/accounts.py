@@ -123,6 +123,10 @@ def init_db():
     CREATE TABLE IF NOT EXISTS hd_uses(
       id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, created REAL NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS tickets(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, email TEXT, kind TEXT,
+      subject TEXT, message TEXT, page TEXT, status TEXT DEFAULT 'aberto', created REAL NOT NULL
+    );
     """)
     cols = [r[1] for r in db().execute("PRAGMA table_info(users)").fetchall()]
     if "plan" not in cols:
@@ -614,6 +618,35 @@ async def billing_webhook(req: Request):
     return {"ok": True}
 
 
+# ---------------------------------------------------------------- tickets (suporte)
+TICKET_KINDS = {"bug": "Bug", "duvida": "Dúvida", "ideia": "Ideia", "outro": "Outro"}
+
+
+class TicketReq(BaseModel):
+    kind: str = "duvida"
+    subject: str = ""
+    message: str
+    email: str = ""
+    page: str = ""
+
+
+@router.post("/api/tickets")
+def create_ticket(body: TicketReq, req: Request):
+    throttle("ticket:" + (req.client.host if req.client else "?"), 12, 3600)
+    u = current_user(req, required=False)
+    msg = (body.message or "").strip()
+    if len(msg) < 5:
+        raise HTTPException(400, "Escreva um pouco mais na mensagem.")
+    email = (u["email"] if u else body.email).strip().lower()
+    if not u:
+        if "@" not in email or "." not in email.split("@")[-1]:
+            raise HTTPException(400, "Informe um e-mail para resposta.")
+    kind = body.kind if body.kind in TICKET_KINDS else "outro"
+    db().execute("INSERT INTO tickets(user_id,email,kind,subject,message,page,created) VALUES(?,?,?,?,?,?,?)",
+                 (u["id"] if u else None, email[:200], kind, body.subject.strip()[:160], msg[:4000], body.page[:200], time.time()))
+    return {"ok": True}
+
+
 # ---------------------------------------------------------------- admin
 def require_admin(req: Request):
     u = current_user(req)
@@ -634,9 +667,31 @@ def admin_stats(req: Request):
         "proplus": q("SELECT COUNT(*) FROM users WHERE pro_until>? AND plan='proplus'", now),
         "projects_month": q("SELECT COUNT(*) FROM projects WHERE created>=?", month_start()),
         "revenue_month": q("SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='approved' AND created>=?", month_start()),
+        "tickets_open": q("SELECT COUNT(*) FROM tickets WHERE status='aberto'"),
         "list": [{"email": u["email"], "name": u["name"], "created": u["created"], "pro_until": u["pro_until"],
                   "plan": u["plan"], "last_seen": u["last_seen"]} for u in users],
     }
+
+
+@router.get("/api/admin/tickets")
+def admin_tickets(req: Request):
+    require_admin(req)
+    rows = db().execute("SELECT * FROM tickets ORDER BY (status='aberto') DESC, created DESC LIMIT 200").fetchall()
+    return [{"id": r["id"], "email": r["email"], "kind": r["kind"], "subject": r["subject"],
+             "message": r["message"], "page": r["page"], "status": r["status"], "created": r["created"]} for r in rows]
+
+
+class TicketStatus(BaseModel):
+    id: int
+    status: str
+
+
+@router.post("/api/admin/tickets/status")
+def admin_ticket_status(body: TicketStatus, req: Request):
+    require_admin(req)
+    st = body.status if body.status in ("aberto", "resolvido") else "aberto"
+    db().execute("UPDATE tickets SET status=? WHERE id=?", (st, body.id))
+    return {"ok": True}
 
 
 class GrantReq(BaseModel):
