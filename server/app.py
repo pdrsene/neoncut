@@ -25,6 +25,7 @@ from urllib.parse import urlparse
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -45,7 +46,8 @@ MAX_MINUTES = float(os.environ.get("MAX_MINUTES", "120"))        # tamanho máxi
 MAX_LIVE_MINUTES = float(os.environ.get("MAX_LIVE_MINUTES", "60"))  # teto técnico; o plano de cada pessoa define o limite real
 MAX_PARALLEL = int(os.environ.get("MAX_PARALLEL", "2"))          # downloads simultâneos
 JOBS_PER_HOUR = int(os.environ.get("JOBS_PER_HOUR", "20"))        # por IP
-FILE_TTL = int(os.environ.get("FILE_TTL", "3600"))               # apaga arquivos depois de 1h
+FILE_TTL = int(os.environ.get("FILE_TTL", "1200"))               # apaga arquivos não buscados depois de 20 min
+MIN_FREE_MB = int(os.environ.get("MIN_FREE_MB", "700"))         # espaço livre mínimo para começar um download
 COOKIES = os.environ.get("YTDLP_COOKIES")                        # caminho de um cookies.txt (ajuda no YouTube)
 if not COOKIES and os.environ.get("YTDLP_COOKIES_TEXT"):         # ou o conteúdo do cookies.txt colado numa variável do Railway
     import base64 as _b64
@@ -272,7 +274,12 @@ def get_file(jid: str, req: Request):
     u = accounts.current_user(req)
     if not job or job.get("uid") != u["id"] or job["status"] != "done" or not job["file"] or not Path(job["file"]).exists():
         raise HTTPException(404, "Arquivo indisponível.")
-    return FileResponse(job["file"], media_type="video/mp4", filename=f"neoncut-{jid}.mp4")
+    # o navegador busca o vídeo uma vez só e guarda no aparelho: depois de enviar, apaga do servidor
+    # (o disco do servidor é pequeno; sem isso, poucos vídeos longos lotavam o disco e travavam os downloads)
+    def _drop():
+        shutil.rmtree(job.get("dir") or (DATA / jid), ignore_errors=True)
+        job["file"] = None
+    return FileResponse(job["file"], media_type="video/mp4", filename=f"neoncut-{jid}.mp4", background=BackgroundTask(_drop))
 
 
 # ---------------------------------------------------------------- download
@@ -350,6 +357,7 @@ def run_job(job: dict):
     r = job["req"]
     with SLOTS:
         try:
+            wait_for_disk(job)
             job["status"] = "downloading"; job["message"] = "Conectando na plataforma…"
             fmt = "bv*[height<=720][vcodec^=avc1]+ba[ext=m4a]/bv*[height<=720]+ba/b[height<=720]/bv*+ba/b"
             if r.get("live_minutes"):
@@ -404,6 +412,35 @@ def run_job(job: dict):
             job.update(status="error", error="A plataforma demorou demais para responder.", message="Erro")
         except Exception as e:  # noqa
             job.update(status="error", error=str(e)[:400], message="Erro")
+
+
+def free_mb() -> float:
+    try:
+        return shutil.disk_usage(DATA).free / 1e6
+    except Exception:
+        return 1e9
+
+
+def sweep_old(min_age: float):
+    now = time.time()
+    for jid, job in list(JOBS.items()):
+        if now - job["created"] > min_age and job["status"] in ("done", "error"):
+            shutil.rmtree(job.get("dir") or (DATA / jid), ignore_errors=True)
+            JOBS.pop(jid, None)
+
+
+def wait_for_disk(job: dict, max_wait: int = 600):
+    """Pouco espaço no disco: limpa o que der e espera na fila em vez de falhar no meio do download."""
+    if free_mb() >= MIN_FREE_MB:
+        return
+    sweep_old(300)
+    t0 = time.time()
+    while free_mb() < MIN_FREE_MB:
+        if time.time() - t0 > max_wait:
+            raise RuntimeError("O servidor está cheio agora (muita gente baixando ao mesmo tempo). Tente de novo em alguns minutos.")
+        job["status"] = "queued"; job["message"] = "Muita gente cortando agora: aguardando espaço no servidor…"
+        time.sleep(5)
+        sweep_old(300)
 
 
 def janitor():
