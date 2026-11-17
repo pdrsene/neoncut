@@ -128,6 +128,19 @@ def friendly_error(text: str) -> str:
 app = FastAPI(title="NEONCUT API")
 app.include_router(accounts.router)
 app.include_router(streams.router)
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    resp = await call_next(request)
+    # obriga o navegador a sempre usar HTTPS (só quando o acesso já veio por HTTPS)
+    proto = request.headers.get("x-forwarded-proto", request.url.scheme)
+    if proto == "https":
+        resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    return resp
 app.add_middleware(CORSMiddleware, allow_origins=CORS, allow_methods=["*"], allow_headers=["*"],
                    expose_headers=["Content-Length", "Content-Range", "Accept-Ranges"])
 
