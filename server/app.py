@@ -28,6 +28,11 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+try:
+    from . import accounts
+except ImportError:  # executado como script
+    import accounts  # type: ignore
+
 # ---------------------------------------------------------------- config
 ROOT = Path(__file__).resolve().parent.parent
 WEB_DIR = ROOT / "web"
@@ -35,9 +40,9 @@ DATA = Path(os.environ.get("DATA_DIR", "/tmp/neoncut"))
 DATA.mkdir(parents=True, exist_ok=True)
 
 MAX_MINUTES = float(os.environ.get("MAX_MINUTES", "90"))        # tamanho máximo de um trecho
-MAX_LIVE_MINUTES = float(os.environ.get("MAX_LIVE_MINUTES", "30"))
+MAX_LIVE_MINUTES = float(os.environ.get("MAX_LIVE_MINUTES", "30"))  # teto técnico; o plano de cada pessoa define o limite real
 MAX_PARALLEL = int(os.environ.get("MAX_PARALLEL", "2"))          # downloads simultâneos
-JOBS_PER_HOUR = int(os.environ.get("JOBS_PER_HOUR", "8"))        # por IP
+JOBS_PER_HOUR = int(os.environ.get("JOBS_PER_HOUR", "20"))        # por IP
 FILE_TTL = int(os.environ.get("FILE_TTL", "3600"))               # apaga arquivos depois de 1h
 COOKIES = os.environ.get("YTDLP_COOKIES")                        # caminho de um cookies.txt (ajuda no YouTube)
 if not COOKIES and os.environ.get("YTDLP_COOKIES_TEXT"):         # ou o conteúdo do cookies.txt colado numa variável do Railway
@@ -125,6 +130,7 @@ def friendly_error(text: str) -> str:
 
 # ---------------------------------------------------------------- app
 app = FastAPI(title="NEONCUT API")
+app.include_router(accounts.router)
 app.add_middleware(CORSMiddleware, allow_origins=CORS, allow_methods=["*"], allow_headers=["*"],
                    expose_headers=["Content-Length", "Content-Range", "Accept-Ranges"])
 
@@ -159,7 +165,9 @@ class InfoReq(BaseModel):
 
 
 @app.post("/api/info")
-def info(body: InfoReq):
+def info(body: InfoReq, req: Request):
+    u = accounts.current_user(req)
+    plan = accounts.plan_info(u)
     plat = check_url(body.url)
     try:
         r = subprocess.run(ytdlp_base() + ["-J", "--skip-download", body.url],
@@ -179,8 +187,8 @@ def info(body: InfoReq):
         "is_live": bool(j.get("is_live")),
         "thumbnail": j.get("thumbnail"),
         "url": j.get("webpage_url") or body.url,
-        "max_minutes": MAX_MINUTES,
-        "max_live_minutes": MAX_LIVE_MINUTES,
+        "max_minutes": min(MAX_MINUTES, plan["max_minutes"]),
+        "max_live_minutes": min(MAX_LIVE_MINUTES, plan["max_live_minutes"]),
     }
 
 
@@ -193,24 +201,27 @@ class JobReq(BaseModel):
 
 @app.post("/api/jobs")
 def create_job(body: JobReq, req: Request):
+    u = accounts.current_user(req)
+    plan = accounts.plan_info(u)
+    max_min, max_live = min(MAX_MINUTES, plan["max_minutes"]), min(MAX_LIVE_MINUTES, plan["max_live_minutes"])
     plat = check_url(body.url)
     if body.live_minutes is not None:
-        if not (0.5 <= body.live_minutes <= MAX_LIVE_MINUTES):
-            raise HTTPException(400, f"Grave entre 1 e {int(MAX_LIVE_MINUTES)} minutos da live.")
+        if not (0.5 <= body.live_minutes <= max_live):
+            raise HTTPException(400, f"No seu plano, grave entre 1 e {int(max_live)} minutos da live.")
     else:
         if body.start < 0 or (body.end is not None and body.end <= body.start):
             raise HTTPException(400, "Trecho inválido: o fim precisa ser depois do início.")
         if body.end is None:
             raise HTTPException(400, "Informe o fim do trecho.")
-        if body.end - body.start > MAX_MINUTES * 60 + 1:
-            raise HTTPException(400, f"Escolha um trecho de até {int(MAX_MINUTES)} minutos.")
+        if body.end - body.start > max_min * 60 + 1:
+            raise HTTPException(400, f"No seu plano, escolha um trecho de até {int(max_min)} minutos.")
     with LOCK:
-        active = [j for j in JOBS.values() if j["ip"] == client_ip(req) and j["status"] in ("queued", "downloading", "processing")]
+        active = [j for j in JOBS.values() if j.get("uid") == u["id"] and j["status"] in ("queued", "downloading", "processing")]
         if len(active) >= 2:
             raise HTTPException(429, "Você já tem downloads em andamento. Espere terminarem.")
-        rate_limit(client_ip(req))
+        rate_limit(f"u{u['id']}")
         jid = uuid.uuid4().hex[:12]
-        job = {"id": jid, "ip": client_ip(req), "url": body.url, "platform": plat, "status": "queued",
+        job = {"id": jid, "ip": client_ip(req), "uid": u["id"], "url": body.url, "platform": plat, "status": "queued",
                "progress": 0.0, "message": "Na fila…", "error": None, "file": None, "size": 0,
                "created": time.time(), "req": body.model_dump()}
         JOBS[jid] = job
@@ -223,17 +234,19 @@ def public(job: dict) -> dict:
 
 
 @app.get("/api/jobs/{jid}")
-def get_job(jid: str):
+def get_job(jid: str, req: Request):
     job = JOBS.get(jid)
-    if not job:
+    u = accounts.current_user(req)
+    if not job or job.get("uid") != u["id"]:
         raise HTTPException(404, "Download não encontrado (pode ter expirado).")
     return public(job)
 
 
 @app.get("/api/jobs/{jid}/file")
-def get_file(jid: str):
+def get_file(jid: str, req: Request):
     job = JOBS.get(jid)
-    if not job or job["status"] != "done" or not job["file"] or not Path(job["file"]).exists():
+    u = accounts.current_user(req)
+    if not job or job.get("uid") != u["id"] or job["status"] != "done" or not job["file"] or not Path(job["file"]).exists():
         raise HTTPException(404, "Arquivo indisponível.")
     return FileResponse(job["file"], media_type="video/mp4", filename=f"neoncut-{jid}.mp4")
 

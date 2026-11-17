@@ -50,3 +50,32 @@ Se o site (`web/index.html`) for hospedado separado do servidor, adicione antes 
 - **Lives:** a live é gravada em tempo real, então 10 minutos de live levam 10 minutos para gravar.
 - **Uso:** baixar vídeos pode violar os termos de uso das plataformas. O ideal é usar com conteúdo próprio ou com autorização do criador.
 - **Projeto de fãs:** não tem afiliação com a Rockstar Games nem com a Take-Two. Não use o logo nem as artes oficiais do GTA.
+
+## Vendendo o NEONCUT (contas, planos e pagamento)
+
+### 1. Banco de dados (obrigatório)
+No Railway, abra o serviço → **Settings → Volumes → New Volume** e use o caminho **`/data`**.
+Sem isso, as contas e os pagamentos são apagados a cada deploy.
+
+### 2. Variáveis (Railway → Variables)
+| Variável | Exemplo | Para que serve |
+|---|---|---|
+| `MP_ACCESS_TOKEN` | `APP_USR-...` | Chave de produção do Mercado Pago (Suas integrações → Credenciais de produção → Access Token) |
+| `ADMIN_EMAILS` | `voce@gmail.com` | Quem vê o painel de administração em Minha conta (separe por vírgula) |
+| `SUPPORT_EMAIL` | `suporte@seudominio.com` | Aparece nos termos e na privacidade |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | | Ativam o botão "Continuar com Google" |
+| `BASE_URL` | `https://neoncut.up.railway.app` | Endereço público do site (use se tiver domínio próprio) |
+| `PRICE_MONTH` / `PRICE_YEAR` | `29.90` / `239` | Preços do Pro |
+| `FREE_PROJECTS` / `PRO_PROJECTS` | `3` / `100` | Vídeos por mês em cada plano |
+| `FREE_MAX_MINUTES` / `PRO_MAX_MINUTES` | `30` / `90` | Tamanho máximo de cada vídeo |
+
+### 3. Login com Google (opcional)
+1. console.cloud.google.com → crie um projeto → **APIs e serviços → Tela de consentimento OAuth** (tipo Externo, preencha nome e e-mail).
+2. **Credenciais → Criar credenciais → ID do cliente OAuth → Aplicativo da Web**.
+3. Em "URIs de redirecionamento autorizados" coloque: `https://SEU-SITE/api/auth/google/callback`
+4. Copie o ID e a chave secreta para `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.
+
+### 4. Mercado Pago
+O Pro é vendido como pagamento único (PIX ou cartão) que libera 30 ou 365 dias. O site confirma o pagamento sozinho
+pelo retorno do checkout e pelo webhook `https://SEU-SITE/api/billing/webhook` (configurado automaticamente em cada compra).
+Para dar ou tirar Pro manualmente, use o painel de administração em **Minha conta**.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NEONCUT — cortes virais do seu gameplay</title>
+<title>NEONCUT: cortes virais da sua live em minutos</title>
 <meta name="description" content="Envie seu gameplay e receba cortes verticais nos momentos mais virais, já legendados e com template pronto.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,7 +43,7 @@ header{padding:22px 0;display:flex;align-items:center;justify-content:space-betw
 .btn.teal{background:var(--teal);box-shadow:0 8px 30px rgba(41,224,208,.25)}
 .settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-top:22px}
 label.f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted);font-weight:600}
-select,input[type=text],input[type=number],textarea{background:#120824;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px}
+select,input[type=text],input[type=number],input[type=password],input[type=email],textarea{background:#120824;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:14px}
 textarea{resize:vertical}
 .two input,.two select{width:100%;min-width:0}
 .two>*{min-width:0}
@@ -125,12 +125,86 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
 .live{display:inline-block;background:#e0153f;color:#fff;font-size:11px;font-weight:900;padding:3px 8px;border-radius:6px;margin-right:6px;animation:pulse 1.4s infinite}
 .three{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .three input,.three select{width:100%;min-width:0}
+/* ---------- produto ---------- */
+.nav{display:flex;align-items:center;gap:18px;padding:18px 0}
+.nav .links{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.nav .links a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px;padding:8px 12px;border-radius:10px}
+.nav .links a:hover,.nav .links a.on{color:var(--text);background:rgba(255,255,255,.05)}
+.nav .right{margin-left:auto;display:flex;gap:10px;align-items:center}
+.planpill{font-size:11px;font-weight:900;padding:5px 9px;border-radius:8px;letter-spacing:.5px}
+.planpill.pro{background:var(--sunset);color:#1a0629}
+.planpill.free{background:#120824;border:1px solid var(--line);color:var(--muted)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--sunset);display:grid;place-items:center;font-weight:900;color:#1a0629;text-decoration:none;overflow:hidden;font-size:14px}
+.avatar img{width:100%;height:100%;object-fit:cover}
+@media (max-width:760px){.nav{flex-wrap:wrap}.nav .links{order:3;width:100%}.hide-sm{display:none!important}}
+.view{min-height:60vh}
+.btn.big{padding:16px 28px;font-size:17px;border-radius:14px}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
+.lp-hero{text-align:center;padding:50px 0 20px}
+.lp-hero h1{font-family:Anton,sans-serif;font-weight:400;font-size:clamp(44px,8vw,92px);line-height:1;margin:0 0 18px;text-transform:uppercase}
+.lp-hero h1 em{font-style:normal;background:var(--sunset);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lp-hero>p{color:var(--muted);font-size:19px;max-width:680px;margin:0 auto;line-height:1.5}
+.lp-plats{justify-content:center;margin-top:26px}
+.lp-sec{padding:50px 0 10px}
+.lp-h{text-align:center;font-size:clamp(30px,4vw,44px)!important;margin-bottom:22px!important}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.feats div{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:18px;padding:20px}
+.feats i{font-style:normal;font-size:28px}
+.feats b{display:block;margin:10px 0 6px;font-size:17px}
+.feats p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.prices{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,360px));gap:20px;justify-content:center}
+.price{position:relative;background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid var(--line);border-radius:22px;padding:26px}
+.price.hot{border:2px solid var(--pink);box-shadow:0 20px 60px rgba(255,61,139,.2)}
+.price .tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--sunset);color:#1a0629;font-size:11px;font-weight:900;padding:5px 12px;border-radius:99px}
+.price h3{margin:0;font-size:20px}
+.price .amt{font-family:Anton,sans-serif;font-size:46px;margin:8px 0 14px}
+.price .amt small{font-family:Inter,sans-serif;font-size:15px;color:var(--muted)}
+.price ul,.ul{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:9px;font-size:15px}
+.price li:before{content:"✓ ";color:var(--teal);font-weight:900}
+.price li.off{color:var(--muted)} .price li.off:before{content:"• ";color:var(--muted)}
+.faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.faq summary{cursor:pointer;font-weight:700}
+.faq p{color:var(--muted);margin:10px 0 0;line-height:1.55}
+.lp-final{text-align:center;padding-bottom:40px}
+.apphead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:20px 0 4px}
+.usage{min-width:220px;font-size:13px;color:var(--muted)}
+.usage .bar{margin-top:6px}
+.mbox{position:relative;background:var(--bg2);border:1px solid var(--line);border-radius:22px;width:min(420px,100%);padding:28px;margin-top:6vh;display:flex;flex-direction:column;gap:12px}
+.mbox .x{position:absolute;top:12px;right:12px;background:transparent;border:0;color:var(--muted);font-size:18px}
+.mbox form{display:flex;flex-direction:column;gap:12px}
+.mbox input{width:100%}
+.gbtn{display:flex!important;gap:10px;align-items:center;justify-content:center;background:#fff!important;color:#1f1f1f!important;border:0!important}
+.or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}
+.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+.acc{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.acc .panel{margin:0}
+.acc label.f input,.acc label.f select{width:100%}
+.h4{margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
+.bigplan{font-family:Anton,sans-serif;font-size:36px;margin:2px 0 6px}
+.sw{display:flex;gap:8px;flex-wrap:wrap}
+.sw button{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer}
+.sw button.on{border-color:#fff;box-shadow:0 0 0 2px var(--pink)}
+.projs{display:grid;gap:12px;margin-top:16px}
+.proj{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;flex-wrap:wrap}
+.proj .pi{flex:1;min-width:220px}
+.proj .pt{font-weight:800}
+.proj .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.proj .chips span{font-size:11px;background:#120824;border:1px solid var(--line);padding:4px 8px;border-radius:8px;color:var(--muted)}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.legal{max-width:760px;margin:20px auto;line-height:1.6}
+.legal h4{margin:22px 0 4px}
+.legal p{color:var(--muted)}
+.tpl .lock{font-size:10px;color:var(--yellow)}
+.adlist{margin-top:14px;max-height:260px;overflow:auto;font-size:12px;display:grid;gap:4px}
+.adlist div{display:flex;gap:8px;justify-content:space-between;padding:6px 8px;background:#120824;border-radius:8px}
+footer a{color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div class="logo">
+  <header class="nav">
+    <a class="logo" href="#inicio" style="text-decoration:none;color:inherit">
       <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
         <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d8b"/><stop offset="1" stop-color="#ffb03c"/></linearGradient></defs>
         <circle cx="20" cy="20" r="18" fill="url(#lg)"/>
@@ -139,15 +213,108 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
         <path d="M24 12 C19 9 14 10 11 13 M24 12 C28 8 33 9 35 12 M24 12 C22 7 18 5 15 5 M24 12 C27 6 31 5 33 6" stroke="#0d0618" stroke-width="2.2" fill="none" stroke-linecap="round"/>
       </svg>
       NEON<span>CUT</span>
-    </div>
-    <div class="pill">🌴 Edição GTA 6</div>
+    </a>
+    <nav class="links" id="navLinks"></nav>
+    <div class="right" id="navRight"></div>
   </header>
 
-  <section class="hero" id="hero">
-    <h1>Sua live vira <em>corte viral</em><br>em minutos</h1>
-    <p>Cole o link da live ou VOD (YouTube, Twitch, Kick) ou envie o arquivo. A IA acha os momentos mais insanos, legenda o que vocês falaram e entrega tudo em vertical, com template pronto pra TikTok, Reels e Shorts.</p>
-  </section>
 
+  <!-- ===================== LANDING ===================== -->
+  <main id="vLanding" class="view">
+    <section class="lp-hero">
+      <div class="pill" style="display:inline-block;margin-bottom:18px">🌴 Pronto para o lançamento do GTA 6</div>
+      <h1>Sua live vira <em>corte viral</em><br>em minutos</h1>
+      <p>Cole o link da live ou do VOD. A IA encontra os momentos mais insanos, legenda o que vocês falaram e entrega cortes verticais prontos para TikTok, Reels e Shorts.</p>
+      <div class="row" style="justify-content:center;margin-top:26px">
+        <button class="btn big" data-cta>⚡ Começar grátis</button>
+        <a class="btn ghost big" href="#precos">Ver preços</a>
+      </div>
+      <p class="note" style="margin-top:14px">Sem cartão · Sem instalar nada · 3 vídeos grátis por mês</p>
+      <div class="plats lp-plats"><span>YouTube</span><span>Twitch</span><span>Kick</span><span>TikTok</span><span>Instagram</span><span>X</span><span>ou arquivo do PC</span></div>
+    </section>
+
+    <section class="lp-sec" id="como">
+      <h2 class="lp-h">Como funciona</h2>
+      <div class="how">
+        <div><b>1. Cole o link</b><p>YouTube, Twitch, Kick ou o arquivo da sua gravação. Escolha o trecho, ou grave a live que está rolando agora.</p></div>
+        <div><b>2. A IA corta</b><p>Ela mede gritos, tiros, explosões e movimento na tela, dá uma nota de viralização e legenda as falas palavra por palavra.</p></div>
+        <div><b>3. Baixe e poste</b><p>Escolha um template, ajuste se quiser e baixe o vídeo vertical, com título, legenda e descrição com hashtags prontos.</p></div>
+      </div>
+    </section>
+
+    <section class="lp-sec">
+      <h2 class="lp-h">Tudo que um bom corte precisa</h2>
+      <div class="feats">
+        <div><i>🔥</i><b>Nota de viralização</b><p>Cada corte ganha uma nota de 0 a 100. Poste primeiro os que têm mais chance de bombar.</p></div>
+        <div><i>💬</i><b>Legenda automática</b><p>Fala transcrita palavra por palavra, com destaque animado e emojis automáticos.</p></div>
+        <div><i>🎨</i><b>Templates prontos</b><p>Neon, Streamer Cam com facecam, Cinema, Meme. Um clique e o corte está pronto.</p></div>
+        <div><i>🔴</i><b>Lives e VODs</b><p>Grave a live ao vivo ou corte um trecho de um VOD de horas.</p></div>
+        <div><i>✂️</i><b>Editor simples</b><p>Ajuste início e fim, título, legenda, cor e posição. Sem curva de aprendizado.</p></div>
+        <div><i>🏷️</i><b>Kit da sua marca</b><p>Seu @, seu template e suas cores salvos. Todo corte já sai com a sua cara.</p></div>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="precos-sec">
+      <h2 class="lp-h">Preços simples</h2>
+      <p class="sub" style="text-align:center">Pague com PIX ou cartão pelo Mercado Pago. Cancele quando quiser: o plano é pré-pago, sem renovação automática.</p>
+      <div class="prices">
+        <div class="price">
+          <h3>Grátis</h3>
+          <div class="amt">R$ 0</div>
+          <ul>
+            <li><span data-cfg="free_projects">3</span> vídeos por mês</li>
+            <li>Até <span data-cfg="free_max_minutes">30</span> min por vídeo</li>
+            <li>Lives de até 10 min</li>
+            <li>Exporta em 720p</li>
+            <li>2 templates</li>
+            <li class="off">Marca d'água do NEONCUT</li>
+          </ul>
+          <button class="btn ghost" data-cta style="width:100%">Começar grátis</button>
+        </div>
+        <div class="price hot">
+          <div class="tag">MAIS ESCOLHIDO</div>
+          <h3>Pro</h3>
+          <div class="amt">R$ <span data-price="month">29,90</span><small>/mês</small></div>
+          <ul>
+            <li><span data-cfg="pro_projects">100</span> vídeos por mês</li>
+            <li>Até <span data-cfg="pro_max_minutes">90</span> min por vídeo</li>
+            <li>Lives de até 30 min</li>
+            <li>Exporta em 1080p</li>
+            <li>Todos os templates</li>
+            <li>Sem marca d'água</li>
+            <li>Kit da sua marca</li>
+          </ul>
+          <button class="btn" data-buy="month" style="width:100%">Assinar Pro</button>
+          <button class="btn ghost small" data-buy="year" style="width:100%;margin-top:8px">Anual: R$ <span data-price="year">239</span> (economize 33%)</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="faq">
+      <h2 class="lp-h">Perguntas frequentes</h2>
+      <div class="faq">
+        <details><summary>Preciso instalar alguma coisa?</summary><p>Não. Tudo funciona no navegador. Recomendamos Chrome ou Edge no computador.</p></details>
+        <details><summary>Funciona com qualquer jogo?</summary><p>Sim. A detecção usa o som e a imagem do vídeo, então funciona com GTA, FPS, corrida, react e até podcast. Os títulos sugeridos vêm no clima de GTA.</p></details>
+        <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>Não. O corte, a legenda e a exportação acontecem no seu navegador. Vídeos baixados por link ficam no servidor só pelo tempo do processamento e são apagados em até 1 hora.</p></details>
+        <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o Pro por 30 dias (ou 365 no anual). Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
+        <details><summary>O YouTube não funcionou, e agora?</summary><p>Às vezes o YouTube bloqueia downloads automáticos. Twitch e Kick funcionam normalmente. Para o YouTube, você também pode baixar o vídeo e usar a aba "Enviar arquivo".</p></details>
+        <details><summary>Posso cortar vídeo de outros criadores?</summary><p>Use com o seu próprio conteúdo ou com autorização do criador. Você é responsável pelos direitos do que publica.</p></details>
+      </div>
+    </section>
+
+    <section class="lp-sec lp-final">
+      <h2 class="lp-h">Seu próximo viral está na sua última live</h2>
+      <button class="btn big" data-cta>⚡ Criar meus cortes grátis</button>
+    </section>
+  </main>
+
+  <!-- ===================== APP ===================== -->
+  <main id="vApp" class="view hidden">
+    <div class="apphead">
+      <div><h2>Criar cortes</h2><p class="sub" style="margin:4px 0 0">Cole um link ou envie um vídeo. O resto é com a gente.</p></div>
+      <div class="spacer"></div>
+      <div class="usage" id="usageBox"></div>
+    </div>
   <!-- UPLOAD -->
   <section class="panel" id="upload">
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
@@ -215,11 +382,6 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
     </div>
   </section>
 
-  <section class="how" id="how">
-    <div><b>1. Detecta</b><p>Mede picos de som, gritos, tiros, explosões e movimento na tela e dá uma nota de viralização pra cada momento.</p></div>
-    <div><b>2. Legenda</b><p>Transcreve as falas de quem está jogando, palavra por palavra, com destaque animado no estilo Shorts.</p></div>
-    <div><b>3. Entrega</b><p>Escolha um template e baixe o vídeo vertical pronto. Ajuste fino só se quiser.</p></div>
-  </section>
 
   <!-- PROCESSING -->
   <section class="panel hidden" id="proc">
@@ -245,7 +407,76 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
     <div class="dl" id="dlList" style="margin-top:16px"></div>
   </section>
 
-  <footer>NEONCUT é um projeto independente de fãs, sem afiliação com a Rockstar Games ou a Take-Two Interactive. Seus vídeos são processados no seu navegador e não são enviados a nenhum servidor.</footer>
+
+  </main>
+
+  <!-- ===================== PROJETOS ===================== -->
+  <main id="vProjects" class="view hidden">
+    <div class="apphead"><div><h2>Meus projetos</h2><p class="sub" style="margin:4px 0 0">Seus vídeos processados recentemente. Projetos de link podem ser reabertos por 7 dias sem gastar cota.</p></div><div class="spacer"></div><a class="btn small" href="#criar">+ Novo corte</a></div>
+    <div id="projList" class="projs"></div>
+  </main>
+
+  <!-- ===================== CONTA ===================== -->
+  <main id="vAccount" class="view hidden">
+    <div class="apphead"><div><h2>Minha conta</h2><p class="sub" style="margin:4px 0 0" id="accEmail"></p></div><div class="spacer"></div><button class="btn ghost small" id="logoutBtn">Sair</button></div>
+    <div class="warn hidden" id="payMsg"></div>
+    <div class="acc">
+      <div class="panel">
+        <h4 class="h4">Seu plano</h4>
+        <div id="planBox"></div>
+      </div>
+      <div class="panel">
+        <h4 class="h4">Kit da marca</h4>
+        <p class="note">Todo corte novo já sai com estas escolhas.</p>
+        <label class="f">Seu @ (aparece no vídeo)<input type="text" id="bkHandle" placeholder="@seucanal"></label>
+        <label class="f" style="margin-top:10px">Template padrão<select id="bkTpl"></select></label>
+        <label class="f" style="margin-top:10px">Cor de destaque da legenda<div class="sw" id="bkColor"></div></label>
+        <label class="check" style="margin-top:12px"><input type="checkbox" id="bkEmoji" checked> Emojis automáticos nas legendas</label>
+        <label class="f" style="margin-top:10px">Hashtags padrão<input type="text" id="bkTags" placeholder="#gta6 #gtavi #gameplay #cortes #viral"></label>
+        <button class="btn small" id="bkSave" style="margin-top:14px">Salvar kit</button>
+      </div>
+      <div class="panel" id="pwPanel">
+        <h4 class="h4">Senha</h4>
+        <label class="f">Senha atual<input type="password" id="pwCur" autocomplete="current-password"></label>
+        <label class="f" style="margin-top:10px">Nova senha<input type="password" id="pwNew" autocomplete="new-password"></label>
+        <button class="btn ghost small" id="pwSave" style="margin-top:14px">Trocar senha</button>
+      </div>
+      <div class="panel hidden" id="adminPanel">
+        <h4 class="h4">Administração</h4>
+        <div id="adminStats" class="note"></div>
+        <div class="two" style="margin-top:12px">
+          <label class="f">E-mail do usuário<input type="text" id="adEmail"></label>
+          <label class="f">Dias de Pro (0 = remover)<input type="number" id="adDays" value="30"></label>
+        </div>
+        <button class="btn small" id="adGrant" style="margin-top:12px">Aplicar</button>
+        <div id="adminList" class="adlist"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===================== TERMOS / PRIVACIDADE ===================== -->
+  <main id="vTerms" class="view hidden legal">
+    <h2>Termos de uso</h2>
+    <p>Ao usar o NEONCUT você concorda com estes termos.</p>
+    <h4>1. O serviço</h4><p>O NEONCUT ajuda a criar cortes de vídeos: detecta momentos, gera legendas e exporta vídeos verticais. O processamento acontece no seu navegador. Downloads por link são feitos pelo nosso servidor apenas para entregar o vídeo a você.</p>
+    <h4>2. Seu conteúdo</h4><p>Você declara ter os direitos, ou a autorização do titular, sobre os vídeos que processa e publica. Não use o serviço para violar direitos autorais, termos de plataformas ou leis. Podemos suspender contas que fizerem uso abusivo.</p>
+    <h4>3. Planos e pagamentos</h4><p>O plano Pro é pré-pago, por 30 ou 365 dias, via Mercado Pago, sem renovação automática. As cotas mensais renovam no dia 1 de cada mês. Pedidos de reembolso podem ser feitos em até 7 dias após a compra, conforme o Código de Defesa do Consumidor.</p>
+    <h4>4. Disponibilidade</h4><p>Plataformas de vídeo podem bloquear downloads automáticos a qualquer momento. Não garantimos o funcionamento com todas as plataformas e links.</p>
+    <h4>5. Marcas</h4><p>NEONCUT é um projeto independente, sem afiliação com a Rockstar Games, a Take-Two Interactive ou as plataformas citadas. Os nomes citados pertencem aos seus donos.</p>
+    <p class="note">Contato: <span data-support></span></p>
+  </main>
+  <main id="vPrivacy" class="view hidden legal">
+    <h2>Política de privacidade</h2>
+    <h4>O que coletamos</h4><p>E-mail, nome e foto (se entrar com Google), senha protegida por criptografia, histórico de projetos (títulos, tempos e notas dos cortes) e registros de pagamento enviados pelo Mercado Pago. Não guardamos dados de cartão.</p>
+    <h4>Seus vídeos</h4><p>Arquivos enviados do seu computador não saem do seu navegador. Vídeos baixados por link ficam temporariamente no servidor e são apagados em até 1 hora.</p>
+    <h4>Para que usamos</h4><p>Para manter sua conta, controlar cotas e planos, dar suporte e melhorar o serviço. Não vendemos seus dados.</p>
+    <h4>Seus direitos (LGPD)</h4><p>Você pode pedir acesso, correção ou exclusão dos seus dados pelo contato abaixo.</p>
+    <p class="note">Contato: <span data-support></span></p>
+  </main>
+  <footer>
+    <div class="row" style="justify-content:center;gap:18px;margin-bottom:10px"><a href="#termos">Termos de uso</a><a href="#privacidade">Privacidade</a><a href="#precos">Preços</a><a href="#faq">Dúvidas</a></div>
+    NEONCUT é um projeto independente, sem afiliação com a Rockstar Games, a Take-Two Interactive ou as plataformas citadas. Arquivos enviados do seu computador são processados no seu navegador.
+  </footer>
 </div>
 
 <!-- EDITOR -->
@@ -301,20 +532,60 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
         <div class="row" style="margin-top:8px">
           <button class="btn ghost small" id="retrans">🎙 Legendar de novo</button>
           <label class="check"><input type="checkbox" id="inShowCaps" checked> Mostrar legendas</label>
+          <label class="check"><input type="checkbox" id="inEmoji" checked> Emojis automáticos</label>
+        </div>
+        <div class="two" style="margin-top:10px">
+          <label class="f">Cor de destaque<div class="sw" id="inColor"></div></label>
+          <label class="f">Altura da legenda <input type="range" id="inCapY" min="15" max="88" value="70"></label>
         </div>
       </div>
       <div class="sec">
-        <h4>Marca d'água e descrição</h4>
+        <h4>Seu @ e descrição</h4>
         <input type="text" id="inHandle" placeholder="@seucanal (opcional)" style="width:100%">
         <textarea id="inDesc" rows="3" style="width:100%;margin-top:8px"></textarea>
         <button class="btn ghost small" id="copyDesc" style="margin-top:8px">📋 Copiar descrição</button>
       </div>
       <div class="row">
+        <button class="btn ghost small" id="saveKit" title="Usar estas escolhas em todos os próximos cortes">⭐ Salvar como padrão</button>
         <div class="spacer"></div>
         <span class="note" id="expStatus"></span>
         <button class="btn" id="exportOne">⬇ Baixar este corte</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="modal hidden" id="authModal">
+  <div class="mbox">
+    <button class="x" data-close>✕</button>
+    <div class="logo" style="font-size:24px;justify-content:center;margin-bottom:6px">NEON<span>CUT</span></div>
+    <div class="tabs" style="justify-content:center"><button class="tab on" data-auth="signup">Criar conta</button><button class="tab" data-auth="login">Entrar</button></div>
+    <a class="btn ghost gbtn hidden" id="gBtn" href="/api/auth/google"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg> Continuar com Google</a>
+    <div class="or hidden" id="gOr"><span>ou</span></div>
+    <form id="authForm">
+      <label class="f" id="fName">Seu nome<input type="text" id="auName" autocomplete="name"></label>
+      <label class="f">E-mail<input type="email" id="auEmail" autocomplete="email" required></label>
+      <label class="f">Senha<input type="password" id="auPw" autocomplete="current-password" required minlength="6"></label>
+      <p class="err note hidden" id="auErr"></p>
+      <button class="btn" type="submit" id="auBtn" style="width:100%;margin-top:6px">Criar conta grátis</button>
+      <p class="note" style="text-align:center;margin:10px 0 0" id="auHint">Ao criar a conta você aceita os <a href="#termos" data-close>Termos</a> e a <a href="#privacidade" data-close>Privacidade</a>.</p>
+    </form>
+  </div>
+</div>
+<!-- UPGRADE -->
+<div class="modal hidden" id="upModal">
+  <div class="mbox">
+    <button class="x" data-close>✕</button>
+    <div style="font-size:40px;text-align:center">🚀</div>
+    <h2 style="text-align:center;font-size:30px">Desbloqueie o Pro</h2>
+    <p class="sub" style="text-align:center" id="upMsg"></p>
+    <ul class="ul">
+      <li>✅ <span data-cfg="pro_projects">100</span> vídeos por mês</li><li>✅ Até <span data-cfg="pro_max_minutes">90</span> min por vídeo e lives de 30 min</li><li>✅ 1080p sem marca d'água</li><li>✅ Todos os templates e kit da marca</li>
+    </ul>
+    <button class="btn" data-buy="month" style="width:100%">Assinar por R$ <span data-price="month">29,90</span>/mês</button>
+    <button class="btn ghost small" data-buy="year" style="width:100%;margin-top:8px">Anual: R$ <span data-price="year">239</span> (economize 33%)</button>
+    <p class="note" style="text-align:center;margin-top:10px">PIX ou cartão · Mercado Pago · sem renovação automática</p>
   </div>
 </div>
 
@@ -352,6 +623,7 @@ const TEMPLATES = [
   { id: 'cinema', name: 'Cinema',        layout: 'cinema',  caption: 'minimal', title: 'cinema', progress: false, punch: false },
   { id: 'meme',   name: 'Meme Bruto',    layout: 'blur',    caption: 'meme',    title: 'meme',   progress: false, punch: true },
 ];
+const FREE_TPLS_EARLY = ['neon', 'fuga'];
 const tplById = id => TEMPLATES.find(t => t.id === id) || TEMPLATES[0];
 
 // ---------------- Títulos ----------------
@@ -363,6 +635,8 @@ const TITLES = {
 };
 const CAT_LABEL = { tiroteio: 'Tiroteio', perseguicao: 'Perseguição', reacao: 'Reação', epico: 'Épico' };
 const HYPE = ['caraca','caralho','mano','meu deus','nossa','que isso','kkk','haha','socorro','corre','polícia','policia','morri','morreu','wasted','não acredito','nao acredito','pqp','vai vai','olha isso','eita','gg','bora','cuidado','explodiu','ai meu','puta','tá maluco','ta maluco','insano','absurdo','oh my god','what','run','no way','dios'];
+const EMOJI = [[/^(pol[ií]cia|viatura|pol[ií]cias)$/i, '🚔'], [/^(fogo|explod\w*|bomba|boom)$/i, '💥'], [/^(k{3,}|ha(ha)+|rs(rs)+|kkk\w*)$/i, '😂'], [/^(morri|morreu|morto|wasted)$/i, '💀'], [/^(dinheiro|grana|money|banco|assalto)$/i, '💰'], [/^(carro|carr[aã]o|moto)$/i, '🏎️'], [/^(corre|fuga|foge)$/i, '🏃'], [/^(tiro|tiros|bala|arma)$/i, '🔫'], [/^(caraca|nossa|meu|insano|absurdo)$/i, '😱'], [/^(gg|ganhamos|vit[oó]ria)$/i, '🏆'], [/^(praia|vice|miami|leonida)$/i, '🌴'], [/^(amor|linda|lindo)$/i, '❤️']];
+const emojiFor = w => { const x = w.replace(/[^\p{L}\p{N}]/gu, ''); for (const [re, e] of EMOJI) if (re.test(x)) return e; return ''; };
 const HALLUC = /(amara\.org|legendas pela comunidade|obrigad[oa] por assistir|inscreva-se|legenda(s)? (por|de) |transcrição|subtitles by|thanks for watching|zanotto|♪)/i;
 
 function suggestTitle(clip, salt = 0) {
@@ -667,10 +941,10 @@ function drawCaptions(ctx, clip, t, tpl, yOverride) {
   const line = clip.lineCache.lines.find(l => t >= l.start - .05 && t < l.showUntil);
   if (!line) return;
   let size = st.size; ctx.font = fontStr(st, size);
-  const words = line.words.map(w => ({ t: st.upper ? w.text.toUpperCase() : w.text, on: t >= w.start && t < w.end + .05, start: w.start }));
+  const words = line.words.map(w => { const e = clip.emojis ? emojiFor(w.text) : ''; const tx = st.upper ? w.text.toUpperCase() : w.text; return { t: e ? tx + ' ' + e : tx, on: t >= w.start && t < w.end + .05, start: w.start }; });
   let rows = wrapWords(ctx, words, 940);
   while (rows.length > 2 && size > 40) { size -= 6; ctx.font = fontStr(st, size); rows = wrapWords(ctx, words, 940); }
-  const lh = size * 1.12, y0 = (yOverride ?? st.y * H) - (rows.length - 1) * lh / 2;
+  const lh = size * 1.12, y0 = (clip.capY != null ? clip.capY * H : (yOverride ?? st.y * H)) - (rows.length - 1) * lh / 2;
   const age = t - line.start, pop = st.upper ? (age < .12 ? .82 + .18 * (age / .12) : 1) : 1;
   ctx.save(); ctx.translate(W / 2, y0); ctx.scale(pop, pop); ctx.translate(-W / 2, -y0);
   ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.textAlign = 'left';
@@ -687,7 +961,7 @@ function drawCaptions(ctx, clip, t, tpl, yOverride) {
       ctx.save(); ctx.translate(x + ww(wd) / 2, y); ctx.scale(sc, sc);
       if (st.sw) { ctx.lineWidth = st.sw; ctx.strokeStyle = st.stroke; ctx.strokeText(wd.t, -wd.w / 2, 0); }
       if (st.glow && wd.on) { ctx.shadowColor = st.glow; ctx.shadowBlur = 36; }
-      ctx.fillStyle = wd.on ? st.active : st.fill; ctx.fillText(wd.t, -wd.w / 2, 0);
+      ctx.fillStyle = wd.on ? (clip.capColor || st.active) : st.fill; if (st.glow && wd.on && clip.capColor) ctx.shadowColor = clip.capColor; ctx.fillText(wd.t, -wd.w / 2, 0);
       ctx.restore(); x += ww(wd) + sp;
     }
   });
@@ -760,7 +1034,13 @@ function renderFrame(ctx, v, clip, t, tplId) {
   }
   if (clip.showTitle !== false) drawTitle(ctx, clip.title, tpl.title, t - clip.start, clip);
   if (clip.showCaps !== false && clip.words.length) drawCaptions(ctx, clip, t, tpl, capY);
-  if (clip.handle) { ctx.font = '700 38px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(clip.handle, W / 2, H - 230); }
+  if (clip.handle) { ctx.font = '700 38px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(clip.handle, W / 2, H - (S.plan && S.plan.watermark ? 200 : 120)); }
+  if (S.plan && S.plan.watermark) {
+    ctx.save(); ctx.font = '800 34px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const tx = '✂ Feito com NEONCUT', tw = ctx.measureText(tx).width + 44, y = H - 120;
+    ctx.fillStyle = 'rgba(13,6,24,.72)'; roundRect(ctx, W / 2 - tw / 2, y - 30, tw, 60, 30); ctx.fill();
+    ctx.fillStyle = '#ffffff'; ctx.fillText(tx, W / 2, y + 2); ctx.restore();
+  }
   if (tpl.progress) {
     const p = clamp((t - clip.start) / Math.max(.1, clip.end - clip.start), 0, 1);
     ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(0, H - 14, W, 14);
@@ -781,12 +1061,12 @@ async function exportClip(clip, onProg) {
   const ev = $('#ev');
   if (!actx) { actx = new AudioContext(); evSrc = actx.createMediaElementSource(ev); evDest = actx.createMediaStreamDestination(); evSrc.connect(evDest); }
   if (actx.state === 'suspended') await actx.resume();
-  const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H; const ctx = canvas.getContext('2d');
+  const q = (S.plan && S.plan.quality) || 720, sc = q / W; const canvas = document.createElement('canvas'); canvas.width = q; canvas.height = Math.round(H * sc); const ctx = canvas.getContext('2d'); ctx.setTransform(sc, 0, 0, sc, 0, 0);
   ev.muted = false; ev.pause(); await seek(ev, clip.start);
   renderFrame(ctx, ev, clip, clip.start, clip.tpl);
   const stream = new MediaStream([...canvas.captureStream(30).getVideoTracks(), ...(S.pcm ? evDest.stream.getAudioTracks() : [])]);
   const mime = pickMime();
-  const rec = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: 9_000_000, audioBitsPerSecond: 160_000 });
+  const rec = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: (S.plan && S.plan.quality >= 1080) ? 9_000_000 : 5_000_000, audioBitsPerSecond: 160_000 });
   const chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   const stopped = new Promise(r => rec.onstop = r);
   rec.start(250);
@@ -817,7 +1097,7 @@ const fileName = (clip, blob) => `neoncut-${String(clip.idx + 1).padStart(2, '0'
 // UI
 // ============================================================
 function toast(msg, ms = 2600) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), ms); }
-TEMPLATES.forEach(t => $('#optTpl').insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.name}</option>`));
+TEMPLATES.forEach(t => $('#optTpl').insertAdjacentHTML('beforeend', `<option value="${t.id}">${t.name}${FREE_TPLS_EARLY.includes(t.id) ? "" : " (Pro)"}</option>`));
 
 function setFile(f) {
   if (!f || !f.type.startsWith('video')) { toast('Escolha um arquivo de vídeo'); return; }
@@ -838,12 +1118,15 @@ const API = (window.NEONCUT_API || '').replace(/\/$/, '');
 S.mode = 'link';
 const PLAT_RE = { youtube: /(youtube\.com|youtu\.be)/i, twitch: /twitch\.tv/i, kick: /kick\.com/i, tiktok: /tiktok\.com/i, instagram: /instagram\.com/i, x: /(twitter|x)\.com/i, facebook: /(facebook\.com|fb\.watch)/i };
 const PLAT_NAME = { youtube: 'YouTube', twitch: 'Twitch', kick: 'Kick', tiktok: 'TikTok', instagram: 'Instagram', x: 'X', facebook: 'Facebook', outro: 'Link' };
-async function api(path, body) {
+async function api(path, body, method, body2) {
+  const b = body2 !== undefined ? body2 : body;
+  const m = method || (b ? 'POST' : 'GET');
   let r;
-  try { r = await fetch(API + path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}); }
-  catch { throw new Error('Não consegui falar com o servidor de download. Ele está no ar?'); }
+  try { r = await fetch(API + path, { method: m, credentials: 'include', headers: b ? { 'Content-Type': 'application/json' } : {}, body: b ? JSON.stringify(b) : undefined }); }
+  catch { throw new Error('Não consegui falar com o servidor. Confira sua internet.'); }
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(typeof j.detail === 'string' ? j.detail : `Erro no servidor (${r.status})`);
+  if (r.status === 401 && !path.startsWith('/api/auth') && path !== '/api/me' && typeof openAuth === 'function') { setUser(null); openAuth('login'); }
+  if (!r.ok) { const e = new Error(typeof j.detail === 'string' ? j.detail : `Erro no servidor (${r.status})`); e.status = r.status; throw e; }
   return j;
 }
 function parseTime(v) {
@@ -867,6 +1150,7 @@ $('#url').addEventListener('keydown', e => { if (e.key === 'Enter') $('#fetchInf
 $('#url').addEventListener('paste', () => setTimeout(() => $('#fetchInfo').click(), 50));
 $('#fetchInfo').onclick = async () => {
   const url = $('#url').value.trim(); if (!url) return;
+  if (!S.user) { openAuth('signup', () => $('#fetchInfo').click()); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
     const info = await api('/api/info', { url }); S.link = info;
@@ -906,7 +1190,7 @@ async function fetchRemote() {
     step(0, 'active', `${lbl} · ${el}`);
   }
   step(0, 'done'); step(1, 'active');
-  const r = await fetch(API + '/api/jobs/' + job.id + '/file');
+  const r = await fetch(API + '/api/jobs/' + job.id + '/file', { credentials: 'include' });
   if (!r.ok) throw new Error('Não consegui baixar o vídeo do servidor.');
   const total = +r.headers.get('Content-Length') || job.size || 0, rd = r.body.getReader(), parts = []; let got = 0;
   for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; step(1, 'active', total ? `${(got / 1e6).toFixed(0)}/${(total / 1e6).toFixed(0)} MB` : `${(got / 1e6).toFixed(0)} MB`); }
@@ -927,12 +1211,18 @@ function step(i, state, pct) {
 function loadMeta(v, url) { return new Promise((res, rej) => { v.src = url; v.onloadedmetadata = () => res(); v.onerror = () => rej(new Error('Não consegui abrir este vídeo no navegador. Tente MP4 (H.264).')); }); }
 
 $('#go').onclick = async () => {
+  if (!S.user) { openAuth('signup', () => $('#go').click()); return; }
   if (S.mode === 'link') { const e = linkRangeError(); if (e) { showLinkErr(e); return; } }
+  if (!isPro() && !FREE_TPLS.includes($('#optTpl').value)) { openUpgrade('O template ' + tplById($('#optTpl').value).name + ' é do plano Pro.'); return; }
+  const go = $('#go'); go.disabled = true;
+  try { await startProject(); }
+  catch (e) { go.disabled = false; if (e.status === 402) openUpgrade(e.message); else if (e.status !== 401) { if (S.mode === 'link') showLinkErr(e.message); else toast(e.message, 5000); } return; }
+  go.disabled = false;
   S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked };
   const skip = []; if (S.mode !== 'link') skip.push(0, 1); if (!S.settings.visual) skip.push(4); if (S.settings.model === 'none') skip.push(6, 7);
-  $('#upload').classList.add('hidden'); $('#how').classList.add('hidden'); $('#hero').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
+  $('#upload').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
   try { await pipelineRun(skip); }
-  catch (e) { console.error(e); $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${e.message}</p><button class="btn ghost small" onclick="location.reload()">Tentar de novo</button>`); }
+  catch (e) { console.error(e); $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(e.message)}</p><p class="note">Esse vídeo não foi descontado da sua cota se você reabrir pelo menu Meus projetos.</p><button class="btn ghost small" onclick="location.reload()">Tentar de novo</button>`); }
 };
 
 async function pipelineRun(skip) {
@@ -955,7 +1245,8 @@ async function pipelineRun(skip) {
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
   S.clips = findMoments(S.feats, V, S.duration, D, S.settings.N);
-  S.clips.forEach(c => Object.assign(c, { tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: '', wordsVer: 0 }));
+  const kit = brandKit();
+  S.clips.forEach(c => Object.assign(c, { tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   step(5, 'done');
   // 5) legendas
   let capErr = null;
@@ -978,10 +1269,11 @@ async function pipelineRun(skip) {
   await document.fonts.ready; await Promise.all(['Anton', 'Bebas Neue', 'Bangers'].map(f => document.fonts.load(`40px "${f}"`))).catch(() => { });
   await document.fonts.load('900 40px Montserrat').catch(() => { }); await document.fonts.load('700 40px Inter').catch(() => { });
   showResults(capErr);
+  saveProject();
   for (let i = 0; i < S.clips.length; i++) { await drawThumb(S.clips[i]); step(8, 'active', `${i + 1}/${S.clips.length}`); }
   step(8, 'done');
 }
-function defaultDesc(c) { return `${c.title.replace(/["]/g, '')}\n\n#gta6 #gtavi #gta #gameplay #cortes #viral #fyp`; }
+function defaultDesc(c) { return `${c.title.replace(/["]/g, '')}\n\n${brandKit().tags || '#gta6 #gtavi #gameplay #cortes #viral #fyp'}`; }
 
 const thumbBig = document.createElement('canvas'); thumbBig.width = W; thumbBig.height = H;
 async function drawThumb(clip) {
@@ -1013,7 +1305,7 @@ $('#grid').addEventListener('click', e => {
   if (dl) exportWithUI([S.clips[+dl.dataset.dl]], dl);
 });
 $('#exportAll').onclick = e => exportWithUI(S.clips, e.target);
-$('#restart').onclick = () => location.reload();
+$('#restart').onclick = () => { location.hash = '#criar'; location.reload(); };
 
 let busy = false;
 async function exportWithUI(list, btn) {
@@ -1040,6 +1332,8 @@ function openEditor(clip) {
   $('#inStart').value = clip.start.toFixed(1); $('#inEnd').value = clip.end.toFixed(1);
   $('#inCorner').value = clip.corner; $('#inCamSize').value = clip.camSize; $('#inPan').value = clip.pan;
   $('#inHandle').value = clip.handle; $('#inDesc').value = clip.desc;
+  $('#inEmoji').checked = !!clip.emojis; $('#inCapY').value = Math.round((clip.capY ?? CAPTION_STYLES[tplById(clip.tpl).caption].y) * 100);
+  swatches($('#inColor'), clip.capColor || '', c => { S.cur.capColor = c; drawPreview(); });
   $('#retrans').disabled = !S.pcm || S.settings.model === 'none';
   renderTpls(); renderCaps(); drawWave();
   const pv = $('#pv'); pv.pause(); seek(pv, clip.start).then(drawPreview);
@@ -1089,17 +1383,24 @@ function setRange() {
 $('#inStart').onchange = setRange; $('#inEnd').onchange = setRange;
 
 function renderTpls() {
-  $('#tpls').innerHTML = TEMPLATES.map(t => `<button class="tpl ${S.cur.tpl === t.id ? 'on' : ''}" data-t="${t.id}"><canvas width="135" height="240"></canvas>${t.name}</button>`).join('');
+  $('#tpls').innerHTML = TEMPLATES.map(t => `<button class="tpl ${S.cur.tpl === t.id ? 'on' : ''}" data-t="${t.id}"><canvas width="135" height="240"></canvas>${t.name}${!isPro() && !FREE_TPLS.includes(t.id) ? ' <span class="lock">🔒 PRO</span>' : ''}</button>`).join('');
   const pv = $('#pv'), big = document.createElement('canvas'); big.width = W; big.height = H; const bx = big.getContext('2d');
   document.querySelectorAll('.tpl').forEach(b => { renderFrame(bx, pv, S.cur, pv.currentTime, b.dataset.t); b.querySelector('canvas').getContext('2d').drawImage(big, 0, 0, 135, 240); });
   $('#secCam').style.opacity = 1;
 }
-$('#tpls').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; S.cur.tpl = b.dataset.t; document.querySelectorAll('.tpl').forEach(x => x.classList.toggle('on', x === b)); drawPreview(); });
+$('#tpls').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; if (!isPro() && !FREE_TPLS.includes(b.dataset.t)) { openUpgrade('O template ' + tplById(b.dataset.t).name + ' é do plano Pro.'); return; } S.cur.tpl = b.dataset.t; document.querySelectorAll('.tpl').forEach(x => x.classList.toggle('on', x === b)); drawPreview(); });
 $('#inTitle').oninput = e => { S.cur.title = e.target.value; drawPreview(); };
 let salt = 1; $('#newTitle').onclick = () => { S.cur.title = suggestTitle(S.cur, salt++); $('#inTitle').value = S.cur.title; drawPreview(); };
 $('#inShowTitle').onchange = e => { S.cur.showTitle = e.target.checked; drawPreview(); };
 $('#inShowCaps').onchange = e => { S.cur.showCaps = e.target.checked; drawPreview(); };
-$('#inCorner').onchange = e => { S.cur.corner = e.target.value; if (S.cur.tpl !== 'stream') { S.cur.tpl = 'stream'; renderTpls(); } drawPreview(); };
+$('#inEmoji').onchange = e => { S.cur.emojis = e.target.checked; drawPreview(); };
+$('#inCapY').oninput = e => { S.cur.capY = +e.target.value / 100; drawPreview(); };
+$('#saveKit').onclick = async () => {
+  const c = S.cur, s = Object.assign(brandKit(), { handle: c.handle, tpl: c.tpl, color: c.capColor || '', emojis: !!c.emojis });
+  if (!isPro() && !FREE_TPLS.includes(s.tpl)) s.tpl = brandKit().tpl;
+  try { await api('/api/me/settings', { settings: s }); S.user.settings = s; toast('Salvo como padrão ⭐'); } catch (e) { toast(e.message); }
+};
+$('#inCorner').onchange = e => { S.cur.corner = e.target.value; if (S.cur.tpl !== 'stream' && (isPro() || FREE_TPLS.includes('stream'))) { S.cur.tpl = 'stream'; renderTpls(); } drawPreview(); };
 $('#inCamSize').oninput = e => { S.cur.camSize = +e.target.value; drawPreview(); };
 $('#inPan').oninput = e => { S.cur.pan = +e.target.value; drawPreview(); };
 $('#inHandle').oninput = e => { S.cur.handle = e.target.value; drawPreview(); };
@@ -1134,6 +1435,236 @@ $('#retrans').onclick = async e => {
   catch (err) { toast('Não consegui legendar: ' + err.message, 5000); }
   btn.disabled = false; btn.textContent = '🎙 Legendar de novo';
 };
+
+// ============================================================
+// PRODUTO: contas, planos, rotas, projetos, conta
+// ============================================================
+const FREE_TPLS = FREE_TPLS_EARLY;
+const COLORS = ['#ffcf3c', '#ffe600', '#39ff14', '#29e0d0', '#ff3d8b', '#ff8a3c', '#ffffff'];
+S.cfg = { price_month: 29.9, price_year: 239, free_projects: 3, pro_projects: 100, free_max_minutes: 30, pro_max_minutes: 90 };
+S.user = null;
+S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
+const money = v => Number(v).toFixed(2).replace('.', ',').replace(',00', '');
+const brandKit = () => Object.assign({ handle: '', tpl: 'neon', color: '', emojis: true, tags: '#gta6 #gtavi #gta #gameplay #cortes #viral #fyp' }, (S.user && S.user.settings) || {});
+const isPro = () => S.plan && S.plan.plan === 'pro';
+
+async function loadConfig() {
+  try { S.cfg = Object.assign(S.cfg, await api('/api/config')); } catch { }
+  document.querySelectorAll('[data-cfg]').forEach(el => { const v = S.cfg[el.dataset.cfg]; if (v != null) el.textContent = Math.round(v); });
+  document.querySelectorAll('[data-price]').forEach(el => el.textContent = money(el.dataset.price === 'year' ? S.cfg.price_year : S.cfg.price_month));
+  document.querySelectorAll('[data-support]').forEach(el => el.textContent = S.cfg.support_email || 'pelo e-mail de suporte do site');
+  $('#gBtn').classList.toggle('hidden', !S.cfg.google); $('#gOr').classList.toggle('hidden', !S.cfg.google);
+}
+async function loadMe() {
+  try { const r = await api('/api/me'); setUser(r.user); } catch { setUser(null); }
+}
+function setUser(u) {
+  S.user = u;
+  if (u) S.plan = { plan: u.plan, watermark: u.watermark, quality: u.quality, all_templates: u.all_templates, used: u.used, limit: u.limit, max_minutes: u.max_minutes, max_live_minutes: u.max_live_minutes, pro_until: u.pro_until };
+  else S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
+  renderNav(); renderUsage();
+}
+function renderNav() {
+  const u = S.user, h = location.hash || '';
+  const L = (href, txt) => `<a href="${href}" class="${h === href ? 'on' : ''}">${txt}</a>`;
+  $('#navLinks').innerHTML = u
+    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#precos', 'Planos')
+    : L('#como', 'Como funciona') + L('#precos', 'Preços') + L('#faq', 'Dúvidas');
+  $('#navRight').innerHTML = u
+    ? `<span class="planpill ${isPro() ? 'pro' : 'free'}">${isPro() ? 'PRO' : 'GRÁTIS'}</span>${isPro() ? '' : '<button class="btn small hide-sm" data-up>Seja Pro</button>'}<a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
+    : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
+}
+function renderUsage() {
+  const b = $('#usageBox'); if (!b) return;
+  if (!S.user) { b.innerHTML = ''; return; }
+  const p = S.plan, pct = Math.min(100, 100 * p.used / Math.max(1, p.limit));
+  b.innerHTML = `<b style="color:var(--text)">${p.used}/${p.limit}</b> vídeos usados este mês · ${isPro() ? 'Pro' : 'Grátis'}${isPro() ? '' : ' · <a href="#" data-up>Seja Pro</a>'}<div class="bar"><i style="width:${pct}%"></i></div>`;
+}
+
+// ---------- rotas ----------
+const VIEWS = { '': 'vLanding', '#inicio': 'vLanding', '#como': 'vLanding', '#precos': 'vLanding', '#faq': 'vLanding', '#criar': 'vApp', '#projetos': 'vProjects', '#conta': 'vAccount', '#termos': 'vTerms', '#privacidade': 'vPrivacy', '#entrar': 'vLanding' };
+const NEEDS_LOGIN = ['#criar', '#projetos', '#conta'];
+function route() {
+  let h = location.hash || '';
+  if (!h && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
+  if (NEEDS_LOGIN.includes(h) && !S.user) { openAuth('signup'); history.replaceState(null, '', '#inicio'); h = '#inicio'; }
+  if (h === '#entrar') openAuth('login');
+  const v = VIEWS[h] || 'vLanding';
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('hidden', el.id !== v));
+  if (v === 'vLanding' && ['#como', '#precos', '#faq'].includes(h)) {
+    const target = { '#como': '#como', '#precos': '#precos-sec', '#faq': '#faq' }[h];
+    setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
+  } else if (!S.cur) window.scrollTo(0, 0);
+  if (v === 'vProjects') renderProjects();
+  if (v === 'vAccount') renderAccount();
+  renderNav();
+}
+window.addEventListener('hashchange', route);
+
+// ---------- login ----------
+let authMode = 'signup', afterAuth = null;
+function openAuth(mode = 'signup', then = null) {
+  authMode = mode; afterAuth = then;
+  document.querySelectorAll('[data-auth]').forEach(b => b.classList.toggle('on', b.dataset.auth === mode));
+  $('#fName').classList.toggle('hidden', mode !== 'signup');
+  $('#auBtn').textContent = mode === 'signup' ? 'Criar conta grátis' : 'Entrar';
+  $('#auPw').autocomplete = mode === 'signup' ? 'new-password' : 'current-password';
+  $('#auHint').classList.toggle('hidden', mode !== 'signup');
+  $('#auErr').classList.add('hidden');
+  $('#authModal').classList.remove('hidden');
+  setTimeout(() => $('#auEmail').focus(), 50);
+}
+document.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => openAuth(b.dataset.auth, afterAuth));
+$('#authForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('#auBtn'); btn.disabled = true;
+  try {
+    const body = { email: $('#auEmail').value, password: $('#auPw').value };
+    if (authMode === 'signup') body.name = $('#auName').value;
+    const u = await api('/api/auth/' + (authMode === 'signup' ? 'signup' : 'login'), body);
+    setUser(u); $('#authModal').classList.add('hidden');
+    toast(authMode === 'signup' ? 'Conta criada! Bora cortar 🎬' : 'Bem-vindo de volta!');
+    const fn = afterAuth; afterAuth = null;
+    if (fn) fn(); else if (!['#criar', '#projetos', '#conta'].includes(location.hash)) location.hash = '#criar'; else route();
+  } catch (err) { $('#auErr').textContent = err.message; $('#auErr').classList.remove('hidden'); }
+  btn.disabled = false;
+});
+document.addEventListener('click', e => {
+  const t = e.target;
+  if (t.closest('[data-close]')) { t.closest('.modal')?.classList.add('hidden'); }
+  if (t.classList && t.classList.contains('modal') && t.id !== 'modal') t.classList.add('hidden');
+  const cta = t.closest('[data-cta]'); if (cta) { e.preventDefault(); if (S.user) location.hash = '#criar'; else openAuth('signup'); }
+  const ao = t.closest('[data-auth-open]'); if (ao) openAuth(ao.dataset.authOpen);
+  const up = t.closest('[data-up]'); if (up) { e.preventDefault(); openUpgrade(); }
+  const buy = t.closest('[data-buy]'); if (buy) { e.preventDefault(); buyPlan(buy.dataset.buy, buy); }
+});
+
+// ---------- upgrade e pagamento ----------
+function openUpgrade(msg) {
+  $('#upMsg').textContent = msg || 'Mais vídeos, vídeos maiores, 1080p sem marca d\'água e todos os templates.';
+  $('#upModal').classList.remove('hidden');
+}
+async function buyPlan(plan, btn) {
+  if (!S.user) { openAuth('signup', () => buyPlan(plan)); return; }
+  const old = btn && btn.innerHTML; if (btn) { btn.disabled = true; btn.textContent = 'Abrindo o Mercado Pago…'; }
+  try { const r = await api('/api/billing/checkout', { plan }); if (r.url) location.href = r.url; else throw new Error('Não recebi o link de pagamento.'); }
+  catch (e) { toast(e.message, 5000); if (btn) { btn.disabled = false; btn.innerHTML = old; } }
+}
+
+// ---------- gate antes de gerar ----------
+function fileDuration(file) { return new Promise(res => { const v = document.createElement('video'); v.preload = 'metadata'; v.onloadedmetadata = () => { res(v.duration || 0); URL.revokeObjectURL(v.src); }; v.onerror = () => res(0); v.src = URL.createObjectURL(file); }); }
+async function startProject() {
+  let minutes = 0, kind = 'file', source = '', title = '';
+  if (S.mode === 'link') {
+    const L = S.link; kind = L.is_live ? 'live' : 'link'; source = L.url; title = L.title;
+    minutes = L.is_live ? +$('#liMin').value : (Math.min(parseTime($('#liEnd').value), L.duration || 1e9) - parseTime($('#liStart').value)) / 60;
+  } else { source = S.file.name; title = S.file.name.replace(/\.[^.]+$/, ''); minutes = (await fileDuration(S.file)) / 60; }
+  const r = await api('/api/projects', { source, kind, title, minutes, reuse_id: S.reuseId || null });
+  S.project = { id: r.id, kind, source, title, range: S.mode === 'link' && !S.link.is_live ? [$('#liStart').value, $('#liEnd').value] : null };
+  S.plan = Object.assign(S.plan, r.plan); S.reuseId = null; loadMe();
+  return r;
+}
+async function saveProject() {
+  if (!S.project) return;
+  const clips = S.clips.map(c => ({ start: +c.start.toFixed(1), end: +c.end.toFixed(1), title: c.title, score: c.score, cat: c.cat, quote: c.quote }));
+  try { await api('/api/projects/' + S.project.id, null, 'PUT', { duration: S.duration, clips, meta: { range: S.project.range, kind: S.project.kind } }); } catch (e) { console.warn(e); }
+}
+
+// ---------- projetos ----------
+async function renderProjects() {
+  const box = $('#projList'); box.innerHTML = '<p class="note">Carregando…</p>';
+  let list = [];
+  try { list = (await api('/api/projects')).filter(p => !(p.meta && p.meta.hidden)); } catch (e) { box.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  if (!list.length) { box.innerHTML = '<div class="empty"><div style="font-size:40px">🎬</div><p>Nenhum projeto ainda.</p><a class="btn" href="#criar">Criar meus primeiros cortes</a></div>'; return; }
+  box.innerHTML = list.map(p => {
+    const d = new Date(p.created * 1000), recent = Date.now() / 1000 - p.created < 7 * 86400;
+    const kind = { link: '🔗 Link', live: '🔴 Live', file: '📁 Arquivo' }[p.kind] || p.kind;
+    const top = (p.clips || []).slice(0, 3).map(c => `<span>🔥${c.score} ${esc(c.title)}</span>`).join('');
+    return `<div class="proj"><div class="pi"><div class="pt">${esc(p.title || p.source || 'Projeto')}</div>
+      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${(p.clips || []).length} cortes${p.duration ? ' · ' + fmtH(p.duration) : ''}</div>
+      <div class="chips">${top}</div></div>
+      ${p.kind === 'link' && recent ? `<button class="btn small" data-reopen="${p.id}">↻ Reabrir</button>` : ''}
+      <button class="btn ghost small" data-hide="${p.id}" title="Remover da lista">🗑</button></div>`;
+  }).join('');
+  box.onclick = async e => {
+    const ro = e.target.closest('[data-reopen]'), hd = e.target.closest('[data-hide]');
+    if (hd) { await api('/api/projects/' + hd.dataset.hide, null, 'DELETE'); renderProjects(); }
+    if (ro) {
+      const p = list.find(x => x.id == ro.dataset.reopen);
+      location.hash = '#criar'; S.reuseId = p.id;
+      document.querySelector('[data-tab="link"]').click();
+      $('#url').value = p.source; $('#fetchInfo').click();
+      const wait = setInterval(() => { if (S.link) { clearInterval(wait); if (p.meta && p.meta.range) { $('#liStart').value = p.meta.range[0]; $('#liEnd').value = p.meta.range[1]; } toast('Projeto reaberto: confira o trecho e clique em Gerar cortes (não gasta cota).', 5000); } }, 300);
+      setTimeout(() => clearInterval(wait), 30000);
+    }
+  };
+}
+
+// ---------- conta ----------
+function renderAccount() {
+  const u = S.user; if (!u) return;
+  $('#accEmail').textContent = u.email;
+  const until = S.plan.pro_until ? new Date(S.plan.pro_until * 1000).toLocaleDateString('pt-BR') : '';
+  $('#planBox').innerHTML = isPro()
+    ? `<div class="bigplan">PRO ✨</div><p class="note">${until ? 'Válido até <b>' + until + '</b>.' : 'Acesso de administrador.'} Renove antes de acabar para somar os dias.</p>
+       <p class="note">${S.plan.used}/${S.plan.limit} vídeos usados este mês</p><div class="bar"><i style="width:${Math.min(100, 100 * S.plan.used / S.plan.limit)}%"></i></div>
+       <div class="row" style="margin-top:16px"><button class="btn small" data-buy="month">+30 dias (R$ ${money(S.cfg.price_month)})</button><button class="btn ghost small" data-buy="year">+1 ano (R$ ${money(S.cfg.price_year)})</button></div>`
+    : `<div class="bigplan">GRÁTIS</div><p class="note">${S.plan.used}/${S.plan.limit} vídeos usados este mês · até ${Math.round(S.plan.max_minutes)} min por vídeo · 720p com marca d'água</p>
+       <div class="bar"><i style="width:${Math.min(100, 100 * S.plan.used / S.plan.limit)}%"></i></div>
+       <div class="row" style="margin-top:16px"><button class="btn" data-buy="month">Assinar Pro · R$ ${money(S.cfg.price_month)}/mês</button><button class="btn ghost small" data-buy="year">Anual R$ ${money(S.cfg.price_year)}</button></div>
+       <p class="note" style="margin-top:8px">PIX ou cartão pelo Mercado Pago. Sem renovação automática.</p>`;
+  const bk = brandKit();
+  $('#bkHandle').value = bk.handle; $('#bkTags').value = bk.tags; $('#bkEmoji').checked = bk.emojis !== false;
+  $('#bkTpl').innerHTML = TEMPLATES.map(t => `<option value="${t.id}" ${t.id === bk.tpl ? 'selected' : ''}>${t.name}${!isPro() && !FREE_TPLS.includes(t.id) ? ' (Pro)' : ''}</option>`).join('');
+  swatches($('#bkColor'), bk.color, c => { $('#bkColor').dataset.v = c; });
+  $('#bkColor').dataset.v = bk.color || '';
+  $('#adminPanel').classList.toggle('hidden', !u.admin);
+  if (u.admin) loadAdmin();
+  const q = new URLSearchParams(location.search), pay = q.get('pagamento');
+  if (pay) {
+    const m = { approved: '✅ Pagamento aprovado! Seu Pro já está ativo.', pending: '⏳ Pagamento em análise. Assim que o Mercado Pago confirmar, o Pro é liberado sozinho (PIX costuma levar segundos).', in_process: '⏳ Pagamento em análise.', rejected: '❌ Pagamento recusado. Tente outro meio.', failure: 'O pagamento não foi concluído.' };
+    $('#payMsg').textContent = m[pay] || 'Status do pagamento: ' + pay; $('#payMsg').classList.remove('hidden');
+    history.replaceState(null, '', location.pathname + '#conta');
+    loadMe().then(() => { if (location.hash === '#conta') renderAccount(); });
+    if (pay !== 'approved') setTimeout(() => loadMe().then(() => { if (location.hash === '#conta') renderAccount(); }), 8000);
+  }
+}
+function swatches(box, cur, on) {
+  box.innerHTML = `<button type="button" data-c="" title="Padrão do template" style="background:conic-gradient(#ff3d8b,#ffb03c,#29e0d0,#ff3d8b)" class="${!cur ? 'on' : ''}"></button>` + COLORS.map(c => `<button type="button" data-c="${c}" style="background:${c}" class="${cur === c ? 'on' : ''}"></button>`).join('');
+  box.onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; box.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); on(b.dataset.c); };
+}
+$('#bkSave').onclick = async () => {
+  const s = { handle: $('#bkHandle').value.trim(), tpl: $('#bkTpl').value, color: $('#bkColor').dataset.v || '', emojis: $('#bkEmoji').checked, tags: $('#bkTags').value.trim() };
+  if (!isPro() && !FREE_TPLS.includes(s.tpl)) { openUpgrade('Esse template é do plano Pro.'); return; }
+  try { await api('/api/me/settings', { settings: s }); S.user.settings = s; toast('Kit da marca salvo ✅'); applyKitToForm(); } catch (e) { toast(e.message); }
+};
+$('#pwSave').onclick = async () => {
+  try { await api('/api/me/password', { current: $('#pwCur').value, new: $('#pwNew').value }); toast('Senha alterada ✅'); $('#pwCur').value = $('#pwNew').value = ''; } catch (e) { toast(e.message, 4000); }
+};
+$('#logoutBtn').onclick = async () => { await api('/api/auth/logout', {}); setUser(null); location.hash = '#inicio'; };
+async function loadAdmin() {
+  try {
+    const s = await api('/api/admin/stats');
+    $('#adminStats').innerHTML = `<b>${s.users}</b> usuários · <b>${s.pro}</b> Pro ativos · <b>${s.projects_month}</b> vídeos no mês · <b>R$ ${money(s.revenue_month)}</b> recebidos no mês`;
+    $('#adminList').innerHTML = s.list.map(u => `<div><span>${esc(u.email)}</span><span>${u.pro_until * 1000 > Date.now() ? 'Pro até ' + new Date(u.pro_until * 1000).toLocaleDateString('pt-BR') : 'Grátis'}</span></div>`).join('');
+  } catch (e) { $('#adminStats').textContent = e.message; }
+}
+$('#adGrant').onclick = async () => { try { await api('/api/admin/grant', { email: $('#adEmail').value, days: +$('#adDays').value }); toast('Feito ✅'); loadAdmin(); } catch (e) { toast(e.message); } };
+
+function applyKitToForm() {
+  const bk = brandKit();
+  if ([...$('#optTpl').options].some(o => o.value === bk.tpl)) $('#optTpl').value = (isPro() || FREE_TPLS.includes(bk.tpl)) ? bk.tpl : 'neon';
+}
+
+// ---------- início ----------
+(async () => {
+  await Promise.all([loadConfig(), loadMe()]);
+  applyKitToForm();
+  const q = new URLSearchParams(location.search);
+  if (q.get('erro')) { toast('Não foi possível entrar com o Google. Tente de novo.', 5000); history.replaceState(null, '', location.pathname + location.hash); }
+  route();
+})();
+
 </script>
 </body>
 </html>
