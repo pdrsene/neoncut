@@ -431,6 +431,7 @@ select option:disabled{color:#6d5a8f}
 .tstep .tn{flex:none;width:30px;height:30px;border-radius:50%;background:var(--sunset);color:#1a0629;font-weight:900;display:grid;place-items:center}
 .tstep b{display:block;margin-bottom:4px}
 .tstep p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.demo #demoExit{display:block!important}.demo #supportFab{display:none}
 </style>
 </head>
 <body>
@@ -1912,7 +1913,7 @@ function route() {
   if (v === 'vAccount') renderAccount();
   renderNav();
 }
-window.addEventListener('hashchange', route);
+window.addEventListener('hashchange', () => { if (/(decorado|demo)/i.test(location.hash) && !S.demo) { enterDemo(); return; } route(); });
 
 // ---------- login ----------
 let authMode = 'signup', afterAuth = null;
@@ -1979,13 +1980,14 @@ async function startProject() {
   return r;
 }
 async function saveProject() {
-  if (!S.project) return;
+  if (S.demo || !S.project) return;
   const clips = S.clips.map(c => ({ start: +c.start.toFixed(1), end: +c.end.toFixed(1), title: c.title, score: c.score, cat: c.cat, quote: c.quote }));
   try { await api('/api/projects/' + S.project.id, null, 'PUT', { duration: S.duration, clips, meta: { range: S.project.range, kind: S.project.kind } }); } catch (e) { console.warn(e); }
 }
 
 // ---------- projetos ----------
 async function renderProjects() {
+  if (S.demo) { renderDemoProjects(); return; }
   const box = $('#projList'); box.innerHTML = '<p class="note">Carregando…</p>';
   let list = [];
   try { list = (await api('/api/projects')).filter(p => !(p.meta && p.meta.hidden)); } catch (e) { box.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
@@ -2555,6 +2557,92 @@ function openStudioFromNav() {
   else { location.hash = '#criar'; toast('Gere cortes primeiro, depois abra o Estúdio 🎬', 3500); }
 }
 
+
+// ============================================================
+// MODO DECORADO (demonstração para gravar propaganda) — #decorado
+// ============================================================
+const DEMO_VIDEO = 'demo_showreel.mp4';
+const DEMO_HANDLE = '@seucanal';
+const DEMO_CLIPS = [
+  { s: 1.0,  e: 13.0, peak: 6.2,  score: 97, cat: 'perseguicao', tpl: 'neon',   title: 'FUGA DA POLÍCIA EM VICE CITY 🚔', cap: 'caraca a polícia tá vindo corre corre não acredito que eu escapei' },
+  { s: 2.5,  e: 15.5, peak: 13.1, score: 94, cat: 'tiroteio',    tpl: 'fuga',   title: 'TIROTEIO MAIS INSANO DO GTA 6 🔥', cap: 'eles vieram com tudo mano segura segura isso é guerra' },
+  { s: 0.5,  e: 10.5, peak: 3.0,  score: 91, cat: 'reacao',      tpl: 'stream', title: 'A REAÇÃO DELE NO FINAL 😂', cap: 'não não não espera o que foi isso kkkkk eu não acredito' },
+  { s: 5.0,  e: 18.0, peak: 9.0,  score: 88, cat: 'epico',       tpl: 'cinema', title: 'ISSO É GTA 6 🌴', cap: 'olha a vista dessa cidade mano que jogo absurdo' },
+  { s: 3.0,  e: 12.0, peak: 6.1,  score: 85, cat: 'reacao',      tpl: 'meme',   title: 'O GRITO KKKKK 💀', cap: 'socorro eu morri de novo que isso velho' },
+  { s: 8.0,  e: 20.0, peak: 13.0, score: 82, cat: 'perseguicao', tpl: 'raw',    title: 'VELOCIDADE MÁXIMA 🏎️', cap: 'acelera acelera não deixa eles pegarem a gente' },
+];
+function demoWords(txt, a, b) {
+  const ws = txt.split(/\s+/), d = (b - a - 1) / ws.length; let t = a + .4;
+  return ws.map(w => { const o = { text: w, start: t, end: t + d * .9 }; t += d; return o; });
+}
+function synthFeats(dur) {
+  const n = Math.max(2, Math.floor(dur / HOP));
+  const mk = (base, amp, f, ph) => { const a = new Float32Array(n); for (let i = 0; i < n; i++) { const t = i * HOP; a[i] = base + amp * Math.sin(t * f + ph) + amp * .4 * Math.sin(t * f * 2.7 + ph); } return a; };
+  return { loud: mk(-20, 10, 1.1, 0), voice: mk(-26, 9, 1.7, 1), low: mk(-30, 8, .7, 2), flux: mk(4, 3, 2.3, .5) };
+}
+function demoUser() {
+  return { id: 0, email: 'criador@neoncut.app', name: 'Criador', avatar: '', admin: false,
+    plan: 'proplus', plan_name: 'Pro+', pro_until: Date.now() / 1000 + 300 * 86400,
+    used: 7, limit: 250, max_minutes: 120, max_live_minutes: 60, watermark: false,
+    hd_unlimited: true, hd_left: null, hd_total: null, all_templates: true,
+    next_price: { pro: 29.9, proplus: 49.9 }, intro_left: { pro: 0, proplus: 0 },
+    settings: { handle: DEMO_HANDLE, tpl: 'neon', color: '', emojis: true, tags: '#gta6 #gtavi #gameplay #cortes #viral #fyp' } };
+}
+function renderDemoProjects() {
+  const now = Date.now() / 1000;
+  const list = [
+    { title: 'Live de ontem — Vice City RP', kind: 'live', created: now - 3600, dur: 1920, clips: [{ score: 97, title: 'Fuga da polícia' }, { score: 90, title: 'Tiroteio no bar' }, { score: 84, title: 'A reação' }] },
+    { title: 'twitch.tv/seucanal — VOD 4h', kind: 'link', created: now - 2 * 86400, dur: 3600, clips: [{ score: 93, title: 'Perseguição insana' }, { score: 88, title: 'Momento épico' }] },
+    { title: 'gameplay-ontem.mp4', kind: 'file', created: now - 5 * 86400, dur: 1260, clips: [{ score: 91, title: 'Velocidade máxima' }, { score: 80, title: 'O grito' }] },
+  ];
+  $('#projList').innerHTML = list.map(p => {
+    const d = new Date(p.created * 1000), kind = { link: '🔗 Link', live: '🔴 Live', file: '📁 Arquivo' }[p.kind];
+    const top = p.clips.map(c => `<span>🔥${c.score} ${esc(c.title)}</span>`).join('');
+    return `<div class="proj"><div class="pi"><div class="pt">${esc(p.title)}</div>
+      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} · ${p.clips.length} cortes · ${fmtH(p.dur)}</div>
+      <div class="chips">${top}</div></div><button class="btn small" data-demo-open>↻ Abrir</button></div>`;
+  }).join('');
+  $('#projList').onclick = e => { if (e.target.closest('[data-demo-open]')) location.hash = '#criar'; };
+}
+async function enterDemo() {
+  S.demo = true;
+  setUser(demoUser()); applyKitToForm();
+  document.body.classList.add('demo');
+  // carrega o vídeo de exemplo nos três elementos de vídeo
+  try { await Promise.all([loadMeta($('#pv'), DEMO_VIDEO), loadMeta($('#ev'), DEMO_VIDEO), loadMeta($('#av'), DEMO_VIDEO)]); }
+  catch (e) { toast('Não consegui carregar o vídeo de exemplo.', 4000); return; }
+  S.url = DEMO_VIDEO; S.duration = $('#pv').duration || 22; S.vw = $('#pv').videoWidth || 1280; S.vh = $('#pv').videoHeight || 720;
+  S.feats = synthFeats(S.duration);
+  S.settings = { D: 30, N: 6, model: 'base', lang: 'portuguese', tpl: 'neon', visual: true, focus: 'viral', hook: false, sens: 3, boostVoice: false, snapSilence: true };
+  S.project = { id: 'demo', kind: 'live', title: 'Live de ontem — Vice City RP', range: null };
+  S.asrInfo = { device: 'webgpu', wordMode: true };
+  const kit = brandKit();
+  S.clips = DEMO_CLIPS.map((c, i) => ({
+    idx: i, start: c.s, end: Math.min(S.duration, c.e), peakT: Math.min(c.peak, S.duration - .2),
+    score: c.score, cat: c.cat, tpl: c.tpl, words: demoWords(c.cap, c.s, Math.min(S.duration, c.e)),
+    quote: null, transcribed: true, wordsVer: 1, title: c.title,
+    corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true,
+    handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null,
+    desc: c.title.replace(/["]/g, '') + '\n\n#gta6 #gtavi #gameplay #cortes #viral #fyp',
+  }));
+  // vai direto para a tela de resultados cheia
+  if (location.hash !== '#criar') history.replaceState(null, '', '#criar');
+  document.querySelectorAll('.view').forEach(el => el.classList.toggle('hidden', el.id !== 'vApp'));
+  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#proc').classList.add('hidden');
+  renderNav();
+  await document.fonts.ready.catch(() => { });
+  showResults(null);
+  toast('🎬 Modo decorado ativo — tudo pronto para gravar. Saia em "Sair do decorado".', 5000);
+}
+function exitDemo() { S.demo = false; document.body.classList.remove('demo'); location.hash = '#inicio'; location.reload(); }
+// botão flutuante para sair do decorado
+(function demoExitBtn() {
+  const b = document.createElement('button'); b.id = 'demoExit'; b.textContent = '✕ Sair do decorado';
+  b.style.cssText = 'position:fixed;left:18px;bottom:18px;z-index:46;border:0;border-radius:999px;padding:11px 15px;font-weight:800;font-size:13px;color:#fff;background:#24143f;border:1px solid var(--line);cursor:pointer;display:none';
+  b.onclick = exitDemo; document.body.appendChild(b);
+})();
+
+
 // ---------- início ----------
 (async () => {
   await Promise.all([loadConfig(), loadMe()]);
@@ -2564,7 +2652,7 @@ function openStudioFromNav() {
   applyKitToForm();
   const q = new URLSearchParams(location.search);
   if (q.get('erro')) { toast('Não foi possível entrar com o Google. Tente de novo.', 5000); history.replaceState(null, '', location.pathname + location.hash); }
-  route();
+  if (/(decorado|demo)/i.test(location.hash)) { await enterDemo(); } else route();
 })();
 
 </script>
