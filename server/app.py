@@ -40,6 +40,19 @@ MAX_PARALLEL = int(os.environ.get("MAX_PARALLEL", "2"))          # downloads sim
 JOBS_PER_HOUR = int(os.environ.get("JOBS_PER_HOUR", "8"))        # por IP
 FILE_TTL = int(os.environ.get("FILE_TTL", "3600"))               # apaga arquivos depois de 1h
 COOKIES = os.environ.get("YTDLP_COOKIES")                        # caminho de um cookies.txt (ajuda no YouTube)
+if not COOKIES and os.environ.get("YTDLP_COOKIES_TEXT"):         # ou o conteúdo do cookies.txt colado numa variável do Railway
+    import base64 as _b64
+    _raw = os.environ["YTDLP_COOKIES_TEXT"].strip()
+    if "\t" not in _raw and "\\t" not in _raw:
+        try:
+            _raw = _b64.b64decode(_raw).decode("utf-8")
+        except Exception:
+            pass
+    _raw = _raw.replace("\\t", "\t").replace("\\n", "\n")
+    if not _raw.startswith("# "):
+        _raw = "# Netscape HTTP Cookie File\n" + _raw
+    COOKIES = str(DATA / "cookies.txt")
+    Path(COOKIES).write_text(_raw + "\n")
 PROXY = os.environ.get("YTDLP_PROXY")                            # proxy residencial opcional
 ALLOW_ANY_URL = os.environ.get("ALLOW_ANY_URL") == "1"           # só para testes
 CORS = [o.strip() for o in os.environ.get("CORS_ORIGINS", "*").split(",") if o.strip()]
