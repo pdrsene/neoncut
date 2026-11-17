@@ -3106,12 +3106,12 @@ const DEMO_VIDEO = 'demo/t_neon.mp4';
 const DEMO_SRC = { neon: 'demo/t_neon.mp4', fuga: 'demo/t_fuga.mp4', stream: 'demo/t_stream.mp4', cinema: 'demo/t_cinema.mp4', meme: 'demo/t_meme.mp4', raw: 'demo/t_raw.mp4' };
 const DEMO_HANDLE = '@seucanal';
 const DEMO_CLIPS = [
-  { s: 1.0,  e: 13.0, peak: 6.2,  score: 97, cat: 'perseguicao', tpl: 'neon',   title: 'FUGA DA POLÍCIA EM VICE CITY 🚔', cap: 'caraca a polícia tá vindo corre corre não acredito que eu escapei' },
-  { s: 2.5,  e: 15.5, peak: 13.1, score: 94, cat: 'tiroteio',    tpl: 'fuga',   title: 'TIROTEIO MAIS INSANO DO GTA 6 🔥', cap: 'eles vieram com tudo mano segura segura isso é guerra' },
-  { s: 0.5,  e: 10.5, peak: 3.0,  score: 91, cat: 'reacao',      tpl: 'stream', title: 'A REAÇÃO DELE NO FINAL 😂', cap: 'não não não espera o que foi isso kkkkk eu não acredito' },
-  { s: 5.0,  e: 18.0, peak: 9.0,  score: 88, cat: 'epico',       tpl: 'cinema', title: 'ISSO É GTA 6 🌴', cap: 'olha a vista dessa cidade mano que jogo absurdo' },
-  { s: 3.0,  e: 12.0, peak: 6.1,  score: 85, cat: 'reacao',      tpl: 'meme',   title: 'O GRITO KKKKK 💀', cap: 'socorro eu morri de novo que isso velho' },
-  { s: 8.0,  e: 20.0, peak: 13.0, score: 82, cat: 'perseguicao', tpl: 'raw',    title: 'VELOCIDADE MÁXIMA 🏎️', cap: 'acelera acelera não deixa eles pegarem a gente' },
+  { s: 1.0,  e: 13.0, peak: 6.2,  score: 97, cat: 'perseguicao', tpl: 'neon',   cap: 'caraca a polícia tá vindo corre corre não acredito que eu escapei', title: 'FUGA DA POLÍCIA EM VICE CITY 🚔', capStyle: 'karaoke', titleKind: 'sunset' },
+  { s: 2.5,  e: 15.5, peak: 13.1, score: 94, cat: 'tiroteio',    tpl: 'fuga',   cap: 'eles vieram com tudo mano segura segura isso é guerra', title: 'TIROTEIO MAIS INSANO DO GTA 6 🔥', capStyle: 'amarela', titleKind: 'alert' },
+  { s: 0.5,  e: 10.5, peak: 3.0,  score: 91, cat: 'reacao',      tpl: 'stream', cap: 'não não não espera o que foi isso kkkkk eu não acredito', title: 'A REAÇÃO DELE NO FINAL 😂', capStyle: 'caixa', titleKind: 'clean' },
+  { s: 5.0,  e: 18.0, peak: 9.0,  score: 88, cat: 'epico',       tpl: 'cinema', cap: 'olha a vista dessa cidade mano que jogo absurdo', title: 'ISSO É GTA 6 🌴', capStyle: 'neon', titleKind: 'cinema' },
+  { s: 3.0,  e: 12.0, peak: 6.1,  score: 85, cat: 'reacao',      tpl: 'meme',   cap: 'socorro eu morri de novo que isso velho', title: 'O GRITO KKKKK 💀', capStyle: 'meme', titleKind: 'meme' },
+  { s: 8.0,  e: 20.0, peak: 13.0, score: 82, cat: 'perseguicao', tpl: 'stream_nt', src: 'stream', cap: 'acelera acelera não deixa eles pegarem a gente', title: 'VELOCIDADE MÁXIMA 🏎️', capStyle: 'shorts', titleKind: '' },
 ];
 function demoWords(txt, a, b) {
   const ws = txt.split(/\s+/), d = (b - a - 1) / ws.length; let t = a + .4;
@@ -3133,23 +3133,32 @@ function demoUser() {
 function renderDemoProjects() {
   const now = Date.now() / 1000;
   const list = [
-    { title: 'Live de ontem — Vice City RP', kind: 'live', created: now - 3600, dur: 1920, clips: [{ score: 97, title: 'Fuga da polícia' }, { score: 90, title: 'Tiroteio no bar' }, { score: 84, title: 'A reação' }] },
-    { title: 'twitch.tv/seucanal — VOD 4h', kind: 'link', created: now - 2 * 86400, dur: 3600, clips: [{ score: 93, title: 'Perseguição insana' }, { score: 88, title: 'Momento épico' }] },
-    { title: 'gameplay-ontem.mp4', kind: 'file', created: now - 5 * 86400, dur: 1260, clips: [{ score: 91, title: 'Velocidade máxima' }, { score: 80, title: 'O grito' }] },
+    { title: 'Live de ontem — Vice City RP', kind: 'live', created: now - 3600, dur: 1920, clips: DEMO_CLIPS.map(c => ({ score: c.score, title: c.title, s: c.s, e: c.e })) },
+    { title: 'twitch.tv/seucanal — VOD 4h', kind: 'link', created: now - 2 * 86400, dur: 3600, clips: [{ score: 93, title: 'PERSEGUIÇÃO INSANA 🚓', s: 754, e: 812 }, { score: 88, title: 'MOMENTO ÉPICO 🌴', s: 1930, e: 1975 }, { score: 81, title: 'ASSALTO AO BANCO 💰', s: 2410, e: 2466 }] },
+    { title: 'gameplay-ontem.mp4', kind: 'file', created: now - 5 * 86400, dur: 1260, clips: [{ score: 91, title: 'VELOCIDADE MÁXIMA 🏎️', s: 300, e: 342 }, { score: 80, title: 'O GRITO KKKKK 💀', s: 905, e: 931 }] },
   ];
-  $('#projList').innerHTML = list.map(p => {
+  $('#projList').innerHTML = list.map((p, k) => {
     const d = new Date(p.created * 1000), kind = { link: '🔗 Link', live: '🔴 Live', file: '📁 Arquivo' }[p.kind];
-    const top = p.clips.map(c => `<span>🔥${c.score} ${esc(c.title)}</span>`).join('');
-    return `<div class="proj"><div class="pi"><div class="pt">${esc(p.title)}</div>
-      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} · ${p.clips.length} cortes · ${fmtH(p.dur)}</div>
-      <div class="chips">${top}</div></div><button class="btn small" data-demo-open>↻ Abrir</button></div>`;
+    const top = p.clips.slice(0, 3).map(c => `<span>🔥${c.score} ${esc(c.title)}</span>`).join('');
+    const clips = p.clips.map((c, i) => `<button type="button" data-demo-clip="${k}:${i}"><span class="sc">🔥${c.score}</span><span style="min-width:0">${esc(c.title)}<small>${fmt(c.s)} → ${fmt(c.e)} · ${Math.round(c.e - c.s)}s · 💬</small></span></button>`).join('');
+    return `<div class="proj"><div class="pi" data-demo-view><div class="pt">${esc(p.title)}</div>
+      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${p.clips.length} cortes · ${fmtH(p.dur)} · 💾 salvo neste aparelho</div>
+      <div class="chips">${top}</div></div>
+      <div class="acts"><button class="btn small" data-demo-open>✏️ Editar</button><button class="btn ghost small" data-demo-view>👁 Ver cortes</button><button class="btn ghost small" data-demo-all>⬇ Baixar tudo</button><button class="btn ghost small" title="Remover da lista">🗑</button></div>
+      <div class="pclips hidden">${clips}</div></div>`;
   }).join('');
-  $('#projList').onclick = e => { if (e.target.closest('[data-demo-open]')) location.hash = '#criar'; };
+  $('#projList').onclick = e => {
+    const g = a => e.target.closest('[' + a + ']');
+    if (g('data-demo-view')) { const pc = g('data-demo-view').closest('.proj').querySelector('.pclips'); pc.classList.toggle('hidden'); return; }
+    if (g('data-demo-all')) { toast('⬇ Baixando todos os cortes em 1080p…', 3000); return; }
+    if (g('data-demo-open') || g('data-demo-clip')) location.hash = '#criar';
+  };
 }
 async function enterDemo() {
   S.demo = true;
   setUser(demoUser()); applyKitToForm();
   document.body.classList.add('demo');
+  toast('🎬 Preparando o decorado…', 2500);
   // carrega o vídeo de exemplo nos três elementos de vídeo
   try { await Promise.all([loadMeta($('#pv'), DEMO_VIDEO), loadMeta($('#ev'), DEMO_VIDEO), loadMeta($('#av'), DEMO_VIDEO)]); }
   catch (e) { toast('Não consegui carregar o vídeo de exemplo.', 4000); return; }
@@ -3162,9 +3171,9 @@ async function enterDemo() {
   S.clips = DEMO_CLIPS.map((c, i) => ({
     idx: i, start: c.s, end: Math.min(S.duration, c.e), peakT: Math.min(c.peak, S.duration - .2),
     score: c.score, cat: c.cat, tpl: c.tpl, words: demoWords(c.cap, c.s, Math.min(S.duration, c.e)),
-    quote: null, transcribed: true, wordsVer: 1, title: c.title,
+    quote: null, transcribed: true, wordsVer: 1, title: c.title, capStyle: c.capStyle || null, titleKind: c.titleKind || null,
     corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true,
-    handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null, src: DEMO_SRC[c.tpl] || DEMO_VIDEO,
+    handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null, src: DEMO_SRC[c.src || c.tpl] || DEMO_VIDEO,
     desc: c.title.replace(/["]/g, '') + '\n\n#gta6 #gtavi #gameplay #cortes #viral #fyp',
   }));
   // vai direto para a tela de resultados cheia
