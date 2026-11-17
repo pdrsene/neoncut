@@ -123,6 +123,10 @@ def init_db():
     CREATE TABLE IF NOT EXISTS hd_uses(
       id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER NOT NULL, created REAL NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS reviews(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER UNIQUE NOT NULL, name TEXT, handle TEXT,
+      plan TEXT, rating INTEGER, text TEXT, status TEXT DEFAULT 'pendente', created REAL NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS tickets(
       id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, email TEXT, kind TEXT,
       subject TEXT, message TEXT, page TEXT, status TEXT DEFAULT 'aberto', created REAL NOT NULL
@@ -246,7 +250,11 @@ def user_public(u) -> dict:
         settings = {}
     return {"id": u["id"], "email": u["email"], "name": u["name"] or u["email"].split("@")[0],
             "avatar": u["avatar"], "admin": u["email"].lower() in ADMINS, "settings": settings,
-            **plan_info(u)}
+            "buyer": is_buyer(u["id"]), **plan_info(u)}
+
+
+def is_buyer(uid: int) -> bool:
+    return bool(db().execute("SELECT 1 FROM payments WHERE user_id=? AND status='approved' LIMIT 1", (uid,)).fetchone())
 
 
 def current_user(req: Request, required: bool = True):
@@ -485,9 +493,9 @@ def update_project(pid: int, body: ProjectUpdate, req: Request):
     if body.duration is not None:
         db().execute("UPDATE projects SET duration=? WHERE id=?", (body.duration, pid))
     if body.clips is not None:
-        db().execute("UPDATE projects SET clips=? WHERE id=?", (json.dumps(body.clips)[:60000], pid))
+        db().execute("UPDATE projects SET clips=? WHERE id=?", (json.dumps(body.clips)[:800000], pid))
     if body.meta is not None:
-        db().execute("UPDATE projects SET meta=? WHERE id=?", (json.dumps(body.meta)[:4000], pid))
+        db().execute("UPDATE projects SET meta=? WHERE id=?", (json.dumps(body.meta)[:20000], pid))
     return {"ok": True}
 
 
@@ -712,4 +720,65 @@ def admin_grant(body: GrantReq, req: Request):
         plan = body.plan if body.plan in PRICES else "pro"
         start = max(time.time(), u["pro_until"] or 0)
         db().execute("UPDATE users SET pro_until=?, plan=? WHERE id=?", (start + body.days * 86400, plan, u["id"]))
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------- avaliações (só de quem pagou de verdade)
+class ReviewReq(BaseModel):
+    rating: int = 5
+    text: str
+    handle: str = ""
+
+
+@router.get("/api/reviews")
+def public_reviews():
+    rows = db().execute("""SELECT r.*, u.avatar FROM reviews r JOIN users u ON u.id=r.user_id
+                           WHERE r.status='aprovado' ORDER BY r.created DESC LIMIT 24""").fetchall()
+    buyers = db().execute("SELECT COUNT(DISTINCT user_id) FROM payments WHERE status='approved'").fetchone()[0]
+    return {"buyers": buyers, "reviews": [{"name": r["name"], "handle": r["handle"], "plan": r["plan"], "rating": r["rating"],
+                                           "text": r["text"], "avatar": r["avatar"] or "", "created": r["created"]} for r in rows]}
+
+
+@router.get("/api/reviews/mine")
+def my_review(req: Request):
+    u = current_user(req)
+    r = db().execute("SELECT * FROM reviews WHERE user_id=?", (u["id"],)).fetchone()
+    return {"buyer": is_buyer(u["id"]), "review": dict(r) if r else None}
+
+
+@router.post("/api/reviews")
+def post_review(body: ReviewReq, req: Request):
+    u = current_user(req)
+    pay = db().execute("SELECT plan FROM payments WHERE user_id=? AND status='approved' ORDER BY created DESC LIMIT 1", (u["id"],)).fetchone()
+    if not pay:
+        raise HTTPException(403, "Só quem já assinou pode avaliar. Assim todas as avaliações são de compras reais.")
+    text = body.text.strip()
+    if len(text) < 10:
+        raise HTTPException(400, "Escreva pelo menos uma frase.")
+    name = (u["name"] or u["email"].split("@")[0]).strip()[:60]
+    db().execute("""INSERT INTO reviews(user_id,name,handle,plan,rating,text,status,created) VALUES(?,?,?,?,?,?,'pendente',?)
+                    ON CONFLICT(user_id) DO UPDATE SET name=excluded.name, handle=excluded.handle, plan=excluded.plan,
+                    rating=excluded.rating, text=excluded.text, status='pendente', created=excluded.created""",
+                 (u["id"], name, body.handle.strip()[:40], pay["plan"], max(1, min(5, body.rating)), text[:600], time.time()))
+    return {"ok": True}
+
+
+@router.get("/api/admin/reviews")
+def admin_reviews(req: Request):
+    require_admin(req)
+    rows = db().execute("""SELECT r.*, u.email FROM reviews r JOIN users u ON u.id=r.user_id
+                           ORDER BY (r.status='pendente') DESC, r.created DESC LIMIT 200""").fetchall()
+    return [dict(r) for r in rows]
+
+
+class ReviewStatus(BaseModel):
+    id: int
+    status: str
+
+
+@router.post("/api/admin/reviews/status")
+def admin_review_status(body: ReviewStatus, req: Request):
+    require_admin(req)
+    st = body.status if body.status in ("pendente", "aprovado", "oculto") else "pendente"
+    db().execute("UPDATE reviews SET status=? WHERE id=?", (st, body.id))
     return {"ok": True}

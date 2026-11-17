@@ -432,6 +432,69 @@ select option:disabled{color:#6d5a8f}
 .tstep b{display:block;margin-bottom:4px}
 .tstep p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
 .demo #demoExit{display:block!important}.demo #supportFab{display:none}
+/* ---------- seletor de tempo em rolagem ---------- */
+.tpick{cursor:pointer;text-align:left;font-variant-numeric:tabular-nums;font-size:17px!important;font-weight:700;caret-color:transparent;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b4a6cf' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.wheelbox{position:relative;background:var(--bg2);border:1px solid var(--line);border-radius:22px;width:min(380px,100%);padding:20px;margin-top:12vh}
+.wheelbox h3{font-size:18px;margin:0 0 4px;text-align:center}
+.wheels{position:relative;display:flex;justify-content:center;gap:4px;height:220px;margin:12px 0 16px;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent)}
+.wheels .band{position:absolute;left:0;right:0;top:88px;height:44px;border-radius:12px;background:rgba(255,255,255,.09);pointer-events:none}
+.wheel{width:84px;height:220px;overflow-y:scroll;scroll-snap-type:y mandatory;scrollbar-width:none;padding:88px 0;box-sizing:border-box;position:relative;z-index:1;overscroll-behavior:contain}
+.wheel::-webkit-scrollbar{display:none}
+.wheel div{height:44px;line-height:44px;text-align:center;font-size:30px;font-weight:800;scroll-snap-align:center;color:#fff;font-variant-numeric:tabular-nums;transition:opacity .1s;user-select:none;cursor:pointer}
+.wheels .sep{align-self:center;font-size:28px;font-weight:800;color:var(--muted);z-index:1}
+.wheels.lbls{height:auto;margin:14px 0 -6px;-webkit-mask-image:none;mask-image:none}
+.wheels.lbls span:not(.sep){width:84px;text-align:center;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.wheels.lbls .sep{font-size:12px}
+/* ---------- projetos ---------- */
+.proj .acts{display:flex;gap:8px;flex-wrap:wrap}
+.proj .pclips{flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:4px}
+.proj .pclips button{display:flex;gap:10px;align-items:center;text-align:left;background:#120824;border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--text);font-size:13px;font-weight:700}
+.proj .pclips button small{display:block;color:var(--muted);font-weight:500;margin-top:2px}
+.proj .pclips .sc{flex:none;font-size:12px;padding:4px 7px;border-radius:8px;background:var(--sunset);color:#1a0629;font-weight:900}
+.proj .pi{cursor:pointer}
+.backbar{display:flex;gap:10px;align-items:center;padding:12px 16px;border-radius:14px;background:#120824;border:1px solid var(--line);margin:18px 0 0}
+/* ---------- recorte da facecam ---------- */
+.cropbox{position:relative;background:var(--bg2);border:1px solid var(--line);border-radius:22px;width:min(860px,100%);padding:20px;margin-top:4vh}
+.cropwrap{position:relative;width:100%;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;touch-action:none;user-select:none}
+.cropwrap canvas{width:100%;height:100%;display:block}
+.croprect{position:absolute;border:3px solid #ffcf3c;border-radius:8px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move;touch-action:none}
+.croprect .hdl{position:absolute;right:2px;bottom:2px;width:26px;height:26px;border-radius:50%;background:#ffcf3c;border:3px solid #1a0629;cursor:nwse-resize}
+.croprect span{position:absolute;left:8px;top:6px;font-size:12px;font-weight:800;color:#ffcf3c;text-shadow:0 1px 3px #000}
+/* ---------- estilos de legenda / título ---------- */
+.cstyles{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.cstyles button{border:2px solid var(--line);border-radius:12px;background:#120824;padding:10px 6px;color:#fff;font-size:15px;line-height:1.1;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.cstyles button small{font-size:10px;color:var(--muted);font-family:Inter,sans-serif;font-weight:600;text-transform:none;letter-spacing:0}
+.cstyles button.on{border-color:#ffcf3c;box-shadow:0 0 0 3px rgba(255,207,60,.2)}
+.vgen{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.vgen button{text-align:left;background:#120824;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--text);font-weight:700;font-size:13px}
+.vgen button:hover{border-color:#ffcf3c}
+.tagchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tagchips span{font-size:12px;padding:4px 9px;border-radius:999px;background:#120824;border:1px solid var(--line);color:#29e0d0;font-weight:700}
+/* ---------- YouTube, viralizando, provas ---------- */
+.ytchans{display:flex;gap:14px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:thin}
+.ytchan{flex:none;width:118px;text-align:center;color:var(--text);text-decoration:none;font-size:13px;font-weight:700}
+.ytchan img,.ytchan .ph{width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 8px;border:2px solid var(--line);background:var(--sunset)}
+.ytchan .ph{display:grid;place-items:center;font-size:28px;color:#1a0629}
+.ytchan small{display:block;color:var(--muted);font-weight:500;margin-top:2px}
+.ytgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px 18px}
+.shorts{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.short{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:9/16;background:#120824;border:1px solid var(--line);cursor:pointer;color:#fff;text-decoration:none;display:block}
+.short img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.34)}
+.short .ov{position:absolute;inset:auto 0 0 0;padding:40px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-size:12px;font-weight:700;line-height:1.25}
+.short .ov small{display:block;color:#ffcf3c;margin-top:4px}
+.short .vw{position:absolute;top:8px;left:8px;font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.65)}
+.short .pl{position:absolute;inset:0;display:grid;place-items:center;font-size:40px;opacity:0;transition:.2s}
+.short:hover .pl{opacity:1}
+.playerbox{position:relative;width:min(400px,100%);margin-top:4vh}
+.playerbox iframe{width:100%;aspect-ratio:9/16;border:0;border-radius:18px;background:#000;display:block}
+.playerbox.wide{width:min(900px,100%)}.playerbox.wide iframe{aspect-ratio:16/9}
+.reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.review{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.review .stars{color:#ffcf3c;letter-spacing:2px}
+.review .who{display:flex;gap:10px;align-items:center;font-size:13px}
+.review .who img,.review .who .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--sunset);display:grid;place-items:center;font-weight:900;color:#1a0629}
+.review .ver{font-size:11px;color:#39ff14;font-weight:800}
+.credit{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
 </style>
 </head>
 <body>
@@ -487,6 +550,19 @@ select option:disabled{color:#6d5a8f}
       </div>
     </section>
 
+    <section class="lp-sec hidden" id="viralSec">
+      <h2 class="lp-h">🔥 Está viralizando</h2>
+      <p class="sub" style="text-align:center">Os cortes de GTA RP que mais estão bombando nos Shorts agora. Inspire-se e faça os seus.</p>
+      <div class="shorts" id="viralGrid"></div>
+      <p class="credit">Vídeos dos canais de cada criador no YouTube, exibidos pelo player oficial. Não foram feitos com o NEONCUT.</p>
+    </section>
+
+    <section class="lp-sec hidden" id="proofSec">
+      <h2 class="lp-h">Quem assinou, aprovou</h2>
+      <p class="sub" style="text-align:center" id="proofSub">Avaliações de criadores com compra verificada no NEONCUT.</p>
+      <div class="reviews" id="proofGrid"></div>
+    </section>
+
     <section class="lp-sec" id="templates">
       <h2 class="lp-h">Escolha o visual do seu corte</h2>
       <p class="sub" style="text-align:center">Templates prontos. Ou use "Só o corte" para receber o trecho no formato original, sem edição.</p>
@@ -526,6 +602,7 @@ select option:disabled{color:#6d5a8f}
       <div class="spacer"></div>
       <div class="usage" id="usageBox"></div>
     </div>
+  <div class="backbar hidden" id="backBar"><span>✂ Você tem cortes abertos: <b id="backTitle"></b></span><div class="spacer"></div><button class="btn small" id="backToRes">Voltar aos cortes</button></div>
   <!-- UPLOAD -->
   <section class="panel" id="upload">
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
@@ -540,8 +617,8 @@ select option:disabled{color:#6d5a8f}
           <div class="note" id="liMeta"></div>
           <div id="liVod">
             <div class="three">
-              <label class="f">Começar em (h:mm:ss)<input type="text" id="liStart" value="0:00"></label>
-              <label class="f">Terminar em (h:mm:ss)<input type="text" id="liEnd"></label>
+              <label class="f">Começar em<input type="text" id="liStart" value="0:00" class="tpick" readonly inputmode="none"></label>
+              <label class="f">Terminar em<input type="text" id="liEnd" class="tpick" readonly inputmode="none"></label>
             </div>
             <p class="note" id="liHint" style="margin:8px 0 0"></p>
           </div>
@@ -638,6 +715,15 @@ select option:disabled{color:#6d5a8f}
     <div class="sgrid" id="sgrid"></div>
   </section>
 
+  <section class="streams hidden" id="ytSec">
+    <div class="shead"><h2>▶️ Canais do YouTube recomendados</h2><span class="note">Toque num vídeo para cortar</span></div>
+    <div class="ytchans" id="ytChans"></div>
+    <div class="shead" style="margin-top:10px"><h2 style="font-size:20px">Sugestões de vídeos para cortar</h2></div>
+    <div class="ytgrid" id="ytVideos"></div>
+    <div class="shead" style="margin-top:26px"><h2 style="font-size:20px">🔥 Cortes viralizando agora</h2><span class="note">Inspiração dos Shorts de GTA RP</span></div>
+    <div class="shorts" id="ytShorts"></div>
+  </section>
+
   <section class="panel hidden" id="proc">
     <h2>Cortando seu gameplay…</h2>
     <p class="sub">Deixe esta aba aberta. Na primeira vez, a IA de legendas é baixada e fica salva no navegador.</p>
@@ -690,6 +776,14 @@ select option:disabled{color:#6d5a8f}
         <label class="f" style="margin-top:10px">Hashtags padrão<input type="text" id="bkTags" placeholder="#gta6 #gtavi #gameplay #cortes #viral"></label>
         <button class="btn small" id="bkSave" style="margin-top:14px">Salvar kit</button>
       </div>
+      <div class="panel hidden" id="revPanel">
+        <h3>⭐ Avalie o NEONCUT</h3>
+        <p class="note" id="revNote">Sua avaliação aparece na página inicial com o selo de compra verificada, depois de revisada.</p>
+        <div class="row" id="revStars" style="font-size:28px;gap:4px;cursor:pointer"></div>
+        <label class="f" style="margin-top:10px">Seu @ (opcional)<input type="text" id="revHandle" maxlength="40" placeholder="@seucanal"></label>
+        <label class="f" style="margin-top:10px">Sua opinião<textarea id="revText" rows="3" maxlength="600" placeholder="O que mudou nos seus cortes?"></textarea></label>
+        <button class="btn small" id="revSend" style="margin-top:12px">Enviar avaliação</button>
+      </div>
       <div class="panel" id="pwPanel">
         <h4 class="h4">Senha</h4>
         <label class="f">Senha atual<input type="password" id="pwCur" autocomplete="current-password"></label>
@@ -706,6 +800,12 @@ select option:disabled{color:#6d5a8f}
         </div>
         <button class="btn small" id="adGrant" style="margin-top:12px">Aplicar</button>
         <div id="adminList" class="adlist"></div>
+        <h4 class="h4" style="margin-top:18px">Canais do YouTube recomendados</h4>
+        <p class="note">Um por linha: @handle, link do canal ou ID (UC…). Aparecem em "Criar cortes" e alimentam o "Está viralizando".</p>
+        <textarea id="adYt" rows="5" style="width:100%"></textarea>
+        <div class="row" style="margin-top:8px"><button class="btn small" id="adYtSave">Salvar canais</button><span class="note" id="adYtInfo"></span></div>
+        <h4 class="h4" style="margin-top:18px">Avaliações <span id="rvCount" class="note" style="text-transform:none;letter-spacing:0"></span></h4>
+        <div id="rvAdmin" class="tklist"></div>
         <h4 class="h4" style="margin-top:18px">Tickets <span id="tkCount" class="note" style="text-transform:none;letter-spacing:0"></span></h4>
         <div id="tkAdmin" class="tklist"></div>
       </div>
@@ -773,10 +873,18 @@ select option:disabled{color:#6d5a8f}
         <div class="row" style="margin-top:8px">
           <button class="btn ghost small" id="newTitle">🎲 Sugerir outro</button>
           <label class="check"><input type="checkbox" id="inShowTitle" checked> Mostrar título</label>
+          <button class="btn ghost small" id="delTitle" title="Apagar o título">🗑 Apagar</button>
         </div>
+        <div class="cstyles" id="titleStyles" style="margin-top:10px"></div>
+        <div class="two" style="margin-top:10px">
+          <label class="f">Altura do título <input type="range" id="inTitleY" min="5" max="90" value="13"></label>
+          <label class="f">Tamanho do título <input type="range" id="inTitleS" min="60" max="150" value="100"></label>
+        </div>
+        <p class="note" style="margin:6px 0 0">Dica: arraste o título ou a legenda direto no vídeo para mover.</p>
       </div>
       <div class="sec" id="secCam">
         <h4>Facecam / enquadramento</h4>
+        <button class="btn small teal" id="camCrop" style="width:100%;margin-bottom:10px">🎯 Encontrar a webcam (arrastar e pinçar)</button>
         <div class="two">
           <label class="f">Canto da facecam
             <select id="inCorner"><option value="tl">Superior esquerdo</option><option value="tr">Superior direito</option><option value="bl">Inferior esquerdo</option><option value="br" selected>Inferior direito</option></select>
@@ -787,6 +895,7 @@ select option:disabled{color:#6d5a8f}
       </div>
       <div class="sec">
         <h4>Legendas <span id="capInfo" style="text-transform:none;letter-spacing:0"></span></h4>
+        <div class="cstyles" id="capStyles" style="margin-bottom:10px"></div>
         <div class="caps" id="caps"></div>
         <div class="row" style="margin-top:8px">
           <button class="btn ghost small" id="retrans">🎙 Legendar de novo</button>
@@ -797,9 +906,17 @@ select option:disabled{color:#6d5a8f}
           <label class="f">Cor de destaque<div class="sw" id="inColor"></div></label>
           <label class="f">Altura da legenda <input type="range" id="inCapY" min="15" max="88" value="70"></label>
         </div>
+        <div class="two" style="margin-top:10px">
+          <label class="f">Tamanho da legenda <input type="range" id="inCapS" min="60" max="150" value="100"></label>
+          <div class="f" style="justify-content:flex-end"><button class="btn ghost small" id="delCaps">🗑 Apagar todas as legendas</button></div>
+        </div>
       </div>
       <div class="sec">
-        <h4>Seu @ e descrição</h4>
+        <h4>Título, descrição e hashtags virais</h4>
+        <button class="btn small" id="genViral" style="width:100%">✨ Gerar título, descrição e hashtags</button>
+        <div class="vgen hidden" id="vgenTitles"></div>
+        <div class="tagchips" id="vgenTags"></div>
+        <h4 style="margin-top:14px">Seu @ e descrição</h4>
         <input type="text" id="inHandle" placeholder="@seucanal (opcional)" style="width:100%">
         <textarea id="inDesc" rows="3" style="width:100%;margin-top:8px"></textarea>
         <button class="btn ghost small" id="copyDesc" style="margin-top:8px">📋 Copiar descrição</button>
@@ -862,6 +979,35 @@ select option:disabled{color:#6d5a8f}
 
 
 <!-- BOTÃO DE SUPORTE / TICKET -->
+<div class="modal hidden" id="wheelModal">
+  <div class="wheelbox">
+    <h3 id="wheelTitle">Começar em</h3>
+    <p class="note" style="text-align:center;margin:0" id="wheelHint"></p>
+    <div class="wheels lbls" id="wheelLbls"></div>
+    <div class="wheels" id="wheels"><div class="band"></div></div>
+    <div class="row"><button class="btn ghost" data-close style="flex:1">Cancelar</button><button class="btn" id="wheelOk" style="flex:1">OK</button></div>
+  </div>
+</div>
+<div class="modal hidden" id="cropModal">
+  <div class="cropbox">
+    <div class="row" style="margin-bottom:12px"><h3 style="margin:0;font-size:20px">🎯 Onde está a webcam?</h3><div class="spacer"></div><button class="btn ghost small" data-close>✕</button></div>
+    <p class="note" style="margin:0 0 12px">Arraste o quadro amarelo até o rosto do streamer. Para aumentar ou diminuir, use dois dedos (pinça), a bolinha do canto ou a roda do mouse.</p>
+    <div class="cropwrap" id="cropWrap"><canvas id="cropCv" width="960" height="540"></canvas><div class="croprect" id="cropRect"><span>WEBCAM</span><div class="hdl" id="cropHdl"></div></div></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost small" id="cropReset">↺ Voltar ao canto</button>
+      <div class="spacer"></div>
+      <label class="check"><input type="checkbox" id="cropAll" checked> Aplicar em todos os cortes</label>
+      <button class="btn" id="cropOk">Usar este enquadramento</button>
+    </div>
+  </div>
+</div>
+<div class="modal hidden" id="playerModal">
+  <div class="playerbox" id="playerBox">
+    <div class="row" style="margin-bottom:10px"><b id="playerTitle" style="font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"></b><button class="btn ghost small" data-close>✕</button></div>
+    <iframe id="playerFrame" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div class="row" style="margin-top:10px"><a class="btn ghost small" id="playerOpen" target="_blank" rel="noopener" style="flex:1">Abrir no YouTube</a><button class="btn small" id="playerCut" style="flex:1">✂ Cortar este vídeo</button></div>
+  </div>
+</div>
 <button class="fab" id="supportFab" title="Enviar um ticket"><i>💬</i><span>Suporte</span></button>
 <div class="modal hidden" id="ticketModal">
   <div class="mbox">
@@ -957,17 +1103,42 @@ const CAPTION_STYLES = {
   shorts:  { font: 'Montserrat', weight: 900, size: 88, upper: true, fill: '#ffffff', stroke: '#000000', sw: 18, active: '#ffe600', glow: null, maxChars: 16, maxWords: 3, y: .66 },
   minimal: { font: 'Inter', weight: 700, size: 64, upper: false, fill: '#ffffff', stroke: null, sw: 0, active: '#29e0d0', box: 'rgba(10,4,20,.72)', maxChars: 30, maxWords: 7, y: .78 },
   meme:    { font: 'Bangers', size: 118, upper: true, fill: '#ffffff', stroke: '#000000', sw: 20, active: '#39ff14', glow: null, maxChars: 14, maxWords: 2, y: .64 },
+  amarela: { font: 'Montserrat', weight: 900, size: 88, upper: true, fill: '#ffe600', stroke: '#000000', sw: 18, active: '#ffffff', glow: null, maxChars: 16, maxWords: 3, y: .66 },
+  caixa:   { font: 'Inter', weight: 800, size: 70, upper: false, fill: '#ffffff', stroke: null, sw: 0, active: '#ffcf3c', box: 'rgba(0,0,0,.8)', maxChars: 26, maxWords: 5, y: .74 },
+  simples: { font: 'Inter', weight: 800, size: 72, upper: false, fill: '#ffffff', stroke: '#000000', sw: 10, active: '#ffffff', glow: null, maxChars: 28, maxWords: 6, y: .74 },
+  karaoke: { font: 'Montserrat', weight: 900, size: 84, upper: true, fill: '#ffffff', stroke: '#000000', sw: 16, active: '#39ff14', glow: '#39ff14', maxChars: 18, maxWords: 4, y: .68 },
 };
-const TPL_DESC = { neon: 'Fundo desfocado e legenda neon', fuga: 'Tela cheia com faixa de alerta', stream: 'Facecam em cima, jogo embaixo', cinema: 'Faixas de cinema e legenda limpa', meme: 'Faixa branca de meme', raw: 'Formato original, sem edição' };
+// legendas pré-configuradas (o usuário escolhe no editor)
+const CAP_PRESETS = [
+  { id: '', name: 'Do template', css: 'font-family:Inter;font-weight:800' },
+  { id: 'shorts', name: 'CLÁSSICA', css: 'font-family:Montserrat;font-weight:900;color:#fff;-webkit-text-stroke:1px #000;text-shadow:0 2px 0 #000' },
+  { id: 'amarela', name: 'AMARELA', css: 'font-family:Montserrat;font-weight:900;color:#ffe600;text-shadow:0 2px 0 #000' },
+  { id: 'caixa', name: 'Caixa preta', css: 'font-family:Inter;font-weight:800;background:#000;padding:2px 8px;border-radius:6px' },
+  { id: 'simples', name: 'Simples', css: 'font-family:Inter;font-weight:800;text-shadow:0 2px 2px #000' },
+  { id: 'karaoke', name: 'KARAOKÊ', css: 'font-family:Montserrat;font-weight:900;color:#39ff14;text-shadow:0 0 10px #39ff14' },
+  { id: 'neon', name: 'NEON', css: 'font-family:Anton;color:#ffcf3c;text-shadow:0 0 10px #ff3d8b' },
+  { id: 'meme', name: 'MEME', css: 'font-family:Bangers;font-size:18px;color:#fff;-webkit-text-stroke:1px #000' },
+  { id: 'minimal', name: 'Discreta', css: 'font-family:Inter;font-weight:700;color:#29e0d0' },
+];
+const TITLE_KINDS = [
+  { id: '', name: 'Do template', css: 'font-family:Inter;font-weight:800' },
+  { id: 'sunset', name: 'FAIXA NEON', css: 'font-family:Anton;color:#1a0629;background:linear-gradient(90deg,#ff3d8b,#ffb03c);padding:2px 8px;border-radius:6px' },
+  { id: 'alert', name: 'ALERTA', css: 'font-family:\'Bebas Neue\';font-size:18px;background:#080410;border-top:3px solid #e0153f;border-bottom:3px solid #1d4bff;padding:0 8px' },
+  { id: 'cinema', name: 'CINEMA', css: 'font-family:\'Bebas Neue\';font-size:18px;border-bottom:3px solid #ff6a5c' },
+  { id: 'meme', name: 'MEME', css: 'font-family:Anton;color:#000;background:#fff;padding:2px 8px' },
+  { id: 'clean', name: 'LIMPO', css: 'font-family:Anton;color:#fff;-webkit-text-stroke:1px #000;text-shadow:0 2px 0 #000' },
+];
+const TPL_DESC = { neon: 'Fundo desfocado e legenda neon', fuga: 'Tela cheia com faixa de alerta', stream: 'Facecam em cima, jogo embaixo, com título', stream_nt: 'Facecam em cima, jogo embaixo, sem título', cinema: 'Faixas de cinema e legenda limpa', meme: 'Faixa branca de meme', raw: 'Formato original, sem edição' };
 const TEMPLATES = [
   { id: 'neon',   name: 'Neon Sunset',   layout: 'blur',    caption: 'neon',    title: 'sunset', progress: true,  punch: true },
   { id: 'fuga',   name: 'Fuga 5 Estrelas', layout: 'full',  caption: 'shorts',  title: 'alert',  progress: true,  punch: true },
   { id: 'stream', name: 'Webcam do Streamer', layout: 'facecam', caption: 'shorts',  title: 'sunset', progress: true,  punch: false },
+  { id: 'stream_nt', name: 'Webcam sem título', layout: 'facecam', caption: 'shorts', title: 'none', progress: true,  punch: false },
   { id: 'cinema', name: 'Cinema',        layout: 'cinema',  caption: 'minimal', title: 'cinema', progress: false, punch: false },
   { id: 'meme',   name: 'Meme Bruto',    layout: 'blur',    caption: 'meme',    title: 'meme',   progress: false, punch: true },
   { id: 'raw',    name: 'Só o corte',    layout: 'raw',     caption: 'shorts',  title: 'none',   progress: false, punch: false },
 ];
-const FREE_TPLS_EARLY = ['raw', 'stream'];
+const FREE_TPLS_EARLY = ['raw', 'stream', 'stream_nt'];
 const tplById = id => TEMPLATES.find(t => t.id === id) || TEMPLATES[0];
 
 // ---------------- Títulos ----------------
@@ -1292,16 +1463,17 @@ function wrapWords(ctx, words, maxW) {
 }
 
 function drawCaptions(ctx, clip, t, tpl, yOverride) {
-  const st = CAPTION_STYLES[tpl.caption];
-  const key = tpl.caption + ':' + clip.wordsVer;
+  const sid = (clip.capStyle && CAPTION_STYLES[clip.capStyle]) ? clip.capStyle : tpl.caption, st = CAPTION_STYLES[sid];
+  const key = sid + ':' + clip.wordsVer;
   if (!clip.lineCache || clip.lineCache.key !== key) clip.lineCache = { key, lines: buildLines(clip.words, st) };
   const line = clip.lineCache.lines.find(l => t >= l.start - .05 && t < l.showUntil);
   if (!line) return;
-  let size = st.size; ctx.font = fontStr(st, size);
+  const sc0 = clip.capScale || 1; let size = Math.round(st.size * sc0); ctx.font = fontStr(st, size);
   const words = line.words.map(w => { const e = clip.emojis ? emojiFor(w.text) : ''; const tx = st.upper ? w.text.toUpperCase() : w.text; return { t: e ? tx + ' ' + e : tx, on: t >= w.start && t < w.end + .05, start: w.start }; });
   let rows = wrapWords(ctx, words, 940);
   while (rows.length > 2 && size > 40) { size -= 6; ctx.font = fontStr(st, size); rows = wrapWords(ctx, words, 940); }
   const lh = size * 1.12, y0 = (clip.capY != null ? clip.capY * H : (yOverride ?? st.y * H)) - (rows.length - 1) * lh / 2;
+  clip._bbCap = { y0: y0 - lh / 2 - 20, y1: y0 + (rows.length - .5) * lh + 20 };
   const age = t - line.start, pop = st.upper ? (age < .12 ? .82 + .18 * (age / .12) : 1) : 1;
   ctx.save(); ctx.translate(W / 2, y0); ctx.scale(pop, pop); ctx.translate(-W / 2, -y0);
   ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.textAlign = 'left';
@@ -1316,7 +1488,7 @@ function drawCaptions(ctx, clip, t, tpl, yOverride) {
     for (const wd of row) {
       const sc = wd.on ? SC : 1;
       ctx.save(); ctx.translate(x + ww(wd) / 2, y); ctx.scale(sc, sc);
-      if (st.sw) { ctx.lineWidth = st.sw; ctx.strokeStyle = st.stroke; ctx.strokeText(wd.t, -wd.w / 2, 0); }
+      if (st.sw) { ctx.lineWidth = st.sw * sc0; ctx.strokeStyle = st.stroke; ctx.strokeText(wd.t, -wd.w / 2, 0); }
       if (st.glow && wd.on) { ctx.shadowColor = st.glow; ctx.shadowBlur = 36; }
       ctx.fillStyle = wd.on ? (clip.capColor || st.active) : st.fill; if (st.glow && wd.on && clip.capColor) ctx.shadowColor = clip.capColor; ctx.fillText(wd.t, -wd.w / 2, 0);
       ctx.restore(); x += ww(wd) + sp;
@@ -1327,35 +1499,41 @@ function drawCaptions(ctx, clip, t, tpl, yOverride) {
 
 function drawTitle(ctx, text, kind, t, clip) {
   if (!text || kind === 'none') return;
-  const maxW = 920;
-  const fit = (font, start, min) => { let s = start; ctx.font = font(s); while (ctx.measureText(text).width > maxW * 1.9 && s > min) { s -= 4; ctx.font = font(s); } return s; };
+  const maxW = 920, TS = (clip && clip.titleScale) || 1, TY = clip && clip.titleY != null ? clip.titleY * H : null;
+  const fit = (font, start, min) => { start = Math.round(start * TS); min = Math.round(min * TS); let s = start; ctx.font = font(s); while (ctx.measureText(text).width > maxW * 1.9 && s > min) { s -= 4; ctx.font = font(s); } return s; };
   const lines = (font) => { const ws = text.split(' '), rows = ['']; for (const w of ws) { const tr = (rows[rows.length - 1] + ' ' + w).trim(); if (ctx.measureText(tr).width > maxW && rows[rows.length - 1]) rows.push(w); else rows[rows.length - 1] = tr; } return rows.slice(0, 2); };
   ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   if (kind === 'sunset') {
     const f = s => `400 ${s}px Anton, Impact, sans-serif`; const s = fit(f, 76, 44); ctx.font = f(s);
-    const rows = lines(f), lh = s * 1.15, bh = rows.length * lh + 44, y = 250;
+    const rows = lines(f), lh = s * 1.15, bh = rows.length * lh + 44, y = TY ?? 250; if (clip) clip._bbTitle = { y0: y - bh / 2, y1: y + bh / 2 };
     const bw = Math.min(1000, Math.max(...rows.map(r => ctx.measureText(r).width)) + 80);
     const g = ctx.createLinearGradient(W / 2 - bw / 2, 0, W / 2 + bw / 2, 0); g.addColorStop(0, '#ff3d8b'); g.addColorStop(.5, '#ff6a5c'); g.addColorStop(1, '#ffb03c');
     ctx.shadowColor = 'rgba(255,61,139,.6)'; ctx.shadowBlur = 40; ctx.fillStyle = g; roundRect(ctx, W / 2 - bw / 2, y - bh / 2, bw, bh, 28); ctx.fill(); ctx.shadowBlur = 0;
     ctx.fillStyle = '#1a0629'; rows.forEach((r, i) => ctx.fillText(r, W / 2, y - (rows.length - 1) * lh / 2 + i * lh + 4));
   } else if (kind === 'alert') {
     const f = s => `400 ${s}px "Bebas Neue", Impact, sans-serif`; const s = fit(f, 92, 50); ctx.font = f(s);
-    const rows = lines(f), lh = s * 1.02, bh = rows.length * lh + 40, y = 250;
+    const rows = lines(f), lh = s * 1.02, bh = rows.length * lh + 40, y = TY ?? 250; if (clip) clip._bbTitle = { y0: y - bh / 2 - 14, y1: y + bh / 2 + 14 };
     const flash = Math.floor(t * 3) % 2;
     ctx.fillStyle = flash ? '#e0153f' : '#1d4bff'; ctx.fillRect(0, y - bh / 2 - 14, W, 14); ctx.fillStyle = flash ? '#1d4bff' : '#e0153f'; ctx.fillRect(0, y + bh / 2, W, 14);
     ctx.fillStyle = 'rgba(8,4,16,.88)'; ctx.fillRect(0, y - bh / 2, W, bh);
     ctx.fillStyle = '#fff'; rows.forEach((r, i) => ctx.fillText(r, W / 2, y - (rows.length - 1) * lh / 2 + i * lh + 4));
   } else if (kind === 'cinema') {
     const f = s => `400 ${s}px "Bebas Neue", Impact, sans-serif`; const s = fit(f, 100, 54); ctx.font = f(s);
-    const rows = lines(f), lh = s * 1.0; const y = 470;
+    const rows = lines(f), lh = s * 1.0; const y = TY ?? 470; if (clip) clip._bbTitle = { y0: y - rows.length * lh, y1: y + 70 };
     ctx.fillStyle = '#fff'; rows.forEach((r, i) => ctx.fillText(r, W / 2, y - (rows.length - 1) * lh + i * lh));
     const g = ctx.createLinearGradient(W / 2 - 160, 0, W / 2 + 160, 0); g.addColorStop(0, '#ff3d8b'); g.addColorStop(1, '#ffb03c');
     ctx.fillStyle = g; ctx.fillRect(W / 2 - 160, y + 60, 320, 8);
   } else if (kind === 'meme') {
     const f = s => `400 ${s}px Anton, Impact, sans-serif`; const s = fit(f, 80, 44); ctx.font = f(s);
-    const rows = lines(f), lh = s * 1.12, bh = rows.length * lh + 50;
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 150, W, bh);
-    ctx.fillStyle = '#000'; rows.forEach((r, i) => ctx.fillText(r, W / 2, 150 + 25 + lh / 2 + i * lh + 2));
+    const rows = lines(f), lh = s * 1.12, bh = rows.length * lh + 50, top = TY != null ? TY - bh / 2 : 150;
+    if (clip) clip._bbTitle = { y0: top, y1: top + bh };
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, top, W, bh);
+    ctx.fillStyle = '#000'; rows.forEach((r, i) => ctx.fillText(r, W / 2, top + 25 + lh / 2 + i * lh + 2));
+  } else if (kind === 'clean') {
+    const f = s => `400 ${s}px Anton, Impact, sans-serif`; const s = fit(f, 84, 46); ctx.font = f(s);
+    const rows = lines(f), lh = s * 1.12, y = TY ?? 250; if (clip) clip._bbTitle = { y0: y - rows.length * lh / 2 - 10, y1: y + rows.length * lh / 2 + 10 };
+    ctx.lineJoin = 'round'; ctx.lineWidth = 14 * TS; ctx.strokeStyle = '#000';
+    rows.forEach((r, i) => { const yy = y - (rows.length - 1) * lh / 2 + i * lh; ctx.strokeText(r, W / 2, yy); ctx.fillStyle = '#fff'; ctx.fillText(r, W / 2, yy); });
   }
   ctx.restore();
 }
@@ -1384,8 +1562,9 @@ function renderFrame(ctx, v, clip, t, tplId) {
     capY = Math.min(H * .80, y + fh + 150);
   } else if (tpl.layout === 'facecam') {
     const topH = Math.round(H * .4), botH = H - topH;
-    const cw = vw * (clip.camSize || 25) / 100, ch = cw * 9 / 16;
-    const cx = (clip.corner || 'br')[1] === 'l' ? 0 : vw - cw, cy = (clip.corner || 'br')[0] === 't' ? 0 : vh - ch;
+    let cw = vw * (clip.camSize || 25) / 100, ch = cw * 9 / 16;
+    let cx = (clip.corner || 'br')[1] === 'l' ? 0 : vw - cw, cy = (clip.corner || 'br')[0] === 't' ? 0 : vh - ch;
+    if (clip.camRect) { cx = clip.camRect.x * vw; cy = clip.camRect.y * vh; cw = clip.camRect.w * vw; ch = clip.camRect.h * vh; }
     ctx.drawImage(v, ...srcRectCover(cx, cy, cw, ch, W, topH, 0, 1), 0, 0, W, topH);
     ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, W, botH, pan, z), 0, topH, W, botH);
     const g = ctx.createLinearGradient(0, 0, W, 0); g.addColorStop(0, '#ff3d8b'); g.addColorStop(1, '#ffb03c'); ctx.fillStyle = g; ctx.fillRect(0, topH - 5, W, 10);
@@ -1397,7 +1576,8 @@ function renderFrame(ctx, v, clip, t, tplId) {
     ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, W, fh, pan, z), 0, y, W, fh);
     capY = y + fh + 140;
   }
-  if (clip.showTitle !== false && (clip.titleEnd == null || t - clip.start <= clip.titleEnd)) drawTitle(ctx, clip.title, tpl.title, t - clip.start, clip);
+  clip._bbTitle = null; clip._bbCap = null;
+  if (clip.showTitle !== false && (clip.titleEnd == null || t - clip.start <= clip.titleEnd)) drawTitle(ctx, clip.title, clip.titleKind || tpl.title, t - clip.start, clip);
   if (clip.showCaps !== false && clip.words.length) drawCaptions(ctx, clip, t, tpl, capY);
   if (clip.handle) { ctx.font = '700 38px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(clip.handle, W / 2, H - (S.plan && S.plan.watermark && !S._preview ? 200 : 120)); }
   if (S.plan && S.plan.watermark && !S._preview) {
@@ -1546,6 +1726,47 @@ $('#fetchInfo').onclick = async () => {
   } catch (e) { S.link = null; showLinkErr(e.message); }
   btn.disabled = false; btn.textContent = 'Buscar'; updateGo();
 };
+// ---------- seletor de tempo em rolagem (passos de 30 s) ----------
+const ROW = 44, WHEEL = { inp: null, cols: [] };
+const pad2 = n => String(n).padStart(2, '0');
+function linkDur() { const L = S.link; return L ? (L.duration || L.max_minutes * 60) : 3600; }
+function openWheel(inp) {
+  if (!S.link || S.link.is_live) return;
+  const dur = linkDur(), hasH = dur >= 3600, cur = Math.min(dur, parseTime(inp.value) || 0);
+  let v = Math.round(cur / 30) * 30; if (v > dur) v = Math.floor(dur / 30) * 30;
+  const cols = hasH
+    ? [{ k: 'h', lbl: 'hora', vals: Array.from({ length: Math.floor(dur / 3600) + 1 }, (_, i) => i), v: Math.floor(v / 3600), f: String },
+       { k: 'm', lbl: 'min', vals: Array.from({ length: 60 }, (_, i) => i), v: Math.floor(v % 3600 / 60), f: pad2 }]
+    : [{ k: 'm', lbl: 'min', vals: Array.from({ length: Math.floor(dur / 60) + 1 }, (_, i) => i), v: Math.floor(v / 60), f: String }];
+  cols.push({ k: 's', lbl: 'seg', vals: [0, 30], v: v % 60 >= 30 ? 30 : 0, f: pad2 });
+  WHEEL.inp = inp; WHEEL.cols = cols;
+  const isEnd = inp.id === 'liEnd';
+  $('#wheelTitle').textContent = isEnd ? 'Terminar em' : 'Começar em';
+  $('#wheelHint').textContent = `Vídeo de ${fmtH(dur)} · trecho de até ${S.link.max_minutes} min`;
+  $('#wheelLbls').innerHTML = cols.map((c, i) => `${i ? '<span class="sep" style="visibility:hidden">:</span>' : ''}<span>${c.lbl}</span>`).join('');
+  $('#wheels').innerHTML = '<div class="band"></div>' + cols.map((c, i) => `${i ? '<span class="sep">:</span>' : ''}<div class="wheel" data-col="${i}">${c.vals.map(x => `<div>${c.f(x)}</div>`).join('')}</div>`).join('');
+  $('#wheelModal').classList.remove('hidden');
+  $('#wheels').querySelectorAll('.wheel').forEach((w, i) => {
+    const paint = () => { const mid = w.scrollTop + 88 + ROW / 2; [...w.children].forEach((d, j) => { const dist = Math.abs(j * ROW + ROW / 2 + 88 - mid) / ROW; d.style.opacity = Math.max(.18, 1 - dist * .33); d.style.transform = `scale(${Math.max(.6, 1 - dist * .14)})`; }); };
+    w.scrollTop = Math.max(0, cols[i].vals.indexOf(cols[i].v)) * ROW; paint();
+    w.addEventListener('scroll', () => requestAnimationFrame(paint), { passive: true });
+    w.addEventListener('click', e => { const d = e.target.closest('.wheel > div'); if (d) w.scrollTo({ top: [...w.children].indexOf(d) * ROW, behavior: 'smooth' }); });
+  });
+}
+$('#wheelOk').onclick = () => {
+  const vals = {}; $('#wheels').querySelectorAll('.wheel').forEach((w, i) => { const c = WHEEL.cols[i]; vals[c.k] = c.vals[clamp(Math.round(w.scrollTop / ROW), 0, c.vals.length - 1)]; });
+  const dur = linkDur(), maxS = S.link.max_minutes * 60;
+  let v = (vals.h || 0) * 3600 + (vals.m || 0) * 60 + (vals.s || 0); v = Math.min(v, dur);
+  const isEnd = WHEEL.inp.id === 'liEnd';
+  if (!isEnd && v >= dur) v = Math.max(0, Math.floor((dur - 1) / 30) * 30);
+  WHEEL.inp.value = fmtH(v);
+  const a = parseTime($('#liStart').value), b = parseTime($('#liEnd').value);
+  if (!isEnd && (b <= a || b - a > maxS)) $('#liEnd').value = fmtH(Math.min(dur, a + maxS));
+  if (isEnd && (b <= a || b - a > maxS)) $('#liStart').value = fmtH(Math.max(0, b - maxS));
+  $('#wheelModal').classList.add('hidden'); showLinkErr('');
+};
+['#liStart', '#liEnd'].forEach(id => { const el = $(id); el.addEventListener('click', () => openWheel(el)); el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWheel(el); } }); el.addEventListener('focus', () => el.blur()); });
+
 function linkRangeError() {
   const L = S.link; if (!L) return 'Busque um link primeiro.'; if (L.is_live) return null;
   const a = parseTime($('#liStart').value), b = parseTime($('#liEnd').value);
@@ -1558,7 +1779,10 @@ function linkRangeError() {
 async function fetchRemote() {
   const L = S.link;
   const body = L.is_live ? { url: L.url, live_minutes: +$('#liMin').value } : { url: L.url, start: parseTime($('#liStart').value), end: Math.min(parseTime($('#liEnd').value), L.duration || 1e9) };
-  step(0, 'active', L.is_live ? 'gravando' : '');
+  return downloadJob(body, L.title, L.is_live);
+}
+async function downloadJob(body, title, isLive) {
+  step(0, 'active', isLive ? 'gravando' : '');
   let job = await api('/api/jobs', body); const t0 = Date.now();
   while (job.status !== 'done') {
     if (job.status === 'error') throw new Error(job.error || 'Falha no download');
@@ -1573,7 +1797,7 @@ async function fetchRemote() {
   const total = +r.headers.get('Content-Length') || job.size || 0, rd = r.body.getReader(), parts = []; let got = 0;
   for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; step(1, 'active', total ? `${(got / 1e6).toFixed(0)}/${(total / 1e6).toFixed(0)} MB` : `${(got / 1e6).toFixed(0)} MB`); }
   step(1, 'done');
-  return new File(parts, slug(L.title) + '.mp4', { type: 'video/mp4' });
+  return new File(parts, slug(title || 'video') + '.mp4', { type: 'video/mp4' });
 }
 
 const STEP_NAMES = ['Baixando o vídeo da plataforma', 'Trazendo o vídeo para o navegador', 'Lendo o áudio do vídeo', 'Analisando som (gritos, tiros, explosões)', 'Analisando a imagem', 'Escolhendo os momentos virais', 'Baixando a IA de legendas', 'Legendando as falas', 'Montando as prévias'];
@@ -1600,7 +1824,7 @@ $('#go').onclick = async () => {
   go.disabled = false;
   S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: $('#optSilence') ? $('#optSilence').checked : true };
   const skip = []; if (S.mode !== 'link') skip.push(0, 1); if (!S.settings.visual) skip.push(4); if (S.settings.model === 'none') skip.push(6, 7);
-  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
+  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip);
   try { await pipelineRun(skip); }
   catch (e) { console.error(e); $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(e.message)}</p><p class="note">Esse vídeo não foi descontado da sua cota se você reabrir pelo menu Meus projetos.</p><button class="btn ghost small" onclick="location.reload()">Tentar de novo</button>`); }
 };
@@ -1643,14 +1867,14 @@ async function pipelineRun(skip) {
   } else if (!S.pcm) capErr = 'O vídeo não tem áudio, então os cortes saem sem legenda.';
   // títulos e ordenação
   const used = new Set();
-  S.clips.forEach(c => { let k = 0, t = suggestTitle(c); while (used.has(t) && k < 8) t = suggestTitle(c, ++k * 2 + 1); used.add(t); c.title = t; c.desc = defaultDesc(c); });
+  S.clips.forEach(c => { let k = 0, t = suggestTitle(c); while (used.has(t) && k < 8) t = suggestTitle(c, ++k * 2 + 1); used.add(t); c.title = t; c.desc = genViral(c, 0).desc; });
   S.clips.sort((a, b) => b.score - a.score); S.clips.forEach((c, i) => c.idx = i);
   // 6) prévias
   step(8, 'active');
   await document.fonts.ready; await Promise.all(['Anton', 'Bebas Neue', 'Bangers'].map(f => document.fonts.load(`40px "${f}"`))).catch(() => { });
   await document.fonts.load('900 40px Montserrat').catch(() => { }); await document.fonts.load('700 40px Inter').catch(() => { });
   showResults(capErr);
-  saveProject();
+  saveProject(); if (S.project) VDB.put(S.project.id, S.file);
   for (let i = 0; i < S.clips.length; i++) { await drawThumb(S.clips[i]); step(8, 'active', `${i + 1}/${S.clips.length}`); }
   step(8, 'done');
 }
@@ -1722,11 +1946,14 @@ function openEditor(clip) {
   $('#inEmoji').checked = !!clip.emojis; $('#inCapY').value = Math.round((clip.capY ?? CAPTION_STYLES[tplById(clip.tpl).caption].y) * 100);
   swatches($('#inColor'), clip.capColor || '', c => { S.cur.capColor = c; drawPreview(); });
   $('#retrans').disabled = !S.pcm || S.settings.model === 'none';
-  renderTpls(); renderCaps(); drawWave();
+  $('#inTitleS').value = Math.round((clip.titleScale || 1) * 100); $('#inCapS').value = Math.round((clip.capScale || 1) * 100);
+  $('#inTitleY').value = Math.round((clip.titleY ?? .13) * 100);
+  $('#vgenTitles').classList.add('hidden'); $('#vgenTags').innerHTML = '';
+  renderTpls(); renderCaps(); renderStylePicks(); drawWave();
   const pv = $('#pv'); pv.pause(); ensureSrc(pv, clipSrc(clip)).then(() => seek(pv, clip.start)).then(drawPreview);
   updatePlay();
 }
-function closeEditor() { $('#pv').pause(); cancelAnimationFrame(raf); $('#modal').classList.add('hidden'); document.body.style.overflow = ''; const c = S.cur; S.cur = null; renderGridCard(c); }
+function closeEditor() { $('#pv').pause(); cancelAnimationFrame(raf); $('#modal').classList.add('hidden'); document.body.style.overflow = ''; const c = S.cur; S.cur = null; renderGridCard(c); saveProjectSoon(); }
 function renderGridCard(c) { if (!c) return; renderGrid(); }
 $('#close').onclick = closeEditor;
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeEditor(); });
@@ -1787,13 +2014,102 @@ $('#saveKit').onclick = async () => {
   if (!isPro() && !FREE_TPLS.includes(s.tpl)) s.tpl = brandKit().tpl;
   try { await api('/api/me/settings', { settings: s }); S.user.settings = s; toast('Salvo como padrão ⭐'); } catch (e) { toast(e.message); }
 };
-$('#inCorner').onchange = e => { S.cur.corner = e.target.value; if (S.cur.tpl !== 'stream' && (isPro() || FREE_TPLS.includes('stream'))) { S.cur.tpl = 'stream'; renderTpls(); } drawPreview(); };
-$('#inCamSize').oninput = e => { S.cur.camSize = +e.target.value; drawPreview(); };
+$('#inCorner').onchange = e => { S.cur.corner = e.target.value; S.cur.camRect = null; if (S.cur.tpl !== 'stream' && (isPro() || FREE_TPLS.includes('stream'))) { S.cur.tpl = 'stream'; renderTpls(); } drawPreview(); };
+$('#inCamSize').oninput = e => { S.cur.camSize = +e.target.value; S.cur.camRect = null; drawPreview(); };
 $('#inPan').oninput = e => { S.cur.pan = +e.target.value; drawPreview(); };
 $('#inHandle').oninput = e => { S.cur.handle = e.target.value; drawPreview(); };
+
+// ---------- encontrar a webcam: arrastar e pinçar ----------
+const CROP = { r: null, ptrs: new Map(), start: null };
+const camAspect = () => (W / Math.round(H * .4)) * (S.vh / S.vw); // proporção w/h em coordenadas normalizadas
+function cropFromCorner(c) { const w = (c.camSize || 25) / 100, h = w * (S.vw / S.vh) * 9 / 16; return { x: (c.corner || 'br')[1] === 'l' ? 0 : 1 - w, y: (c.corner || 'br')[0] === 't' ? 0 : 1 - h, w, h }; }
+function cropFix(r) {
+  const a = camAspect(); r.w = clamp(r.w, .06, 1); r.h = r.w / a; if (r.h > 1) { r.h = 1; r.w = a; }
+  r.x = clamp(r.x, 0, 1 - r.w); r.y = clamp(r.y, 0, 1 - r.h); return r;
+}
+function cropDraw() { const r = CROP.r, el = $('#cropRect'); el.style.left = r.x * 100 + '%'; el.style.top = r.y * 100 + '%'; el.style.width = r.w * 100 + '%'; el.style.height = r.h * 100 + '%'; }
+$('#camCrop').onclick = () => {
+  const c = S.cur, pv = $('#pv'), cv = $('#cropCv');
+  cv.width = 960; cv.height = Math.round(960 * S.vh / S.vw); $('#cropWrap').style.aspectRatio = S.vw + '/' + S.vh;
+  try { cv.getContext('2d').drawImage(pv, 0, 0, cv.width, cv.height); } catch { }
+  const base = c.camRect ? { ...c.camRect } : cropFromCorner(c);
+  CROP.r = cropFix({ x: base.x, y: base.y, w: base.w, h: base.h }); cropDraw();
+  $('#cropModal').classList.remove('hidden');
+};
+(() => {
+  const wrap = $('#cropWrap'), rel = e => { const b = wrap.getBoundingClientRect(); return { x: (e.clientX - b.left) / b.width, y: (e.clientY - b.top) / b.height }; };
+  const begin = () => { const pts = [...CROP.ptrs.values()]; CROP.start = { r: { ...CROP.r }, pts: pts.map(p => ({ ...p })), mode: CROP.mode }; };
+  wrap.addEventListener('pointerdown', e => {
+    const onH = e.target.id === 'cropHdl', onR = !!e.target.closest('#cropRect');
+    const p = rel(e); CROP.ptrs.set(e.pointerId, p); wrap.setPointerCapture(e.pointerId);
+    if (CROP.ptrs.size === 1) { CROP.mode = onH ? 'size' : onR ? 'move' : 'jump'; if (CROP.mode === 'jump') { CROP.r.x = p.x - CROP.r.w / 2; CROP.r.y = p.y - CROP.r.h / 2; cropFix(CROP.r); cropDraw(); CROP.mode = 'move'; } }
+    else CROP.mode = 'pinch';
+    begin(); e.preventDefault();
+  });
+  wrap.addEventListener('pointermove', e => {
+    if (!CROP.ptrs.has(e.pointerId)) return; CROP.ptrs.set(e.pointerId, rel(e));
+    const st = CROP.start, pts = [...CROP.ptrs.values()], r0 = st.r; let r = { ...r0 };
+    if (CROP.mode === 'pinch' && pts.length >= 2 && st.pts.length >= 2) {
+      const d = (a, b) => Math.hypot((a.x - b.x) * S.vw, (a.y - b.y) * S.vh), k = d(pts[0], pts[1]) / Math.max(1, d(st.pts[0], st.pts[1]));
+      const cx0 = (st.pts[0].x + st.pts[1].x) / 2, cy0 = (st.pts[0].y + st.pts[1].y) / 2, cx1 = (pts[0].x + pts[1].x) / 2, cy1 = (pts[0].y + pts[1].y) / 2;
+      r.w = r0.w * k; r.h = r.w / camAspect(); // abrir os dedos = quadro maior
+      const mx = r0.x + r0.w / 2 + (cx1 - cx0), my = r0.y + r0.h / 2 + (cy1 - cy0);
+      r.x = mx - r.w / 2; r.y = my - r.h / 2;
+    } else if (CROP.mode === 'size') { const p = pts[0]; r.w = Math.max(.06, p.x - r0.x); }
+    else if (CROP.mode === 'move') { const p = pts[0], q = st.pts[0]; r.x = r0.x + p.x - q.x; r.y = r0.y + p.y - q.y; }
+    CROP.r = cropFix(r); cropDraw();
+  });
+  const up = e => { CROP.ptrs.delete(e.pointerId); if (CROP.ptrs.size) { CROP.mode = CROP.ptrs.size >= 2 ? 'pinch' : 'move'; begin(); } };
+  wrap.addEventListener('pointerup', up); wrap.addEventListener('pointercancel', up);
+  wrap.addEventListener('wheel', e => { e.preventDefault(); const r = CROP.r, cx = r.x + r.w / 2, cy = r.y + r.h / 2; r.w *= e.deltaY > 0 ? 1.08 : 1 / 1.08; r.h = r.w / camAspect(); r.x = cx - r.w / 2; r.y = cy - r.h / 2; cropFix(r); cropDraw(); }, { passive: false });
+})();
+function applyCam(rect) {
+  const list = $('#cropAll').checked ? S.clips : [S.cur];
+  for (const c of list) { c.camRect = rect ? { ...rect } : null; if (rect && tplById(c.tpl).layout !== 'facecam') c.tpl = (c.showTitle === false || c.tpl === 'raw') ? 'stream_nt' : 'stream'; }
+  $('#cropModal').classList.add('hidden'); renderTpls(); drawPreview();
+}
+$('#cropOk').onclick = () => { const r = CROP.r; applyCam({ x: +r.x.toFixed(4), y: +r.y.toFixed(4), w: +r.w.toFixed(4), h: +r.h.toFixed(4) }); toast('Webcam enquadrada 🎯'); };
+$('#cropReset').onclick = () => applyCam(null);
 $('#inDesc').oninput = e => { S.cur.desc = e.target.value; };
 $('#copyDesc').onclick = async () => { try { await navigator.clipboard.writeText(S.cur.desc); toast('Descrição copiada'); } catch { $('#inDesc').select(); toast('Selecionei o texto: use Ctrl+C'); } };
 $('#exportOne').onclick = e => exportWithUI([S.cur], e.target);
+
+// estilos de legenda e de título (pré-configurados)
+function renderStylePicks() {
+  const c = S.cur; if (!c) return;
+  $('#capStyles').innerHTML = CAP_PRESETS.map(p => `<button type="button" data-cs="${p.id}" class="${(c.capStyle || '') === p.id ? 'on' : ''}"><span style="${p.css}">${p.id ? 'Aa' : '⚙'}</span><small>${p.id ? p.name.charAt(0) + p.name.slice(1).toLowerCase() : p.name}</small></button>`).join('');
+  $('#titleStyles').innerHTML = TITLE_KINDS.map(p => `<button type="button" data-tk2="${p.id}" class="${(c.titleKind || '') === p.id ? 'on' : ''}"><span style="${p.css}">${p.id ? 'Título' : '⚙'}</span><small>${p.id ? p.name.charAt(0) + p.name.slice(1).toLowerCase() : p.name}</small></button>`).join('');
+}
+$('#capStyles').addEventListener('click', e => { const b = e.target.closest('[data-cs]'); if (!b) return; S.cur.capStyle = b.dataset.cs || null; S.cur.lineCache = null; S.cur.showCaps = true; $('#inShowCaps').checked = true; renderStylePicks(); drawPreview(); });
+$('#titleStyles').addEventListener('click', e => { const b = e.target.closest('[data-tk2]'); if (!b) return; S.cur.titleKind = b.dataset.tk2 || null; S.cur.showTitle = true; $('#inShowTitle').checked = true; renderStylePicks(); drawPreview(); });
+$('#inTitleY').oninput = e => { S.cur.titleY = +e.target.value / 100; drawPreview(); };
+$('#inTitleS').oninput = e => { S.cur.titleScale = +e.target.value / 100; drawPreview(); };
+$('#inCapS').oninput = e => { S.cur.capScale = +e.target.value / 100; drawPreview(); };
+$('#delTitle').onclick = () => { S.cur.title = ''; S.cur.showTitle = false; $('#inTitle').value = ''; $('#inShowTitle').checked = false; drawPreview(); toast('Título apagado. Escreva outro para ele voltar.'); };
+$('#delCaps').onclick = () => { if (!S.cur.words.length) return; if (!confirm('Apagar todas as legendas deste corte?')) return; S.cur.words = []; S.cur.wordsVer++; renderCaps(); drawPreview(); };
+// arrastar título / legenda direto no vídeo
+(() => {
+  const cv = $('#pc'); let drag = null;
+  const yOf = e => { const r = cv.getBoundingClientRect(); return clamp((e.clientY - r.top) / r.height, 0, 1) * H; };
+  cv.addEventListener('pointerdown', e => {
+    const c = S.cur; if (!c) return; const y = yOf(e), bt = c._bbTitle, bc = c._bbCap;
+    const inT = bt && y >= bt.y0 - 30 && y <= bt.y1 + 30, inC = bc && y >= bc.y0 - 30 && y <= bc.y1 + 30;
+    if (!inT && !inC) return;
+    const what = inT && inC ? (Math.abs(y - (bt.y0 + bt.y1) / 2) < Math.abs(y - (bc.y0 + bc.y1) / 2) ? 'title' : 'cap') : inT ? 'title' : 'cap';
+    const box = what === 'title' ? bt : bc; drag = { what, off: y - (box.y0 + box.y1) / 2 };
+    cv.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  cv.addEventListener('pointermove', e => {
+    const c = S.cur; if (!c) return;
+    if (!drag) { const y = yOf(e), bt = c._bbTitle, bc = c._bbCap; cv.style.cursor = (bt && y >= bt.y0 && y <= bt.y1) || (bc && y >= bc.y0 && y <= bc.y1) ? 'ns-resize' : ''; return; }
+    const v = clamp((yOf(e) - drag.off) / H, .04, .94);
+    if (drag.what === 'title') { c.titleY = v; $('#inTitleY').value = Math.round(v * 100); } else { c.capY = v; $('#inCapY').value = Math.round(v * 100); }
+    drawPreview();
+  });
+  const end = () => { drag = null; }; cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  // no celular: só bloqueia a rolagem quando o dedo começa em cima do título ou da legenda
+  cv.addEventListener('touchstart', e => { const c = S.cur; if (!c || e.touches.length !== 1) return; const y = yOf(e.touches[0]), bt = c._bbTitle, bc = c._bbCap; if ((bt && y >= bt.y0 - 30 && y <= bt.y1 + 30) || (bc && y >= bc.y0 - 30 && y <= bc.y1 + 30)) e.preventDefault(); }, { passive: false });
+})();
 
 // lista de legendas editável (por frase)
 function renderCaps() {
@@ -1911,7 +2227,8 @@ function route() {
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
   if (v === 'vProjects') renderProjects();
-  if (v === 'vApp' && typeof loadStreams === 'function' && !$('#upload').classList.contains('hidden')) loadStreams();
+  if (v === 'vApp' && typeof loadStreams === 'function' && !$('#upload').classList.contains('hidden')) { loadStreams(); renderYT(); updateBackBar(); }
+  if (v === 'vLanding') { renderViral(); renderProof(); }
   if (v === 'vAccount') renderAccount();
   renderNav();
 }
@@ -1981,41 +2298,148 @@ async function startProject() {
   S.plan = Object.assign(S.plan, r.plan); S.reuseId = null; loadMe();
   return r;
 }
-async function saveProject() {
-  if (S.demo || !S.project) return;
-  const clips = S.clips.map(c => ({ start: +c.start.toFixed(1), end: +c.end.toFixed(1), title: c.title, score: c.score, cat: c.cat, quote: c.quote }));
-  try { await api('/api/projects/' + S.project.id, null, 'PUT', { duration: S.duration, clips, meta: { range: S.project.range, kind: S.project.kind } }); } catch (e) { console.warn(e); }
+const CLIP_KEYS = ['title', 'score', 'cat', 'quote', 'tpl', 'corner', 'camSize', 'camRect', 'pan', 'showTitle', 'showCaps', 'handle', 'emojis', 'capColor', 'capY', 'capStyle', 'capScale', 'titleKind', 'titleY', 'titleScale', 'titleEnd', 'desc', 'transcribed', 'tags'];
+const r2 = x => Math.round(x * 100) / 100;
+function packClip(c) {
+  const o = { start: r2(c.start), end: r2(c.end), peakT: r2(c.peakT ?? c.start) };
+  for (const k of CLIP_KEYS) if (c[k] !== undefined && c[k] !== null) o[k] = c[k];
+  o.words = (c.words || []).map(w => [w.text, r2(w.start), r2(w.end)]);
+  return o;
 }
+function unpackClip(o, i) {
+  const kit = brandKit();
+  const c = Object.assign({ tpl: S.settings.tpl || 'stream', corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: '', capY: null, cat: 'epico', score: 0, title: '' }, o);
+  c.idx = i; c.peakT = o.peakT ?? o.start; c.wordsVer = 1; c.lineCache = null;
+  c.words = (o.words || []).map(w => Array.isArray(w) ? { text: w[0], start: w[1], end: w[2] } : w);
+  if (!c.desc) c.desc = defaultDesc(c);
+  return c;
+}
+async function saveProject() {
+  if (S.demo || !S.project || !S.project.id) return;
+  const clips = S.clips.map(packClip);
+  const meta = { range: S.project.range, kind: S.project.kind, settings: S.settings };
+  try { await api('/api/projects/' + S.project.id, null, 'PUT', { duration: S.duration, clips, meta }); } catch (e) { console.warn(e); }
+}
+let _saveT = 0; function saveProjectSoon() { clearTimeout(_saveT); _saveT = setTimeout(saveProject, 1200); }
+
+// ---------- vídeos guardados neste aparelho (para reabrir projetos sem baixar de novo) ----------
+const VDB = {
+  open() { return new Promise((res, rej) => { const r = indexedDB.open('neoncut', 1); r.onupgradeneeded = () => r.result.createObjectStore('videos'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+  ids() { try { return JSON.parse(localStorage.getItem('nc_vids') || '[]'); } catch { return []; } },
+  has(id) { return this.ids().includes(String(id)); },
+  async tx(mode, fn) { const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction('videos', mode), st = t.objectStore('videos'); const r = fn(st); t.oncomplete = () => res(r && r.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error); }); },
+  async put(id, file) {
+    if (!id || !file || !window.indexedDB) return;
+    try {
+      id = String(id); await this.tx('readwrite', st => st.put(file, id));
+      let ids = this.ids().filter(x => x !== id); ids.push(id);
+      while (ids.length > 3) { const old = ids.shift(); await this.tx('readwrite', st => st.delete(old)).catch(() => { }); }
+      localStorage.setItem('nc_vids', JSON.stringify(ids));
+    } catch (e) { console.warn('não deu para guardar o vídeo no aparelho', e); }
+  },
+  async get(id) { if (!window.indexedDB || !this.has(id)) return null; try { return await this.tx('readonly', st => st.get(String(id))) || null; } catch { return null; } },
+};
 
 // ---------- projetos ----------
+let projList = [];
+function projAvail(p) {
+  const recent = Date.now() / 1000 - p.created < 7 * 86400;
+  if (VDB.has(p.id)) return { ok: true, how: 'aparelho' };
+  if (p.kind === 'link' && recent) return { ok: true, how: 'link' };
+  if (p.kind === 'file') return { ok: true, how: 'arquivo' };
+  return { ok: false, why: p.kind === 'live' ? 'O vídeo desta live não ficou salvo neste aparelho.' : 'Passou de 7 dias: o vídeo precisa ser enviado de novo.' };
+}
 async function renderProjects() {
   if (S.demo) { renderDemoProjects(); return; }
   const box = $('#projList'); box.innerHTML = '<p class="note">Carregando…</p>';
-  let list = [];
-  try { list = (await api('/api/projects')).filter(p => !(p.meta && p.meta.hidden)); } catch (e) { box.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  try { projList = (await api('/api/projects')).filter(p => !(p.meta && p.meta.hidden)); } catch (e) { box.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  const list = projList;
   if (!list.length) { box.innerHTML = '<div class="empty"><div style="font-size:40px">🎬</div><p>Nenhum projeto ainda.</p><a class="btn" href="#criar">Criar meus primeiros cortes</a></div>'; return; }
   box.innerHTML = list.map(p => {
-    const d = new Date(p.created * 1000), recent = Date.now() / 1000 - p.created < 7 * 86400;
+    const d = new Date(p.created * 1000), recent = Date.now() / 1000 - p.created < 7 * 86400, n = (p.clips || []).length, av = projAvail(p);
     const kind = { link: '🔗 Link', live: '🔴 Live', file: '📁 Arquivo' }[p.kind] || p.kind;
-    const top = (p.clips || []).slice(0, 3).map(c => `<span>🔥${c.score} ${esc(c.title)}</span>`).join('');
-    return `<div class="proj"><div class="pi"><div class="pt">${esc(p.title || p.source || 'Projeto')}</div>
-      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${(p.clips || []).length} cortes${p.duration ? ' · ' + fmtH(p.duration) : ''}</div>
-      <div class="chips">${top}</div></div>
-      ${p.kind === 'link' && recent ? `<button class="btn small" data-reopen="${p.id}">↻ Reabrir</button>` : ''}
-      <button class="btn ghost small" data-hide="${p.id}" title="Remover da lista">🗑</button></div>`;
+    const top = (p.clips || []).slice(0, 3).map(c => `<span>🔥${c.score} ${esc(c.title || 'Corte')}</span>`).join('');
+    const dis = av.ok ? '' : `disabled title="${esc(av.why)}"`;
+    const acts = n
+      ? `<button class="btn small" data-edit="${p.id}" ${dis}>✏️ Editar</button><button class="btn ghost small" data-view="${p.id}">👁 Ver cortes</button><button class="btn ghost small" data-all="${p.id}" ${dis}>⬇ Baixar tudo</button>`
+      : (p.kind === 'link' && recent ? `<button class="btn small" data-reopen="${p.id}">↻ Gerar de novo</button>` : '');
+    const clips = (p.clips || []).map((c, i) => `<button type="button" data-clip="${p.id}:${i}" ${dis}><span class="sc">🔥${c.score}</span><span style="min-width:0">${esc(c.title || 'Corte ' + (i + 1))}<small>${fmt(c.start)} → ${fmt(c.end)} · ${Math.round(c.end - c.start)}s${c.words && c.words.length ? ' · 💬' : ''}</small></span></button>`).join('');
+    return `<div class="proj" id="pj${p.id}"><div class="pi" data-view="${p.id}"><div class="pt">${esc(p.title || p.source || 'Projeto')}</div>
+      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${n} cortes${p.duration ? ' · ' + fmtH(p.duration) : ''}${av.ok && av.how === 'aparelho' ? ' · 💾 salvo neste aparelho' : ''}</div>
+      <div class="chips">${top}</div>${!av.ok && n ? `<p class="note" style="margin:6px 0 0">⚠ ${esc(av.why)}</p>` : ''}</div>
+      <div class="acts">${acts}<button class="btn ghost small" data-hide="${p.id}" title="Remover da lista">🗑</button></div>
+      <div class="pclips hidden">${clips}</div></div>`;
   }).join('');
-  box.onclick = async e => {
-    const ro = e.target.closest('[data-reopen]'), hd = e.target.closest('[data-hide]');
-    if (hd) { await api('/api/projects/' + hd.dataset.hide, null, 'DELETE'); renderProjects(); }
-    if (ro) {
-      const p = list.find(x => x.id == ro.dataset.reopen);
-      location.hash = '#criar'; S.reuseId = p.id;
-      document.querySelector('[data-tab="link"]').click();
-      $('#url').value = p.source; $('#fetchInfo').click();
-      const wait = setInterval(() => { if (S.link) { clearInterval(wait); if (p.meta && p.meta.range) { $('#liStart').value = p.meta.range[0]; $('#liEnd').value = p.meta.range[1]; } toast('Projeto reaberto: confira o trecho e clique em Gerar cortes (não gasta cota).', 5000); } }, 300);
-      setTimeout(() => clearInterval(wait), 30000);
+  observeReveal(box);
+}
+$('#projList').addEventListener('click', async e => {
+  const g = a => e.target.closest('[' + a + ']'), find = id => projList.find(x => x.id == id);
+  const ro = g('data-reopen'), hd = g('data-hide'), ed = g('data-edit'), vw = g('data-view'), al = g('data-all'), cl = g('data-clip');
+  if (hd) { if (!confirm('Remover este projeto da lista?')) return; await api('/api/projects/' + hd.dataset.hide, null, 'DELETE'); renderProjects(); return; }
+  if (vw) { const el = $('#pj' + vw.dataset.view + ' .pclips'); if (el && el.children.length) el.classList.toggle('hidden'); return; }
+  if (ed) return openProject(find(ed.dataset.edit), 'edit');
+  if (al) return openProject(find(al.dataset.all), 'all');
+  if (cl) { const [id, i] = cl.dataset.clip.split(':'); return openProject(find(id), +i); }
+  if (ro) {
+    const p = find(ro.dataset.reopen);
+    location.hash = '#criar'; S.reuseId = p.id;
+    document.querySelector('[data-tab="link"]').click();
+    $('#url').value = p.source; $('#fetchInfo').click();
+    const wait = setInterval(() => { if (S.link) { clearInterval(wait); if (p.meta && p.meta.range) { $('#liStart').value = p.meta.range[0]; $('#liEnd').value = p.meta.range[1]; } toast('Projeto reaberto: confira o trecho e clique em Gerar cortes (não gasta cota).', 5000); } }, 300);
+    setTimeout(() => clearInterval(wait), 30000);
+  }
+});
+function pickFile() {
+  return new Promise(res => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'video/*'; i.onchange = () => res(i.files[0] || null); i.click(); });
+}
+// abre um projeto salvo com os cortes como estavam (sem gastar cota)
+async function openProject(p, action) {
+  if (!p || !(p.clips || []).length) return;
+  const av = projAvail(p); if (!av.ok) { toast(av.why, 5000); return; }
+  let file = await VDB.get(p.id);
+  if (!file && av.how === 'arquivo') {
+    toast(`Escolha o arquivo "${p.source}" de novo para abrir este projeto.`, 5000);
+    file = await pickFile(); if (!file) return;
+    if (file.name !== p.source) toast('O nome do arquivo é diferente do original. Abrindo mesmo assim.', 4000);
+  }
+  location.hash = '#criar';
+  await sleep(50);
+  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#results').classList.add('hidden');
+  $('#proc').classList.remove('hidden'); $('#proc').querySelectorAll('.err,.note.after').forEach(x => x.remove());
+  S.settings = Object.assign({ D: 30, N: 5, model: 'base', lang: 'portuguese', tpl: 'stream', visual: true, focus: 'viral', hook: false, sens: 3, boostVoice: false, snapSilence: true }, (p.meta && p.meta.settings) || {});
+  const needAsr = S.settings.model !== 'none' && p.clips.some(c => !(c.words && c.words.length) && !c.transcribed);
+  const skip = [4, 5]; if (file) skip.push(0, 1); if (!needAsr) skip.push(6, 7);
+  stepsUI(skip);
+  try {
+    if (!file) {
+      const r = (p.meta && p.meta.range) || ['0:00', fmtH(p.duration || 600)];
+      file = await downloadJob({ url: p.source, start: parseTime(r[0]), end: parseTime(r[1]) }, p.title, false);
+      VDB.put(p.id, file);
     }
-  };
+    S.file = file; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(file);
+    S.project = { id: p.id, kind: p.kind, source: p.source, title: p.title, range: (p.meta && p.meta.range) || null };
+    const pv = $('#pv'), ev = $('#ev'), avv = $('#av');
+    await Promise.all([loadMeta(pv, S.url), loadMeta(ev, S.url), loadMeta(avv, S.url)]);
+    S.duration = pv.duration; S.vw = pv.videoWidth; S.vh = pv.videoHeight;
+    step(2, 'active'); const audio = await decodeAudio(S.file); S.pcm = audio ? audio.mono : null; step(2, 'done');
+    step(3, 'active'); S.feats = audio ? await audioFeatures(audio, q => step(3, 'active', Math.round(q * 100) + '%')) : null; step(3, 'done');
+    S.clips = p.clips.map(unpackClip);
+    let capErr = null;
+    if (needAsr && S.pcm) {
+      step(6, 'active');
+      try { await loadASR(S.settings.model); step(6, 'done'); step(7, 'active'); const todo = S.clips.filter(c => !c.words.length && !c.transcribed); for (let i = 0; i < todo.length; i++) { step(7, 'active', `${i + 1}/${todo.length}`); await transcribeClip(todo[i]); todo[i].wordsVer++; } step(7, 'done'); }
+      catch (err) { capErr = err.message; step(6, 'done'); step(7, 'done'); }
+    }
+    step(8, 'active'); await document.fonts.ready;
+    showResults(capErr); step(8, 'done');
+    if (needAsr) saveProject();
+    if (action === 'all') exportWithUI(S.clips, $('#exportAll'));
+    else if (typeof action === 'number' && S.clips[action]) openEditor(S.clips[action]);
+    else toast('Projeto aberto: seus cortes estão como você deixou ✂', 3500);
+  } catch (err) {
+    console.error(err);
+    $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(err.message)}</p><a class="btn ghost small" href="#projetos">Voltar aos projetos</a>`);
+  }
 }
 
 // ---------- conta ----------
@@ -2036,7 +2460,8 @@ function renderAccount() {
   swatches($('#bkColor'), bk.color, c => { $('#bkColor').dataset.v = c; });
   $('#bkColor').dataset.v = bk.color || '';
   $('#adminPanel').classList.toggle('hidden', !u.admin);
-  if (u.admin) loadAdmin();
+  if (u.admin) { loadAdmin(); loadAdminExtras(); }
+  loadMyReview();
   const q = new URLSearchParams(location.search), pay = q.get('pagamento');
   if (pay) {
     const m = { approved: '✅ Pagamento aprovado! Seu Pro já está ativo.', pending: '⏳ Pagamento em análise. Assim que o Mercado Pago confirmar, o Pro é liberado sozinho (PIX costuma levar segundos).', in_process: '⏳ Pagamento em análise.', rejected: '❌ Pagamento recusado. Tente outro meio.', failure: 'O pagamento não foi concluído.' };
@@ -2230,6 +2655,119 @@ document.addEventListener('click', e => {
   $('#fetchInfo').click();
 });
 function startStreams() { if (!$('#upload').classList.contains('hidden')) loadStreams(); clearInterval(streamTimer); streamTimer = setInterval(() => { if (location.hash === '#criar' && !document.hidden && !$('#upload').classList.contains('hidden')) loadStreams(); }, 120000); }
+
+// ---------- logo: volta para a tela inicial (com lives e YouTube) ----------
+function updateBackBar() { const has = S.clips.length && $('#results').classList.contains('hidden') && $('#proc').classList.contains('hidden') && !$('#upload').classList.contains('hidden'); $('#backBar').classList.toggle('hidden', !has); if (has) $('#backTitle').textContent = (S.project && S.project.title) || S.clips.length + ' cortes'; }
+function goHome() {
+  if (location.hash !== '#criar') { location.hash = '#criar'; }
+  if (!$('#proc').classList.contains('hidden')) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; } // processando: não interrompe
+  $('#results').classList.add('hidden'); $('#upload').classList.remove('hidden');
+  route(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelector('.logo').addEventListener('click', e => { if (!S.user || S.demo) return; e.preventDefault(); goHome(); });
+$('#backToRes').onclick = () => { $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#results').classList.remove('hidden'); window.scrollTo(0, 0); };
+
+// ---------- YouTube: canais, sugestões e cortes viralizando ----------
+let YT = null, ytWait = null;
+function loadYT() {
+  if (YT && Date.now() - YT._t < 20 * 60e3) return Promise.resolve(YT);
+  return ytWait = ytWait || fetch(API + '/api/yt/feed').then(r => r.json()).then(r => { r._t = Date.now(); YT = r; return r; }).catch(() => ({ channels: [], videos: [], shorts: [] })).finally(() => { ytWait = null; });
+}
+const ago = iso => { const d = (Date.now() - Date.parse(iso)) / 1000; if (!isFinite(d)) return ''; if (d < 3600) return `há ${Math.max(1, Math.round(d / 60))} min`; if (d < 86400) return `há ${Math.round(d / 3600)} h`; const n = Math.round(d / 86400); return n < 30 ? `há ${n} dia${n > 1 ? 's' : ''}` : `há ${Math.round(n / 30)} mês${n >= 60 ? 'es' : ''}`; };
+const shortCard = (x, i) => `<a class="short reveal" style="--d:${i * .04}s" href="${esc(x.url)}" data-short="${esc(x.id)}" data-title="${esc(x.title)}"><img src="https://i.ytimg.com/vi/${esc(x.id)}/hqdefault.jpg" alt="" loading="lazy"><span class="vw">▶ ${fmtViewers(x.views)}</span><span class="pl">▶️</span><div class="ov">${esc(x.title)}<small>${esc(x.channel)}</small></div></a>`;
+async function renderYT() {
+  const r = await loadYT(), sec = $('#ytSec');
+  const show = (r.channels.length || r.videos.length) && !$('#upload').classList.contains('hidden') && location.hash === '#criar';
+  sec.classList.toggle('hidden', !show); if (!show) return;
+  $('#ytChans').innerHTML = r.channels.map(c => `<a class="ytchan" href="${esc(c.url)}" target="_blank" rel="noopener">${c.avatar ? `<img src="${esc(c.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="ph">${esc((c.name || '?')[0])}</span>`}${esc(c.name)}<small>${esc(c.handle || '')}${c.latest ? ' · ' + ago(c.latest) : ''}</small></a>`).join('');
+  $('#ytVideos').innerHTML = r.videos.length ? r.videos.map((x, i) => `<a class="scard reveal" style="--d:${i * .04}s" href="${esc(x.url)}" data-ytv="${esc(x.url)}" title="${esc(x.title)}">
+    <div class="th"><img src="${esc(x.thumbnail)}" alt="" loading="lazy"><span class="up">${fmtViewers(x.views)} views</span><span class="cta">✂ Cortar este vídeo</span></div>
+    <div class="meta">${x.avatar ? `<img class="av" src="${esc(x.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : `<span class="av" style="display:grid;place-items:center;font-weight:900;background:var(--sunset);color:#1a0629">${esc((x.channel || '?')[0])}</span>`}<div style="min-width:0"><div class="nm">${esc(x.channel)}</div><div class="tt">${esc(x.title)}</div><div class="tags"><span>${ago(x.published)}</span></div></div></div></a>`).join('') : '<p class="note">Nenhum vídeo novo agora.</p>';
+  $('#ytShorts').innerHTML = r.shorts.slice(0, 8).map(shortCard).join('');
+  observeReveal(sec);
+}
+async function renderViral() {
+  const r = await loadYT(); const ok = r.shorts && r.shorts.length;
+  $('#viralSec').classList.toggle('hidden', !ok); if (!ok) return;
+  $('#viralGrid').innerHTML = r.shorts.slice(0, 8).map(shortCard).join(''); observeReveal($('#viralSec'));
+}
+document.addEventListener('click', e => {
+  const sh = e.target.closest('[data-short]');
+  if (sh) { e.preventDefault(); $('#playerBox').classList.remove('wide'); $('#playerTitle').textContent = sh.dataset.title; $('#playerOpen').href = sh.href; $('#playerCut').classList.add('hidden'); $('#playerFrame').src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(sh.dataset.short)}?autoplay=1&playsinline=1&rel=0`; $('#playerModal').classList.remove('hidden'); return; }
+  const yv = e.target.closest('[data-ytv]');
+  if (yv) {
+    e.preventDefault(); if (!S.user) { openAuth('signup'); return; }
+    document.querySelector('[data-tab="link"]').click(); $('#url').value = yv.dataset.ytv; $('#url').dispatchEvent(new Event('input'));
+    window.scrollTo({ top: 0, behavior: 'smooth' }); $('#fetchInfo').click();
+  }
+});
+$('#playerModal').addEventListener('click', e => { if (e.target.id === 'playerModal' || e.target.closest('[data-close]')) { $('#playerFrame').src = 'about:blank'; $('#playerModal').classList.add('hidden'); } });
+
+// ---------- provas reais: avaliações de quem pagou ----------
+let PROOF = null;
+async function renderProof() {
+  try { PROOF = PROOF || await (await fetch(API + '/api/reviews')).json(); } catch { return; }
+  const ok = PROOF.reviews && PROOF.reviews.length; $('#proofSec').classList.toggle('hidden', !ok); if (!ok) return;
+  $('#proofSub').textContent = (PROOF.buyers >= 10 ? `${PROOF.buyers} criadores já assinaram. ` : '') + 'Avaliações de criadores com compra verificada no NEONCUT.';
+  $('#proofGrid').innerHTML = PROOF.reviews.map(r => `<div class="review reveal"><div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div><div>${esc(r.text)}</div>
+    <div class="who">${r.avatar ? `<img src="${esc(r.avatar)}" alt="" referrerpolicy="no-referrer">` : `<span class="av">${esc((r.name || '?')[0].toUpperCase())}</span>`}<div><b>${esc(r.name)}</b>${r.handle ? ' · ' + esc(r.handle) : ''}<div class="ver">✓ Compra verificada · ${r.plan === 'proplus' ? 'Pro+' : 'Pro'}</div></div></div></div>`).join('');
+  observeReveal($('#proofSec'));
+}
+let revRating = 5;
+function paintStars() { $('#revStars').innerHTML = [1, 2, 3, 4, 5].map(i => `<span data-star="${i}" style="color:${i <= revRating ? '#ffcf3c' : '#3a2560'}">★</span>`).join(''); }
+$('#revStars').addEventListener('click', e => { const st = e.target.closest('[data-star]'); if (st) { revRating = +st.dataset.star; paintStars(); } });
+async function loadMyReview() {
+  const show = !!(S.user && S.user.buyer); $('#revPanel').classList.toggle('hidden', !show); if (!show) return;
+  try { const r = await api('/api/reviews/mine'); if (r.review) { revRating = r.review.rating; $('#revText').value = r.review.text; $('#revHandle').value = r.review.handle || ''; $('#revNote').textContent = r.review.status === 'aprovado' ? '✅ Sua avaliação está publicada. Se editar, ela passa por revisão de novo.' : r.review.status === 'oculto' ? 'Sua avaliação não foi publicada.' : '⏳ Recebemos sua avaliação. Ela aparece na página inicial depois de revisada.'; } else { $('#revHandle').value = brandKit().handle || ''; } } catch { }
+  paintStars();
+}
+$('#revSend').onclick = async () => { try { await api('/api/reviews', { rating: revRating, text: $('#revText').value, handle: $('#revHandle').value }); toast('Obrigado pela avaliação! ⭐'); loadMyReview(); } catch (e) { toast(e.message, 5000); } };
+async function loadAdminExtras() {
+  try { const r = await api('/api/admin/yt-channels'); $('#adYt').value = r.channels.map(c => c.entry).join('\n'); $('#adYtInfo').textContent = r.channels.map(c => (c.ok ? '✅ ' : c.checked ? '❌ ' : '… ') + (c.name || c.entry)).join(' · '); } catch { }
+  try {
+    const list = await api('/api/admin/reviews'), pend = list.filter(r => r.status === 'pendente').length;
+    $('#rvCount').textContent = `· ${pend} pendente${pend === 1 ? '' : 's'}`;
+    $('#rvAdmin').innerHTML = list.length ? list.map(r => `<div class="tk" style="${r.status === 'oculto' ? 'opacity:.55' : ''}"><div class="th"><span class="kb">${'★'.repeat(r.rating)}</span><b>${esc(r.name)}</b> <span class="note">${esc(r.email)} · ${r.plan === 'proplus' ? 'Pro+' : 'Pro'} · ${r.status}</span></div><div class="mg">${esc(r.text)}</div>
+      <div class="act"><div class="spacer"></div>${r.status !== 'aprovado' ? `<button class="btn small" data-rv="${r.id}" data-st="aprovado">✓ Publicar</button>` : ''}${r.status !== 'oculto' ? `<button class="btn ghost small" data-rv="${r.id}" data-st="oculto">Ocultar</button>` : ''}</div></div>`).join('') : '<p class="note">Nenhuma avaliação ainda. Só quem pagou consegue avaliar.</p>';
+  } catch { }
+}
+$('#rvAdmin').addEventListener('click', async e => { const b = e.target.closest('[data-rv]'); if (!b) return; try { await api('/api/admin/reviews/status', { id: +b.dataset.rv, status: b.dataset.st }); PROOF = null; loadAdminExtras(); } catch (err) { toast(err.message); } });
+$('#adYtSave').onclick = async e => { const b = e.target; b.disabled = true; $('#adYtInfo').textContent = 'Conferindo os canais…'; try { const r = await api('/api/admin/yt-channels', { channels: $('#adYt').value.split('\n') }); YT = null; toast(`${r.found} de ${r.total} canais encontrados`); loadAdminExtras(); } catch (err) { toast(err.message, 5000); $('#adYtInfo').textContent = ''; } b.disabled = false; };
+
+// ---------- gerador de título, descrição e hashtags virais ----------
+const VIRAL_T = {
+  tiroteio: ['TROCA DE TIRO MAIS INSANA DO GTA RP 🔥', 'ISSO VIROU GUERRA EM 3 SEGUNDOS 💥', 'ELES NÃO ESPERAVAM ESSA 🔫', 'SOBREVIVI SOZINHO CONTRA 5 😳', 'O FINAL DESSA AÇÃO É SURREAL 💀', 'CHUVA DE BALA NA CIDADE 💥'],
+  perseguicao: ['A FUGA MAIS ÉPICA QUE VOCÊ VAI VER HOJE 🚔', 'A POLÍCIA NÃO ACREDITOU NISSO 🚨', '5 ESTRELAS E ZERO FREIO 😮‍💨', 'ESCAPEI POR 1 SEGUNDO 😱', 'ELES JURAVAM QUE IAM ME PEGAR 🏎️', 'PERSEGUIÇÃO INSANA NO GTA RP 🚔'],
+  reacao: ['A REAÇÃO DELE NO FINAL KKKKK 😂', 'NINGUÉM ESPERAVA ESSE FINAL 😳', 'EU NÃO AGUENTEI ESSA 💀', 'O GRITO NO FINAL 😂', 'ELE FICOU SEM REAÇÃO 😶', 'MELHOR REAÇÃO DO GTA RP 😂'],
+  epico: ['ESPERA ATÉ O FINAL 👀', 'ISSO SÓ ACONTECE NO GTA RP 🌴', 'O MOMENTO MAIS ÉPICO DA LIVE 🔥', 'ASSISTA ATÉ O FIM 😳', 'GTA 6 VAI SER ASSIM? 🌴', 'NÃO PISCA 👀'],
+};
+const VIRAL_HOOK = { tiroteio: ['A troca de tiro mais insana da live 🔥', 'Começou do nada e virou guerra 💥'], perseguicao: ['A fuga mais braba que você vai ver hoje 🚔', 'Eles quase me pegaram 😮‍💨'], reacao: ['Olha a reação no final 😂', 'Ninguém tava preparado pra isso 😳'], epico: ['Espera até o final 👀', 'Isso só acontece no GTA RP 🌴'] };
+const VIRAL_CTA = ['Segue pra mais cortes de GTA RP todo dia 🔥', 'Comenta o que você faria no meu lugar 👇', 'Manda pro amigo que ia fazer igual 😂', 'Salva pra ver de novo depois 📌', 'Parte 2? Comenta "SIM" 👇'];
+const VIRAL_TAGS = { base: ['#gtarp', '#gta6', '#gtavi', '#gta', '#gtarpbrasil'], tiroteio: ['#tiroteio', '#acao', '#gtaonline'], perseguicao: ['#fuga', '#policia', '#perseguicao'], reacao: ['#humor', '#react', '#kkkk'], epico: ['#epico', '#gameplay', '#vicecity'], reach: ['#fyp', '#viral', '#foryou', '#shorts', '#reels', '#cortes', '#paravoce'] };
+const STOP = new Set('que não nao com uma pra para por mais muito isso essa esse aqui agora tudo meu minha você voce ele ela eles elas então entao porque quando como onde mano cara tipo assim vai vou tem tava está esta estou foi fazer gente olha the and'.split(' '));
+function keywordsOf(c) { const f = {}; (c.words || []).forEach(w => { const k = w.text.toLowerCase().replace(/[^\p{L}\p{N}]/gu, ''); if (k.length > 3 && !STOP.has(k)) f[k] = (f[k] || 0) + 1; }); return Object.entries(f).sort((a, b) => b[1] - a[1]).slice(0, 4).map(x => x[0]); }
+function genViral(c, salt = 0) {
+  const cat = VIRAL_T[c.cat] ? c.cat : 'epico', pick = (arr, k = 0) => arr[(Math.abs(salt * 7 + (c.idx || 0) * 3 + k)) % arr.length];
+  const kw = keywordsOf(c), titles = [];
+  if (c.quote) titles.push(`"${c.quote.toUpperCase()}" 😂`);
+  if (kw[0]) titles.push(`ELE FALOU "${kw[0].toUpperCase()}" E DEU RUIM 💀`);
+  for (let k = 0; titles.length < 5 && k < 12; k++) { const t = pick(VIRAL_T[cat], k); if (!titles.includes(t)) titles.push(t); }
+  if (titles.length < 6) titles.push(pick(VIRAL_T.epico, 5));
+  const tags = [...new Set([...VIRAL_TAGS.base.slice(0, 3 + salt % 3), ...VIRAL_TAGS[cat], ...(brandKit().tags || '').split(/\s+/).filter(t => /^#[\p{L}\p{N}_]+$/u.test(t)), ...kw.slice(0, 2).map(k => '#' + k), ...VIRAL_TAGS.reach.slice(salt % 3, salt % 3 + 4)])].slice(0, 12);
+  const handle = c.handle || brandKit().handle || '';
+  const desc = `${pick(VIRAL_HOOK[cat])}\n${(c.title || titles[0]).replace(/["]/g, '')}\n\n${pick(VIRAL_CTA)}${handle ? '\n' + handle : ''}\n\n${tags.join(' ')}`;
+  return { titles: titles.slice(0, 6), desc, tags };
+}
+let vSalt = 1;
+$('#genViral').onclick = () => {
+  const c = S.cur; if (!c) return; const g = genViral(c, vSalt++);
+  $('#vgenTitles').innerHTML = '<span class="note">Toque num título para usar:</span>' + g.titles.map(t => `<button type="button" data-vt="${esc(t)}">${esc(t)}</button>`).join('');
+  $('#vgenTitles').classList.remove('hidden');
+  c.desc = g.desc; c.tags = g.tags; $('#inDesc').value = g.desc;
+  $('#vgenTags').innerHTML = g.tags.map(t => `<span>${esc(t)}</span>`).join('');
+  toast('Descrição e hashtags prontas ✨');
+};
+$('#vgenTitles').addEventListener('click', e => { const b = e.target.closest('[data-vt]'); if (!b) return; const c = S.cur; c.title = b.dataset.vt; c.showTitle = true; $('#inTitle').value = c.title; $('#inShowTitle').checked = true; c.desc = c.desc.replace(/^(.*\n)(.*)(\n)/, `$1${c.title.replace(/["]/g, '')}$3`); $('#inDesc').value = c.desc; drawPreview(); });
 
 // ---------- revelar ao rolar ----------
 const revealObs = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); revealObs.unobserve(en.target); } }), { threshold: .12 }) : null;
