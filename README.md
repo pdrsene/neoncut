@@ -1,0 +1,52 @@
+# NEONCUT: cortes virais de gameplay
+
+Cole um link (YouTube, Twitch, Kick, TikTok, Instagram, X, Facebook) ou envie um arquivo.
+O site acha os momentos virais, legenda as falas e entrega vídeos verticais com template.
+
+```
+web/index.html     → o site (detecção, legendas com IA, templates e exportação rodam no navegador)
+server/app.py      → servidor que baixa o vídeo do link e entrega um MP4 ao site
+Dockerfile         → servidor + site prontos para subir
+```
+
+## Colocar no ar (Railway, cerca de 10 minutos)
+
+1. Crie um repositório no GitHub e suba esta pasta inteira.
+2. Em railway.app: **New Project → Deploy from GitHub repo** e escolha o repositório. O Railway encontra o `Dockerfile` sozinho.
+3. Em **Settings → Networking → Generate Domain**, você recebe o link público do site.
+4. Abra `https://SEU-LINK/api/health`. Se aparecer `"ok": true`, está tudo funcionando.
+
+Também funciona no Render, no Fly.io ou em qualquer VPS com Docker:
+`docker build -t neoncut . && docker run -p 8000:8000 neoncut`
+
+Rodar no seu computador sem Docker (precisa de Python 3.10+ e ffmpeg instalados):
+
+```
+pip install -r server/requirements.txt
+uvicorn server.app:app --port 8000
+```
+
+Depois, abra http://localhost:8000
+
+## Configurações (variáveis de ambiente)
+
+| Variável | Padrão | Para que serve |
+|---|---|---|
+| `MAX_MINUTES` | 90 | Tamanho máximo do trecho de um VOD |
+| `MAX_LIVE_MINUTES` | 30 | Tempo máximo de gravação de uma live |
+| `MAX_PARALLEL` | 2 | Downloads ao mesmo tempo (suba se o servidor for maior) |
+| `JOBS_PER_HOUR` | 8 | Limite de downloads por pessoa (IP) por hora |
+| `FILE_TTL` | 3600 | Segundos até apagar os vídeos baixados |
+| `YTDLP_COOKIES` | (vazio) | Caminho de um `cookies.txt`, se o YouTube bloquear |
+| `YTDLP_PROXY` | (vazio) | Proxy residencial, se o YouTube bloquear |
+| `CORS_ORIGINS` | `*` | Domínios que podem usar a API, se o site ficar em outro domínio |
+
+Se o site (`web/index.html`) for hospedado separado do servidor, adicione antes do `<script type="module">`:
+`<script>window.NEONCUT_API = 'https://seu-servidor.com'</script>`
+
+## Avisos importantes
+
+- **YouTube:** o YouTube costuma bloquear servidores de nuvem e pede uma verificação anti-robô. Twitch e Kick normalmente não bloqueiam. Se acontecer, o site mostra o aviso. Para resolver, configure `YTDLP_COOKIES`, exportado de uma conta secundária, ou `YTDLP_PROXY`.
+- **Lives:** a live é gravada em tempo real, então 10 minutos de live levam 10 minutos para gravar.
+- **Uso:** baixar vídeos pode violar os termos de uso das plataformas. O ideal é usar com conteúdo próprio ou com autorização do criador.
+- **Projeto de fãs:** não tem afiliação com a Rockstar Games nem com a Take-Two. Não use o logo nem as artes oficiais do GTA.
