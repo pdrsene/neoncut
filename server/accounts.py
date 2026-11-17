@@ -131,10 +131,22 @@ def init_db():
       id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, email TEXT, kind TEXT,
       subject TEXT, message TEXT, page TEXT, status TEXT DEFAULT 'aberto', created REAL NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS events(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL NOT NULL, kind TEXT NOT NULL,
+      vid TEXT, uid INTEGER, ref TEXT, meta TEXT DEFAULT '{}'
+    );
+    CREATE INDEX IF NOT EXISTS ix_ev_ts ON events(ts, kind);
+    CREATE INDEX IF NOT EXISTS ix_ev_vid ON events(vid, kind, ts);
+    CREATE TABLE IF NOT EXISTS feedback(
+      id INTEGER PRIMARY KEY AUTOINCREMENT, ts REAL NOT NULL, uid INTEGER, email TEXT,
+      rating INTEGER, comment TEXT, plan TEXT, ref TEXT
+    );
     """)
     cols = [r[1] for r in db().execute("PRAGMA table_info(users)").fetchall()]
     if "plan" not in cols:
         db().execute("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'pro'")
+    if "ref" not in cols:
+        db().execute("ALTER TABLE users ADD COLUMN ref TEXT DEFAULT ''")
 
 
 init_db()
@@ -349,6 +361,7 @@ def signup(body: SignupReq, req: Request, resp: Response):
     cur = db().execute("INSERT INTO users(email,name,pw,created,last_seen) VALUES(?,?,?,?,?)",
                        (email, body.name.strip()[:60], hash_pw(body.password), time.time(), time.time()))
     set_session(resp, req, cur.lastrowid)
+    log_event("signup", uid=cur.lastrowid, meta={"via": "email"})
     return user_public(db().execute("SELECT * FROM users WHERE id=?", (cur.lastrowid,)).fetchone())
 
 
@@ -440,6 +453,7 @@ def google_cb(req: Request, code: str = "", state: str = ""):
         uid = db().execute("INSERT INTO users(email,name,google_sub,avatar,created,last_seen) VALUES(?,?,?,?,?,?)",
                            (email, info.get("name", ""), info.get("sub"), info.get("picture", ""),
                             time.time(), time.time())).lastrowid
+        log_event("signup", uid=uid, meta={"via": "google"})
     r = RedirectResponse("/#criar")
     set_session(r, req, uid)
     r.delete_cookie("nc_oauth", path="/")
@@ -549,6 +563,7 @@ def checkout(body: CheckoutReq, req: Request):
     if not MP_TOKEN:
         raise HTTPException(503, "Pagamentos ainda não foram ativados neste site.")
     price = price_for(u["id"], body.plan)
+    log_event("checkout", uid=u["id"], ref=u["ref"] if "ref" in u.keys() else "", meta={"plan": body.plan, "price": price})
     base = base_url(req)
     pref = http_json(MP_API + "/checkout/preferences", "POST", {
         "items": [{"id": body.plan, "title": f"{BRAND} {PLAN_NAMES[body.plan]} (30 dias)", "quantity": 1,
@@ -782,3 +797,154 @@ def admin_review_status(body: ReviewStatus, req: Request):
     st = body.status if body.status in ("pendente", "aprovado", "oculto") else "pendente"
     db().execute("UPDATE reviews SET status=? WHERE id=?", (st, body.id))
     return {"ok": True}
+
+
+# ---------------------------------------------------------------- métricas
+TRACK_KINDS = {"visit", "link", "clip_generated", "export", "upgrade_open", "signup_open", "feedback_shown"}
+
+
+def _clean_ref(r: str) -> str:
+    r = (r or "").strip().lower()[:40]
+    return "".join(ch for ch in r if ch.isalnum() or ch in "-_.") or ""
+
+
+def log_event(kind: str, vid: str = "", uid=None, ref: str = "", meta: dict | None = None):
+    try:
+        db().execute("INSERT INTO events(ts,kind,vid,uid,ref,meta) VALUES(?,?,?,?,?,?)",
+                     (time.time(), kind, (vid or "")[:40], uid, _clean_ref(ref), json.dumps(meta or {})[:800]))
+    except Exception:
+        pass
+
+
+class TrackReq(BaseModel):
+    kind: str
+    vid: str = ""
+    ref: str = ""
+    first_ref: str = ""
+    meta: dict = {}
+
+
+@router.post("/api/track")
+def track(body: TrackReq, req: Request):
+    if body.kind not in TRACK_KINDS:
+        return {"ok": False}
+    throttle("track:" + (req.client.host if req.client else "?"), 240, 3600)
+    u = current_user(req, required=False)
+    uid = u["id"] if u else None
+    vid = "".join(ch for ch in body.vid if ch.isalnum())[:40]
+    # origem do usuário = primeira origem em que o visitante chegou (para saber de onde vêm as compras)
+    if u and not (u["ref"] if "ref" in u.keys() else ""):
+        fr = _clean_ref(body.first_ref or body.ref)
+        if fr:
+            db().execute("UPDATE users SET ref=? WHERE id=?", (fr, uid))
+    # visita e clique no link: no máximo 1 por visitante a cada 30 min (recarregar a página não infla)
+    if body.kind in ("visit", "link") and vid:
+        last = db().execute("SELECT ts FROM events WHERE vid=? AND kind=? ORDER BY ts DESC LIMIT 1", (vid, body.kind)).fetchone()
+        if last and time.time() - last["ts"] < 1800:
+            return {"ok": True}
+    log_event(body.kind, vid, uid, body.ref, body.meta)
+    return {"ok": True}
+
+
+class FeedbackReq(BaseModel):
+    rating: int
+    comment: str = ""
+    ref: str = ""
+
+
+@router.post("/api/feedback")
+def feedback(body: FeedbackReq, req: Request):
+    throttle("fb:" + (req.client.host if req.client else "?"), 20, 3600)
+    u = current_user(req, required=False)
+    plan = plan_info(u)["plan"] if u else "anon"
+    db().execute("INSERT INTO feedback(ts,uid,email,rating,comment,plan,ref) VALUES(?,?,?,?,?,?,?)",
+                 (time.time(), u["id"] if u else None, u["email"] if u else "", max(1, min(5, int(body.rating))),
+                  (body.comment or "").strip()[:800], plan, _clean_ref(body.ref)))
+    return {"ok": True}
+
+
+@router.get("/api/admin/metrics")
+def admin_metrics(req: Request, days: int = 30):
+    require_admin(req)
+    days = max(1, min(365, days))
+    now = time.time(); since = now - days * 86400
+    one = lambda sql, *a: db().execute(sql, a).fetchone()[0] or 0
+    ev = lambda kind: one("SELECT COUNT(*) FROM events WHERE kind=? AND ts>=?", kind, since)
+    evu = lambda kind: one("SELECT COUNT(DISTINCT COALESCE(CAST(uid AS TEXT), vid)) FROM events WHERE kind=? AND ts>=?", kind, since)
+
+    visitors = one("SELECT COUNT(DISTINCT vid) FROM events WHERE kind IN ('visit','link') AND ts>=?", since)
+    signups = one("SELECT COUNT(*) FROM users WHERE created>=?", since)
+    gen_users = evu("clip_generated")
+    checkout_users = one("SELECT COUNT(DISTINCT uid) FROM events WHERE kind='checkout' AND ts>=?", since)
+    paid = db().execute("SELECT COUNT(*) n, COUNT(DISTINCT user_id) b, COALESCE(SUM(amount),0) r FROM payments WHERE status='approved' AND created>=?", (since,)).fetchone()
+
+    # origens: cliques no link (?ref=) e visitas, cadastros, compradores e receita por origem
+    src = {}
+    for r in db().execute("""SELECT COALESCE(NULLIF(ref,''),'direto') s, SUM(kind='link') c, COUNT(DISTINCT vid) v FROM events
+                             WHERE kind IN ('visit','link') AND ts>=? GROUP BY s""", (since,)):
+        src.setdefault(r["s"], {"src": r["s"], "clicks": 0, "visitors": 0, "signups": 0, "buyers": 0, "revenue": 0.0})
+        src[r["s"]]["clicks"] += r["c"] or 0; src[r["s"]]["visitors"] = max(src[r["s"]]["visitors"], r["v"])
+    for r in db().execute("SELECT COALESCE(NULLIF(ref,''),'direto') s, COUNT(*) c FROM users WHERE created>=? GROUP BY s", (since,)):
+        src.setdefault(r["s"], {"src": r["s"], "clicks": 0, "visitors": 0, "signups": 0, "buyers": 0, "revenue": 0.0})["signups"] = r["c"]
+    for r in db().execute("""SELECT COALESCE(NULLIF(u.ref,''),'direto') s, COUNT(DISTINCT p.user_id) b, COALESCE(SUM(p.amount),0) rv
+                             FROM payments p JOIN users u ON u.id=p.user_id WHERE p.status='approved' AND p.created>=? GROUP BY s""", (since,)):
+        d = src.setdefault(r["s"], {"src": r["s"], "clicks": 0, "visitors": 0, "signups": 0, "buyers": 0, "revenue": 0.0})
+        d["buyers"] = r["b"]; d["revenue"] = round(r["rv"], 2)
+
+    # série por dia (horário de Brasília)
+    off = -3 * 3600
+    daykey = lambda t: time.strftime("%Y-%m-%d", time.gmtime(t + off))
+    series = {}
+    for i in range(min(days, 90) - 1, -1, -1):
+        series[daykey(now - i * 86400)] = {"visitors": set(), "signups": 0, "generated": 0, "purchases": 0, "revenue": 0.0}
+    for r in db().execute("SELECT ts, vid FROM events WHERE kind IN ('visit','link') AND ts>=?", (now - 90 * 86400,)):
+        k = daykey(r["ts"])
+        if k in series: series[k]["visitors"].add(r["vid"])
+    for r in db().execute("SELECT ts FROM events WHERE kind='clip_generated' AND ts>=?", (now - 90 * 86400,)):
+        k = daykey(r["ts"])
+        if k in series: series[k]["generated"] += 1
+    for r in db().execute("SELECT created FROM users WHERE created>=?", (now - 90 * 86400,)):
+        k = daykey(r["created"])
+        if k in series: series[k]["signups"] += 1
+    for r in db().execute("SELECT created, amount FROM payments WHERE status='approved' AND created>=?", (now - 90 * 86400,)):
+        k = daykey(r["created"])
+        if k in series: series[k]["purchases"] += 1; series[k]["revenue"] += r["amount"] or 0
+
+    today0 = now - ((now + off) % 86400)
+    fb_rows = db().execute("SELECT * FROM feedback ORDER BY ts DESC LIMIT 100").fetchall()
+    fb_dist = {str(i): one("SELECT COUNT(*) FROM feedback WHERE rating=? AND ts>=?", i, since) for i in range(1, 6)}
+    fb_n = sum(fb_dist.values())
+    buys = db().execute("""SELECT p.created, p.amount, p.plan, p.status, u.email, COALESCE(NULLIF(u.ref,''),'direto') ref
+                           FROM payments p LEFT JOIN users u ON u.id=p.user_id ORDER BY p.created DESC LIMIT 50""").fetchall()
+    return {
+        "days": days,
+        "today": {
+            "visitors": one("SELECT COUNT(DISTINCT vid) FROM events WHERE kind IN ('visit','link') AND ts>=?", today0),
+            "signups": one("SELECT COUNT(*) FROM users WHERE created>=?", today0),
+            "generated": one("SELECT COUNT(*) FROM events WHERE kind='clip_generated' AND ts>=?", today0),
+            "purchases": one("SELECT COUNT(*) FROM payments WHERE status='approved' AND created>=?", today0),
+            "revenue": round(one("SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='approved' AND created>=?", today0), 2),
+        },
+        "totals": {
+            "visitors": visitors, "link_clicks": ev("link"), "signups": signups,
+            "generated": ev("clip_generated"), "gen_users": gen_users, "exports": ev("export"),
+            "upgrade_open": ev("upgrade_open"), "checkout": ev("checkout"), "checkout_users": checkout_users,
+            "purchases": paid["n"], "buyers": paid["b"], "revenue": round(paid["r"], 2),
+            "pending": one("SELECT COUNT(*) FROM payments WHERE status IN ('pending','in_process') AND created>=?", since),
+            "users_total": one("SELECT COUNT(*) FROM users"),
+            "pro_active": one("SELECT COUNT(*) FROM users WHERE pro_until>? AND COALESCE(plan,'pro')='pro'", now),
+            "proplus_active": one("SELECT COUNT(*) FROM users WHERE pro_until>? AND plan='proplus'", now),
+        },
+        "funnel": [["Visitantes", visitors], ["Criaram conta", signups], ["Geraram cortes", gen_users],
+                   ["Clicaram em assinar", checkout_users], ["Compraram", paid["b"]]],
+        "sources": sorted(src.values(), key=lambda d: (-d["revenue"], -d["clicks"])),
+        "series": [{"day": k, "visitors": len(v["visitors"]), "signups": v["signups"], "generated": v["generated"],
+                    "purchases": v["purchases"], "revenue": round(v["revenue"], 2)} for k, v in series.items()],
+        "purchases": [{"ts": r["created"], "amount": r["amount"], "plan": r["plan"], "status": r["status"],
+                       "email": r["email"] or "?", "ref": r["ref"]} for r in buys],
+        "feedback": {"n": fb_n, "avg": round(sum(int(k) * v for k, v in fb_dist.items()) / fb_n, 2) if fb_n else None,
+                     "dist": fb_dist, "liked_pct": round(100 * (fb_dist["4"] + fb_dist["5"]) / fb_n) if fb_n else None,
+                     "shown": ev("feedback_shown"),
+                     "list": [{"ts": r["ts"], "email": r["email"] or "anônimo", "rating": r["rating"], "comment": r["comment"],
+                               "plan": r["plan"]} for r in fb_rows]},
+    }

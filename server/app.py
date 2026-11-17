@@ -90,7 +90,9 @@ def check_url(url: str) -> str:
 
 
 def ytdlp_base() -> list[str]:
-    cmd = ["yt-dlp", "--no-playlist", "--no-warnings", "--ignore-config"]
+    cmd = ["yt-dlp", "--no-playlist", "--no-warnings", "--ignore-config",
+           "-N", "8",  # baixa até 8 pedaços em paralelo (Twitch/Kick/YouTube em HLS/DASH)
+           "--socket-timeout", "20", "--retries", "5", "--fragment-retries", "10"]
     if COOKIES and Path(COOKIES).exists():
         cmd += ["--cookies", COOKIES]
     if PROXY:
@@ -142,6 +144,16 @@ async def security_headers(request: Request, call_next):
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    # isolamento de origem: libera vários núcleos para a IA de legendas (WASM multi-thread).
+    # Só em navegadores Chromium, que suportam o modo "credentialless" sem quebrar fontes,
+    # imagens e o player embutido. Os outros seguem como antes.
+    ua = request.headers.get("user-agent", "")
+    ctype = resp.headers.get("content-type", "")
+    if "text/html" in ctype:
+        resp.headers["Vary"] = "User-Agent"
+        if "Chrome/" in ua and "Firefox" not in ua and "CriOS" not in ua:
+            resp.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")
+            resp.headers.setdefault("Cross-Origin-Embedder-Policy", "credentialless")
     return resp
 app.add_middleware(CORSMiddleware, allow_origins=CORS, allow_methods=["*"], allow_headers=["*"],
                    expose_headers=["Content-Length", "Content-Range", "Accept-Ranges"])

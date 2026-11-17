@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0618">
 <title>NEONCUT: cortes virais da sua live em minutos</title>
 <meta name="description" content="Envie seu gameplay e receba cortes verticais nos momentos mais virais, já legendados e com template pronto.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff3d8b'/%3E%3Cstop offset='1' stop-color='%23ffb03c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='19' fill='url(%23g)'/%3E%3Crect x='2' y='22' width='36' height='2.6' fill='%230d0618'/%3E%3Crect x='4' y='27' width='32' height='2.6' fill='%230d0618'/%3E%3Crect x='7' y='32' width='26' height='2.6' fill='%230d0618'/%3E%3Cpath d='M21 34C21 26 22 18 24 12M24 12C19 9 14 10 11 13M24 12C28 8 33 9 35 12M24 12C22 7 18 5 15 5M24 12C27 6 31 5 33 6' stroke='%230d0618' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
@@ -384,7 +385,7 @@ select option:disabled{color:#6d5a8f}
 .tl-ph:before{content:"";position:absolute;top:0;left:-6px;border:7px solid transparent;border-top:9px solid #fff}
 .tl-ph-grab{position:absolute;top:0;width:16px;height:24px;margin-left:-7px;cursor:ew-resize;z-index:6}
 .pro-badge{font-size:10px;font-weight:900;padding:2px 6px;border-radius:6px;background:var(--sunset);color:#1a0629;margin-left:4px}
-@media (max-width:900px){.adv-mid{grid-template-columns:60px 1fr}.adv-panel{display:none}}
+
 
 .fab{position:fixed;right:18px;bottom:18px;z-index:45;display:flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:12px 16px;font-weight:800;font-size:14px;color:#1a0629;background:var(--sunset);box-shadow:0 10px 30px rgba(255,61,139,.4);cursor:pointer;transition:transform .2s,box-shadow .2s}
 .fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 38px rgba(255,61,139,.5)}
@@ -495,6 +496,170 @@ select option:disabled{color:#6d5a8f}
 .review .who img,.review .who .av{width:36px;height:36px;border-radius:50%;object-fit:cover;background:var(--sunset);display:grid;place-items:center;font-weight:900;color:#1a0629}
 .review .ver{font-size:11px;color:#39ff14;font-weight:800}
 .credit{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
+
+
+.capstat{display:inline-flex;align-items:center;gap:9px;margin-top:10px;padding:7px 12px;border-radius:999px;font-size:12.5px;color:var(--teal,#2bd4a4);background:rgba(43,212,164,.08);border:1px solid rgba(43,212,164,.28)}
+.capstat b{font-weight:700}
+.capstat.hidden{display:none}
+.dotspin{width:10px;height:10px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ================= BALÃO DE AVALIAÇÃO ================= */
+.fbb{position:fixed;left:18px;bottom:18px;z-index:60;width:min(340px,calc(100vw - 28px));background:linear-gradient(160deg,#241038,#150a24);border:1px solid rgba(255,61,139,.35);border-radius:20px;padding:16px 16px 14px;box-shadow:0 18px 50px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset;transform:translateY(20px) scale(.96);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
+.fbb.in{transform:none;opacity:1}
+.fbb:before{content:"";position:absolute;left:26px;bottom:-8px;width:14px;height:14px;background:#160a25;border-right:1px solid rgba(255,61,139,.35);border-bottom:1px solid rgba(255,61,139,.35);transform:rotate(45deg)}
+.fbx{position:absolute;top:8px;right:10px;background:none;border:0;color:var(--muted);font-size:14px;cursor:pointer;padding:4px}
+.fbq b{display:block;font-size:15.5px;margin-bottom:3px;padding-right:20px}.fbq span{font-size:12.5px;color:var(--muted)}
+.fbfaces{display:flex;gap:4px;margin-top:12px}
+.fbfaces button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:8px 0 6px;cursor:pointer;color:var(--muted);transition:transform .15s,background .15s,border-color .15s}
+.fbfaces button i{font-style:normal;font-size:24px;line-height:1;filter:grayscale(.35);transition:filter .15s,transform .15s}
+.fbfaces button small{font-size:10px;font-weight:700}
+.fbfaces button:hover i{transform:scale(1.15);filter:none}
+.fbfaces button.on{background:rgba(255,61,139,.14);border-color:rgba(255,61,139,.6);color:var(--text)}.fbfaces button.on i{filter:none;transform:scale(1.12)}
+.fbmore{margin-top:10px}.fbmore textarea{width:100%;resize:none;font-size:13.5px}
+.fbmore .row{margin-top:8px;gap:8px}.fbmore .btn{flex:1}
+.fbthanks{margin:6px 0 0;font-weight:700;text-align:center}
+/* ================= MÉTRICAS ================= */
+.mperiod{display:flex;gap:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:3px}
+.mperiod button{background:none;border:0;color:var(--muted);font-weight:700;font-size:12.5px;padding:7px 10px;border-radius:9px;cursor:pointer}
+.mperiod button.on{background:rgba(255,61,139,.16);color:var(--text)}
+.mtoday{margin:6px 0 14px;padding:10px 14px;border-radius:14px;background:rgba(41,224,208,.07);border:1px solid rgba(41,224,208,.2);font-size:13.5px;line-height:1.5}
+.mtoday .g{color:var(--teal)}
+.mkpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.mkpi{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.mkpi span{font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mkpi b{font-size:26px;font-weight:900;letter-spacing:-.5px;line-height:1.1}
+.mkpi small{font-size:11.5px;color:var(--muted)}
+.mkpi.hl{background:linear-gradient(160deg,rgba(255,61,139,.12),rgba(255,176,60,.06));border-color:rgba(255,61,139,.3)}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+#vMetrics .panel{margin-bottom:14px}#vMetrics .mgrid .panel{margin-bottom:0}
+#vMetrics .h4{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mfunnel{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.mfrow{display:grid;grid-template-columns:130px 1fr 54px 40px;align-items:center;gap:8px;font-size:13px}
+.mfrow b{text-align:right}.mfrow small{color:var(--teal);font-weight:700;font-size:11.5px}
+.mfbar{height:10px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
+.mfbar i{display:block;height:100%;border-radius:99px;background:var(--sunset)}
+.mtabs{margin-left:auto;display:flex;gap:2px;flex-wrap:wrap}
+.mtabs button{background:none;border:1px solid transparent;color:var(--muted);font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer;text-transform:none;letter-spacing:0}
+.mtabs button.on{border-color:rgba(255,61,139,.45);color:var(--text)}
+.mspark{width:100%;height:150px;display:block;margin-top:8px}
+.mspark rect{fill:#ff3d8b;opacity:.85}.mspark rect:hover{opacity:1;fill:#ffb03c}
+.mspark text{fill:var(--muted);font-size:10px}
+.mtable{overflow-x:auto;margin-top:4px}
+.mtable table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}
+.mtable th{text-align:left;color:var(--muted);font-size:11.5px;font-weight:700;padding:8px 8px;border-bottom:1px solid rgba(255,255,255,.08)}
+.mtable td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.05)}
+.mtable td:not(:first-child),.mtable th:not(:first-child){text-align:right}
+.mlinks{margin-top:14px;font-size:13px;color:var(--muted)}.mlinks>b{color:var(--text)}
+.mlink{display:flex;align-items:center;gap:10px;width:100%;margin-top:6px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);color:var(--text);cursor:pointer;text-align:left;font-size:13px}
+.mlink span{width:86px;flex:none;font-weight:700}.mlink code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--teal);font-size:12.5px}
+.mlink i{font-style:normal;font-size:12px;font-weight:700;color:var(--muted)}.mlink:hover{border-color:rgba(255,61,139,.4)}.mlink:hover i{color:var(--text)}
+.mfbsum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 12px}
+.mfbsum div{background:rgba(255,255,255,.035);border-radius:12px;padding:10px;text-align:center}
+.mfbsum b{display:block;font-size:22px;font-weight:900}.mfbsum small{font-size:11px;color:var(--muted)}
+.mdist{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.mdist>div{display:grid;grid-template-columns:24px 1fr 30px;align-items:center;gap:8px;font-size:13px}.mdist b{text-align:right}
+.mfblist,.mbuys{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow:auto}
+.mfblist>div,.mbuys>div{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:12px;background:rgba(255,255,255,.03);border-left:3px solid rgba(255,255,255,.1)}
+.mfblist>div.good{border-left-color:var(--teal)}.mfblist>div.bad{border-left-color:#ff5470}
+.mfblist .r{font-size:20px;line-height:1}.mfblist small,.mbuys small{display:block;font-size:11.5px;color:var(--muted)}
+.mfblist p{margin:4px 0 0;font-size:13.5px;line-height:1.45;word-break:break-word}
+.mbuys>div{align-items:center}.mbuys>div>div{flex:1;min-width:0}.mbuys b{font-size:13px;word-break:break-all}.mbuys .v{white-space:nowrap;color:var(--teal);font-size:14px}
+@media (max-width:900px){.mkpis{grid-template-columns:repeat(2,minmax(0,1fr))}.mgrid{grid-template-columns:1fr}}
+@media (max-width:760px){
+  #vMetrics .apphead{flex-wrap:wrap;gap:10px}#vMetrics .apphead .spacer{display:none}
+  .mperiod{flex:1}.mperiod button{flex:1;padding:8px 4px}
+  .mkpi{padding:10px 12px}.mkpi b{font-size:21px}
+  .mfrow{grid-template-columns:96px 1fr 44px 34px;font-size:12px}
+  .fbb{left:12px;right:12px;width:auto;bottom:calc(14px + env(safe-area-inset-bottom))}
+  body.authed .fbb{bottom:calc(80px + env(safe-area-inset-bottom))}
+  .fbb:before{display:none}
+}
+/* ================= MODO CELULAR ================= */
+.tabbar{display:none}
+@media (max-width:760px){
+  .wrap{padding:0 14px}
+  input,select,textarea{font-size:16px!important} /* evita o zoom automático do iPhone ao tocar num campo */
+  button,a{-webkit-tap-highlight-color:transparent}
+  .nav{margin:0 -14px;padding:10px 14px calc(8px);gap:10px;row-gap:6px;padding-top:calc(10px + env(safe-area-inset-top))}
+  .nav .logo svg{width:32px;height:32px}
+  .nav .logo{font-size:.86em}
+  .nav .links{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:0 14px 2px;gap:2px;-webkit-overflow-scrolling:touch}
+  .nav .links::-webkit-scrollbar{display:none}
+  .nav .links a{white-space:nowrap;flex:none;font-size:13px;padding:7px 11px}
+  .nav .right{gap:8px}
+  .nav .right .btn.small{padding:8px 12px;font-size:13px}
+  /* logado: menu vira barra de abas embaixo, igual app */
+  body.authed .nav .links{display:none}
+  body.authed .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:44;background:rgba(13,6,24,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.07);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:var(--muted);font-size:10.5px;font-weight:700;padding:5px 0;border-radius:12px;transition:color .2s,background .2s}
+  .tabbar a i{font-style:normal;font-size:19px;line-height:1;filter:grayscale(.6);transition:filter .2s,transform .2s}
+  .tabbar a.on{color:var(--text);background:rgba(255,61,139,.1)}
+  .tabbar a.on i{filter:none;transform:translateY(-1px)}
+  body.authed{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  /* botões flutuantes e avisos acima da barra */
+  .fab{right:12px;bottom:calc(14px + env(safe-area-inset-bottom));padding:11px;font-size:13px;box-shadow:0 6px 18px rgba(255,61,139,.35)}
+  .fab i{font-size:16px}
+  body.authed .fab{bottom:calc(76px + env(safe-area-inset-bottom))}
+  /* botão de suporte: menor, meio transparente e some enquanto a pessoa rola (não cobre controles) */
+  .fab{padding:9px;opacity:.82;transition:transform .25s,opacity .25s}
+  .fab i{font-size:15px}
+  .fab.away{transform:translateX(70px);opacity:0;pointer-events:none}
+  /* títulos de seção: a dica desce para a linha de baixo em vez de espremer o título */
+  .secq{flex-wrap:wrap;row-gap:2px;font-size:14.5px}
+  .secq .cnt{flex-basis:100%;margin-left:26px;font-size:11.5px;font-weight:600;opacity:.9}
+  .stylehead{flex-wrap:wrap}
+  .toast{bottom:calc(20px + env(safe-area-inset-bottom));width:max-content;max-width:calc(100vw - 28px);text-align:center;font-size:13px}
+  body.authed .toast{bottom:calc(82px + env(safe-area-inset-bottom))}
+  #demoExit{left:12px!important;bottom:calc(14px + env(safe-area-inset-bottom))!important;padding:8px 12px!important;font-size:12px!important;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+  body.authed #demoExit{bottom:calc(78px + env(safe-area-inset-bottom))!important}
+  /* cortes: 2 colunas, estilo grade do TikTok */
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .clip{border-radius:14px}
+  .clip .meta{padding:9px 9px 10px;gap:6px}
+  .clip .t{font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .clip .s{font-size:10.5px}
+  .clip .row{gap:6px}
+  .clip .btn.small{font-size:12px;padding:8px 4px}
+  .clip .score,.clip .cat{font-size:10px;padding:3px 6px}
+  /* editor: tela cheia, prévia fixa no topo e controles rolando embaixo */
+  .modal{padding:0}
+  .modal>.editor{border-radius:0;border:0;min-height:100%;padding:0 14px 30px;gap:14px}
+  .editor .stage{position:sticky;top:0;z-index:3;background:var(--bg2);padding:10px 0 8px;margin:0 -14px;padding-left:14px;padding-right:14px;box-shadow:0 10px 20px -12px rgba(0,0,0,.7)}
+  .editor .stage{gap:8px}
+  .editor .stage canvas{height:38vh;width:auto;max-width:100%;align-self:center;border-radius:12px}
+  .editor .stage .timeline .two{gap:8px}
+  .editor .stage .timeline label.f{font-size:11px;gap:3px}
+  .editor .stage .timeline input{padding:7px 10px}
+  .mbox{margin-top:3vh;padding:22px 18px}
+}
+/* Estúdio no celular/tablet: vídeo em cima, ferramentas no meio, linha do tempo embaixo */
+@media (max-width:900px){
+  #adv{grid-template-rows:50px minmax(0,1fr) 196px;padding-bottom:env(safe-area-inset-bottom)}
+  .adv-top{gap:4px;padding:0 6px}
+  .adv-top .ttl{flex:1;min-width:0;font-size:12px}
+  .adv-top .chip,#advSaved,#advBadge{display:none}
+  .adv-top .btn.small{padding:8px 11px;font-size:12px}
+  #adv{grid-template-columns:minmax(0,1fr)}
+  #adv #qsel3{display:none}
+  .adv-mid{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto auto}
+  .adv-stage{padding:8px;min-height:0;overflow:hidden;order:1}
+  .adv-tools{order:2}
+  .adv-panel{order:3}
+  .adv-stage canvas{height:100%;width:auto;max-width:100%}
+  .adv-tools{flex-direction:row;border-right:0;border-top:1px solid rgba(255,255,255,.06);padding:4px;gap:2px;overflow-x:auto}
+  .adv-tools button{flex:1;min-width:58px;padding:6px 2px;font-size:10px;gap:3px}
+  .adv-tools button i{font-size:17px}
+  .adv-panel{border-left:0;border-top:1px solid rgba(255,255,255,.06);max-height:30vh}
+  .adv-panel .ph{display:none}
+  .adv-panel .pb{padding:10px 12px;gap:10px}
+  .adv-tpls{grid-auto-flow:column;grid-template-columns:none;grid-auto-columns:84px;overflow-x:auto;padding-bottom:4px}
+  .tl-bar{gap:4px;padding:6px 8px;overflow-x:auto;scrollbar-width:none}
+  .tl-bar::-webkit-scrollbar{display:none}
+  .tl-bar #advZoom,.tl-bar .note{display:none}
+  .tl-bar .ib.wide{padding:0 7px;font-size:11px}
+  .tl-wrap{grid-template-columns:58px 1fr}
+  .tl-heads div{font-size:9px;padding:0 6px;letter-spacing:0}
+}
 </style>
 </head>
 <body>
@@ -513,6 +678,7 @@ select option:disabled{color:#6d5a8f}
     <nav class="links" id="navLinks"></nav>
     <div class="right" id="navRight"></div>
   </header>
+  <nav class="tabbar" id="tabbar" aria-label="Menu"></nav>
 
 
   <!-- ===================== LANDING ===================== -->
@@ -757,6 +923,14 @@ select option:disabled{color:#6d5a8f}
     <div id="projList" class="projs"></div>
   </main>
 
+  <!-- ===================== MÉTRICAS (só admin) ===================== -->
+  <main id="vMetrics" class="view hidden">
+    <div class="apphead"><div><h2>📊 Métricas</h2><p class="sub" style="margin:4px 0 0">Visitas, cliques no seu link, cadastros, compras e o que o pessoal está achando. Só você vê esta tela.</p></div><div class="spacer"></div>
+      <div class="mperiod" id="mPeriod"><button data-d="1">Hoje</button><button data-d="7">7 dias</button><button data-d="30" class="on">30 dias</button><button data-d="90">90 dias</button></div>
+      <button class="btn ghost small" id="mRefresh" title="Atualizar">↻</button></div>
+    <div id="mBody"><p class="note">Carregando…</p></div>
+  </main>
+
   <!-- ===================== CONTA ===================== -->
   <main id="vAccount" class="view hidden">
     <div class="apphead"><div><h2>Minha conta</h2><p class="sub" style="margin:4px 0 0" id="accEmail"></p></div><div class="spacer"></div><button class="btn ghost small" id="logoutBtn">Sair</button></div>
@@ -792,6 +966,7 @@ select option:disabled{color:#6d5a8f}
       </div>
       <div class="panel hidden" id="adminPanel">
         <h4 class="h4">Administração</h4>
+        <a class="btn small" href="#metricas" style="margin:4px 0 10px">📊 Abrir painel de métricas</a>
         <div id="adminStats" class="note"></div>
         <div class="two" style="margin-top:12px">
           <label class="f">E-mail do usuário<input type="text" id="adEmail"></label>
@@ -1004,7 +1179,7 @@ select option:disabled{color:#6d5a8f}
 <div class="modal hidden" id="playerModal">
   <div class="playerbox" id="playerBox">
     <div class="row" style="margin-bottom:10px"><b id="playerTitle" style="font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1"></b><button class="btn ghost small" data-close>✕</button></div>
-    <iframe id="playerFrame" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <iframe id="playerFrame" credentialless allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
     <div class="row" style="margin-top:10px"><a class="btn ghost small" id="playerOpen" target="_blank" rel="noopener" style="flex:1">Abrir no YouTube</a><button class="btn small" id="playerCut" style="flex:1">✂ Cortar este vídeo</button></div>
   </div>
 </div>
@@ -1084,6 +1259,10 @@ select option:disabled{color:#6d5a8f}
 <script type="module">
 // ============================================================
 // NEONCUT — corte automático, legendas e templates no navegador
+// celular: o botão de suporte se esconde enquanto rola a página e volta quando para
+(() => { const fab = document.getElementById('supportFab'); if (!fab) return; let tm = null, lastY = scrollY;
+  addEventListener('scroll', () => { if (innerWidth > 760) return; if (Math.abs(scrollY - lastY) < 6) return; lastY = scrollY; fab.classList.add('away'); clearTimeout(tm); tm = setTimeout(() => fab.classList.remove('away'), 900); }, { passive: true }); })();
+
 // ============================================================
 const SR = 16000;           // taxa de amostragem usada na análise e na IA de fala
 const HOP = 0.5;            // janela de análise (s)
@@ -1168,8 +1347,10 @@ async function decodeAudio(file) {
   const ctx = new OfflineAudioContext(1, 1, SR);
   let buf;
   try { buf = await ctx.decodeAudioData(ab); } catch (e) { console.warn('sem áudio', e); return null; }
-  const n = buf.length, mono = new Float32Array(n);
-  for (let c = 0; c < buf.numberOfChannels; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) mono[i] += d[i] / buf.numberOfChannels; }
+  const n = buf.length, ch = buf.numberOfChannels; let mono;
+  if (ch === 1) mono = buf.getChannelData(0);
+  else if (ch === 2) { const d0 = buf.getChannelData(0), d1 = buf.getChannelData(1); mono = new Float32Array(n); for (let i = 0; i < n; i++) mono[i] = (d0[i] + d1[i]) * .5; }
+  else { mono = new Float32Array(n); for (let c = 0; c < ch; c++) { const d = buf.getChannelData(c); for (let i = 0; i < n; i++) mono[i] += d[i] / ch; } }
   return { buf, mono };
 }
 async function bandRender(buf, type, freq, Q) {
@@ -1184,18 +1365,23 @@ function rmsDb(d, a, b) { let s = 0; for (let i = a; i < b; i++) s += d[i] * d[i
 async function audioFeatures(audio, onProg) {
   const { buf, mono } = audio;
   onProg(.1);
-  const voice = await bandRender(buf, 'bandpass', 1100, 0.7); onProg(.4);
-  const low = await bandRender(buf, 'lowpass', 140, 0.7); onProg(.7);
+  // os dois filtros rodam ao mesmo tempo (o navegador processa fora da tela principal)
+  const [voice, low] = await Promise.all([bandRender(buf, 'bandpass', 1100, 0.7), bandRender(buf, 'lowpass', 140, 0.7)]); onProg(.6);
   const hop = Math.round(HOP * SR), n = Math.floor(mono.length / hop);
   const F = { loud: new Float32Array(n), voice: new Float32Array(n), low: new Float32Array(n), flux: new Float32Array(n) };
   const sub = Math.round(hop / 10); let prevE = -100;
   for (let i = 0; i < n; i++) {
     const a = i * hop, b = a + hop;
-    F.loud[i] = rmsDb(mono, a, b); F.voice[i] = rmsDb(voice, a, b); F.low[i] = rmsDb(low, a, b);
-    let fl = 0;
-    for (let k = 0; k < 10; k++) { const e = rmsDb(mono, a + k * sub, a + (k + 1) * sub); fl += Math.max(0, e - prevE); prevE = e; }
-    F.flux[i] = fl;
-    if (i % 2000 === 0) { onProg(.7 + .3 * i / n); await sleep(0); }
+    F.voice[i] = rmsDb(voice, a, b); F.low[i] = rmsDb(low, a, b);
+    // volume geral e "fluxo" (subidas bruscas) calculados na mesma passada pelo áudio
+    let fl = 0, tot = 0;
+    for (let k = 0; k < 10; k++) {
+      let e = 0; const s0 = a + k * sub, s1 = s0 + sub;
+      for (let j = s0; j < s1; j++) { const x = mono[j]; e += x * x; }
+      tot += e; const db = 10 * Math.log10(e / sub + 1e-10); fl += Math.max(0, db - prevE); prevE = db;
+    }
+    F.loud[i] = 10 * Math.log10(tot / (10 * sub) + 1e-10); F.flux[i] = fl;
+    if (i % 600 === 0) { onProg(.6 + .4 * i / n); await sleep(0); }
   }
   F.voiceRaw = voice; // usado para achar silêncios nas bordas do corte
   return F;
@@ -1210,45 +1396,159 @@ function seek(v, t) {
     v.addEventListener('seeked', fin); v.currentTime = t; setTimeout(fin, 900);
   });
 }
-async function visualFeatures(v, dur, onProg) {
+// ---- CAMINHO MAIS RÁPIDO: decodifica só os quadros-chave, direto do arquivo (WebCodecs) ----
+// Em VODs de Twitch/Kick/YouTube há um quadro-chave a cada ~2s. Cada um pode ser decodificado
+// sozinho, então em vez de decodificar ~30 quadros por segundo de vídeo, decodificamos ~0,5.
+let _mp4boxP = null;
+function loadMp4box() {
+  if (window.MP4Box && window.DataStream) return Promise.resolve(window.MP4Box);
+  return _mp4boxP || (_mp4boxP = new Promise((ok, er) => { const sc = document.createElement('script'); sc.src = 'vendor/mp4box.min.js'; sc.onload = () => window.MP4Box ? ok(window.MP4Box) : er(new Error('mp4box')); sc.onerror = () => { _mp4boxP = null; er(new Error('mp4box')); }; document.head.appendChild(sc); }));
+}
+async function keyframeMotion(file, dur, onProg, sampleStep) {
+  if (!file || !window.VideoDecoder || !window.EncodedVideoChunk || !file.slice) return null;
+  const head = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const tag = String.fromCharCode(head[4], head[5], head[6], head[7]);
+  if (!['ftyp', 'moov', 'mdat', 'free', 'wide', 'skip'].includes(tag)) return null; // não é MP4/MOV
+  const MP4Box = await loadMp4box();
+  // 1) lê só o índice do arquivo (pula os dados de vídeo, mesmo com o índice no fim)
+  const mp4 = MP4Box.createFile(false); let info = null, perr = null;
+  mp4.onReady = i => { info = i; }; mp4.onError = e => { perr = e; };
+  let pos = 0, guard = 0; const CH = 1 << 20;
+  while (!info && !perr && pos < file.size && guard++ < 4000) {
+    const buf = await file.slice(pos, Math.min(file.size, pos + CH)).arrayBuffer(); buf.fileStart = pos;
+    const next = mp4.appendBuffer(buf);
+    pos = (typeof next === 'number' && next > pos) ? next : pos + buf.byteLength;
+  }
+  if (!info || !info.videoTracks || !info.videoTracks.length) return null;
+  const vt = info.videoTracks[0], trak = mp4.getTrackById(vt.id);
+  const samples = (trak && trak.samples) || [];
+  const syncs = samples.filter(x => x.is_sync && x.size > 0);
+  if (syncs.length < 4) return null;
+  const T = x => x.cts / x.timescale;
+  const gaps = []; for (let i = 1; i < syncs.length; i++) gaps.push(T(syncs[i]) - T(syncs[i - 1]));
+  gaps.sort((a, b) => a - b); const medGap = gaps[gaps.length >> 1];
+  if (!(medGap > 0) || medGap > 9) return null; // quadros-chave muito espaçados (>9s): usa os players
+  // 2) configura o decodificador com os dados do codec
+  let description;
+  for (const en of trak.mdia.minf.stbl.stsd.entries) {
+    const box = en.avcC || en.hvcC || en.vpcC || en.av1C;
+    if (box) { const ds = new DataStream(undefined, 0, DataStream.BIG_ENDIAN); box.write(ds); description = new Uint8Array(ds.buffer, 8); break; }
+  }
+  const config = { codec: vt.codec, codedWidth: vt.video.width, codedHeight: vt.video.height, optimizeForLatency: true };
+  if (description) config.description = description;
+  const sup = await VideoDecoder.isConfigSupported(config).catch(() => null);
+  if (!sup || !sup.supported) return null;
+  // 3) escolhe os quadros-chave (no máximo um a cada ~sampleStep)
+  const pick = []; let lastT = -1e9;
+  for (const x of syncs) { const t = T(x); if (t - lastT >= sampleStep * .8) { pick.push(x); lastT = t; } }
+  const c = document.createElement('canvas'); c.width = 64; c.height = 36;
+  const g2 = c.getContext('2d', { willReadFrequently: true }), N = 64 * 36;
+  const frames = new Map(); let decErr = null, done = 0;
+  const dec = new VideoDecoder({
+    output: fr => {
+      try {
+        g2.drawImage(fr, 0, 0, 64, 36);
+        const d = g2.getImageData(0, 0, 64, 36).data, g = new Float32Array(N); let br = 0;
+        for (let i = 0; i < N; i++) { const y = .3 * d[i * 4] + .59 * d[i * 4 + 1] + .11 * d[i * 4 + 2]; g[i] = y; br += y; }
+        frames.set(fr.timestamp, { g, br: br / N });
+      } finally { fr.close(); }
+      done++; if (done % 4 === 0) onProg(Math.min(.99, done / pick.length));
+    },
+    error: e => { decErr = e; }
+  });
+  dec.configure(config);
+  for (const x of pick) {
+    if (decErr) break;
+    const data = await file.slice(x.offset, x.offset + x.size).arrayBuffer();
+    dec.decode(new EncodedVideoChunk({ type: 'key', timestamp: Math.round(T(x) * 1e6), data }));
+    while (dec.decodeQueueSize > 6 && !decErr) await sleep(2);
+  }
+  await Promise.race([dec.flush(), sleep(60000).then(() => { throw new Error('decodificador travou'); })]).catch(e => { decErr = decErr || e; });
+  try { dec.close(); } catch (e) { }
+  if (decErr || frames.size < pick.length * .8) { console.warn('quadros-chave falharam, usando players', decErr); return null; }
+  // 4) movimento entre quadros-chave consecutivos
+  const ts = [...frames.keys()].sort((a, b) => a - b), vals = [];
+  for (let i = 1; i < ts.length; i++) {
+    const a = frames.get(ts[i - 1]), b = frames.get(ts[i]); let diff = 0;
+    for (let k = 0; k < N; k++) diff += Math.abs(b.g[k] - a.g[k]);
+    vals.push({ t: ts[i] / 1e6, m: diff / N + 0.6 * Math.max(0, b.br - a.br) });
+  }
+  onProg(1);
+  return vals.length > 2 ? { step: dur / vals.length, vals, K: 'kf' } : null;
+}
+async function visualFeatures(v, dur, onProg, file) {
   const c = document.createElement('canvas'); c.width = 64; c.height = 36;
   const x = c.getContext('2d', { willReadFrequently: true });
-  const out = []; let prev = null, prevB = 0;
-  const grab = t => {
-    x.drawImage(v, 0, 0, 64, 36);
-    const d = x.getImageData(0, 0, 64, 36).data, g = new Float32Array(64 * 36);
-    let br = 0; for (let i = 0; i < g.length; i++) { g[i] = .3 * d[i * 4] + .59 * d[i * 4 + 1] + .11 * d[i * 4 + 2]; br += g[i]; }
-    br /= g.length;
-    let diff = 0; if (prev) { for (let i = 0; i < g.length; i++) diff += Math.abs(g[i] - prev[i]); diff /= g.length; }
-    out.push({ t, m: diff + 0.6 * Math.max(0, br - prevB) });
-    prev = g; prevB = br;
+  const N = 64 * 36;
+  const frameOf = vid => {
+    x.drawImage(vid, 0, 0, 64, 36);
+    const d = x.getImageData(0, 0, 64, 36).data, g = new Float32Array(N); let br = 0;
+    for (let i = 0; i < N; i++) { const y = .3 * d[i * 4] + .59 * d[i * 4 + 1] + .11 * d[i * 4 + 2]; g[i] = y; br += y; }
+    return { g, br: br / N };
   };
+  const motion = (a, b) => { let diff = 0; for (let i = 0; i < N; i++) diff += Math.abs(b.g[i] - a.g[i]); return diff / N + 0.6 * Math.max(0, b.br - a.br); };
   const sampleStep = dur <= 1200 ? 1.2 : dur <= 3600 ? 2 : 3;
-  // CAMINHO RÁPIDO: toca o vídeo em alta velocidade e lê os quadros conforme chegam.
-  // Decodificar em sequência é muito mais rápido que dar centenas de "seek" em série.
-  if (v.requestVideoFrameCallback) {
-    try {
+  try { const kfr = await keyframeMotion(file, dur, onProg, sampleStep); if (kfr) return kfr; }
+  catch (e) { console.warn('leitura de quadros-chave indisponível', e); }
+  // amostragem por seek (reserva, e para tapar trechos que falharem)
+  const seekRange = async (a, b, step, prog) => {
+    const out = []; let prev = null;
+    for (let t = a; t < b; t += step) { await seek(v, t); const f = frameOf(v); if (prev) out.push({ t, m: motion(prev, f) }); prev = f; prog && prog((t - a) / (b - a)); }
+    return out;
+  };
+
+  // CAMINHO RÁPIDO: o vídeo é dividido em trechos e cada trecho toca em 16x num player
+  // próprio, AO MESMO TEMPO. Decodificar em sequência é muito mais rápido que dar centenas de
+  // "seek", e vários players em paralelo usam todos os núcleos do processador.
+  if (v.requestVideoFrameCallback && dur > 0) {
+    const cores = navigator.hardwareConcurrency || 4;
+    const phone = matchMedia('(pointer:coarse)').matches;
+    const K = dur < 40 ? 1 : Math.max(1, Math.min(phone ? 2 : 6, Math.max(phone ? 1 : 2, Math.floor(cores / 2)), Math.ceil(dur / 25)));
+    const segLen = dur / K, prog = new Float64Array(K);
+    const report = () => onProg(Math.min(.99, prog.reduce((s, q) => s + q, 0) / K));
+    const vids = [v];
+    for (let i = 1; i < K; i++) { const e = document.createElement('video'); e.muted = true; e.playsInline = true; e.preload = 'auto'; e.src = v.currentSrc || v.src; vids.push(e); }
+    const runSeg = async (vid, i) => {
+      const a = i * segLen, b = i === K - 1 ? dur : (i + 1) * segLen, out = []; let prev = null;
+      if (vid.readyState < 1) await new Promise((ok, er) => { vid.onloadedmetadata = ok; vid.onerror = () => er(new Error('vídeo')); });
+      if (a > 0) await seek(vid, a);
       await new Promise((res, rej) => {
-        let last = -1e9, timer = null, started = false;
-        const finish = () => { if (timer) clearTimeout(timer); v.onended = null; try { v.pause(); } catch (e) {} res(); };
+        let last = -1e9, timer = null, lastCT = -1, ended = false, started = false;
+        const finish = () => { if (ended) return; ended = true; if (timer) clearTimeout(timer); vid.onended = null; try { vid.pause(); } catch (e) { } res(); };
+        // sem quadros por 1,8s: se o vídeo ainda anda (aba ocupada), espera; se parou, encerra o trecho
+        const arm = () => { if (timer) clearTimeout(timer); timer = setTimeout(() => { const ct = vid.currentTime; if (!vid.paused && !vid.ended && ct > lastCT + .05 && ct < b - .3) { lastCT = ct; arm(); } else finish(); }, 1800); };
         const onFrame = (now, meta) => {
-          const t = (meta && meta.mediaTime) || v.currentTime;
-          if (t - last >= sampleStep) { last = t; grab(t); onProg(Math.min(.99, t / dur)); }
-          if (timer) clearTimeout(timer); timer = setTimeout(finish, 1800); // sem quadros novos = acabou/travou
-          if (!v.paused) v.requestVideoFrameCallback(onFrame);
+          if (ended) return;
+          const t = (meta && meta.mediaTime) || vid.currentTime;
+          if (t >= b) { finish(); return; }
+          if (t - last >= sampleStep) { last = t; const f = frameOf(vid); if (prev) out.push({ t, m: motion(prev, f) }); prev = f; prog[i] = (t - a) / (b - a); report(); }
+          lastCT = vid.currentTime; arm();
+          if (!vid.paused) vid.requestVideoFrameCallback(onFrame);
         };
-        v.muted = true; v.playbackRate = 16; v.currentTime = 0; v.onended = finish;
-        v.play().then(() => { started = true; v.requestVideoFrameCallback(onFrame); }).catch(err => { if (!started) rej(err); });
+        vid.muted = true; vid.playbackRate = 16; vid.onended = finish;
+        vid.play().then(() => { started = true; vid.requestVideoFrameCallback(onFrame); arm(); }).catch(err => { if (!started) rej(err); });
       });
-      v.playbackRate = 1;
-      if (out.length > 2) return { step: dur / Math.max(1, out.length), vals: out };
-    } catch (e) { console.warn('amostragem rápida indisponível, usando seek', e); out.length = 0; prev = null; prevB = 0; }
-    try { v.pause(); } catch (e) {} v.playbackRate = 1;
+      vid.playbackRate = 1; prog[i] = 1; report();
+      return out;
+    };
+    let parts = null;
+    try { parts = await Promise.all(vids.map((vid, i) => runSeg(vid, i).catch(e => { console.warn('trecho falhou', i, e); return null; }))); }
+    catch (e) { console.warn('amostragem rápida indisponível', e); }
+    vids.slice(1).forEach(e => { try { e.pause(); e.removeAttribute('src'); e.load(); } catch (er) { } });
+    try { v.pause(); } catch (e) { } v.playbackRate = 1;
+    if (parts && parts.some(p => p && p.length > 1)) {
+      // trecho que falhou: completa por seek só naquele pedaço
+      for (let i = 0; i < K; i++) if (!parts[i] || parts[i].length < 2) {
+        const a = i * segLen, b = i === K - 1 ? dur : (i + 1) * segLen;
+        parts[i] = await seekRange(a, b, Math.max(sampleStep, (b - a) / Math.max(20, 300 / K)));
+      }
+      const vals = parts.flat().sort((p, q) => p.t - q.t);
+      if (vals.length > 2) return { step: dur / vals.length, vals, K };
+    }
   }
   // RESERVA: seek com teto de amostras, pra não travar em vídeos longos.
   const MAX = 300, step = Math.max(sampleStep, dur / MAX);
-  for (let t = 0; t < dur; t += step) { await seek(v, t); grab(t); onProg(t / dur); }
-  return { step, vals: out };
+  return { step, vals: await seekRange(0, dur, step, onProg), K: 0 };
 }
 
 // ============================================================
@@ -1348,13 +1648,14 @@ function findMoments(F, V, dur, D, N, focus, opts) {
 const WORKER_SRC = `
 import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3';
 env.allowLocalModels = false;
-let asr = null, wordMode = true, loadedKey = null;
+try { if (self.crossOriginIsolated && env.backends && env.backends.onnx && env.backends.onnx.wasm) env.backends.onnx.wasm.numThreads = Math.max(1, Math.min(4, (navigator.hardwareConcurrency || 4) - 1)); } catch (e) { }
+let asr = null, wordMode = true, loadedKey = null, lastInfo = null;
 const post = (m) => self.postMessage(m);
 async function tryLoad(model, opts) {
   return await pipeline('automatic-speech-recognition', model, { ...opts, progress_callback: p => { if (p.status === 'progress') post({ type: 'dl', file: p.file, progress: p.progress, loaded: p.loaded, total: p.total }); } });
 }
 async function load(size) {
-  if (loadedKey === size && asr) return;
+  if (loadedKey === size && asr) { post(lastInfo); return; }
   const gpu = !!(self.navigator && self.navigator.gpu);
   const attempts = [];
   if (gpu) attempts.push(['onnx-community/whisper-' + size + '_timestamped', { device: 'webgpu', dtype: { encoder_model: 'fp32', decoder_model_merged: 'q4' } }, true]);
@@ -1363,7 +1664,7 @@ async function load(size) {
   attempts.push(['Xenova/whisper-' + size, {}, false]);
   let lastErr;
   for (const [m, o, w] of attempts) {
-    try { asr = await tryLoad(m, o); wordMode = w; loadedKey = size; post({ type: 'loaded', model: m, device: o.device || 'wasm', wordMode }); return; }
+    try { asr = await tryLoad(m, o); wordMode = w; loadedKey = size; lastInfo = { type: 'loaded', model: m, size, device: o.device || 'wasm', wordMode }; post(lastInfo); return; }
     catch (e) { lastErr = e; console.warn('falha ao carregar', m, e); }
   }
   throw lastErr;
@@ -1852,54 +2153,110 @@ $('#go').onclick = async () => {
 };
 
 async function pipelineRun(skip) {
-  if (S.mode === 'link') { const f = await fetchRemote(); S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); }
+  const T0 = performance.now(), lap = {}; const mark = k => lap[k] = Math.round(performance.now() - T0);
+  const wantCaps = !skip.includes(6);
+  // a IA de legendas começa a baixar/carregar JÁ, enquanto o vídeo baixa e é analisado
+  let asrP = null;
+  if (wantCaps) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
+  const st7 = $('#st7'); if (st7) st7.classList.add('hidden'); // legendar agora acontece depois, com os cortes já na tela
+  if (S.mode === 'link') { const f = await fetchRemote(); S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
   const pv = $('#pv'), ev = $('#ev'), av = $('#av');
   await Promise.all([loadMeta(pv, S.url), loadMeta(ev, S.url), loadMeta(av, S.url)]);
   S.duration = pv.duration; S.vw = pv.videoWidth; S.vh = pv.videoHeight;
-  // 1) áudio
-  step(2, 'active');
-  const audio = await decodeAudio(S.file);
-  S.pcm = audio ? audio.mono : null; step(2, 'done');
-  // 2) features de som
-  step(3, 'active');
-  S.feats = audio ? await audioFeatures(audio, p => step(3, 'active', Math.round(p * 100) + '%')) : null;
-  step(3, 'done');
-  // 3) imagem
-  let V = null;
-  if (!skip.includes(4)) { step(4, 'active'); V = await visualFeatures(av, S.duration, p => step(4, 'active', Math.round(p * 100) + '%')); step(4, 'done'); }
-  // 4) momentos
+  // som e imagem são analisados AO MESMO TEMPO
+  step(2, 'active'); step(3, 'active', 'na fila'); if (!skip.includes(4)) step(4, 'active');
+  const audioJob = (async () => {
+    const audio = await decodeAudio(S.file);
+    S.pcm = audio ? audio.mono : null; step(2, 'done'); mark('decode');
+    S.feats = audio ? await audioFeatures(audio, p => step(3, 'active', Math.round(p * 100) + '%')) : null;
+    step(3, 'done'); mark('som');
+  })();
+  const visJob = skip.includes(4) ? Promise.resolve(null)
+    : visualFeatures(av, S.duration, p => step(4, 'active', Math.round(p * 100) + '%'), S.file).then(v => { step(4, 'done'); mark('imagem'); lap.players = v && v.K; return v; });
+  const [, V] = await Promise.all([audioJob, visJob]);
+  // momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
   S.clips = findMoments(S.feats, V, S.duration, D, S.settings.N, S.settings.focus, { sens: S.settings.sens, boostVoice: S.settings.boostVoice, snapSilence: S.settings.snapSilence });
   const kit = brandKit();
   S.clips.forEach(c => Object.assign(c, { tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
-  step(5, 'done');
-  // 5) legendas
-  let capErr = null;
-  if (!skip.includes(6) && S.pcm) {
-    step(6, 'active');
-    const files = {}; onDl = d => { files[d.file] = d; const tot = Object.values(files).reduce((s, x) => s + (x.total || 0), 0), ld = Object.values(files).reduce((s, x) => s + (x.loaded || 0), 0); step(6, 'active', tot ? `${(ld / 1e6).toFixed(0)}/${(tot / 1e6).toFixed(0)} MB` : ''); };
-    try {
-      await loadASR(S.settings.model); step(6, 'done');
-      step(7, 'active');
-      for (let i = 0; i < S.clips.length; i++) { step(7, 'active', `${i + 1}/${S.clips.length}`); await transcribeClip(S.clips[i]); S.clips[i].wordsVer++; }
-      step(7, 'done');
-    } catch (e) { console.error(e); capErr = e.message; step(6, 'done'); step(7, 'done'); }
-  } else if (!S.pcm) capErr = 'O vídeo não tem áudio, então os cortes saem sem legenda.';
-  // títulos e ordenação
-  const used = new Set();
-  S.clips.forEach(c => { let k = 0, t = suggestTitle(c); while (used.has(t) && k < 8) t = suggestTitle(c, ++k * 2 + 1); used.add(t); c.title = t; c.desc = genViral(c, 0).desc; });
   S.clips.sort((a, b) => b.score - a.score); S.clips.forEach((c, i) => c.idx = i);
-  // 6) prévias
+  autoTitles(S.clips);
+  step(5, 'done'); mark('momentos');
+  // os cortes aparecem AGORA; as legendas vão entrando em cada card conforme ficam prontas
+  const capsNow = wantCaps && !!S.pcm;
+  S.capRunning = capsNow;
+  if (capsNow) S.clips.forEach(c => { c._capDone = false; c._capP = new Promise(r => c._capR = r); });
   step(8, 'active');
   await document.fonts.ready; await Promise.all(['Anton', 'Bebas Neue', 'Bangers'].map(f => document.fonts.load(`40px "${f}"`))).catch(() => { });
   await document.fonts.load('900 40px Montserrat').catch(() => { }); await document.fonts.load('700 40px Inter').catch(() => { });
-  showResults(capErr);
-  saveProject(); if (S.project) VDB.put(S.project.id, S.file);
-  for (let i = 0; i < S.clips.length; i++) { await drawThumb(S.clips[i]); step(8, 'active', `${i + 1}/${S.clips.length}`); }
-  step(8, 'done');
+  showResults(!S.pcm ? 'O vídeo não tem áudio, então os cortes saem sem legenda.' : null);
+  step(8, 'done'); mark('cortes_na_tela');
+  if (!S.demo) { track('clip_generated', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file' }); afterClipGenerated(); }
+  saveProject();
+  if (capsNow) captionInBackground(S.clips, asrP).then(() => { mark('legendas'); console.info('NEONCUT tempos (ms):', lap); S.lastLap = lap; });
+  else { console.info('NEONCUT tempos (ms):', lap); S.lastLap = lap; }
 }
+
+// ---------- títulos automáticos (atualizados quando a legenda traz uma frase boa) ----------
+function autoTitles(list) {
+  const used = new Set((S.clips || []).filter(c => !list.includes(c)).map(c => c.title)); // nunca repete título de outro corte
+  list.forEach(c => {
+    if (c._autoT != null && c.title !== c._autoT) { used.add(c.title); return; } // usuário editou: não mexe
+    let k = 0, t = suggestTitle(c); while (used.has(t) && k < 8) t = suggestTitle(c, ++k * 2 + 1);
+    used.add(t); const descAuto = c._autoD == null || c.desc === c._autoD;
+    c.title = t; c._autoT = t; if (descAuto) { c.desc = defaultDesc(c); c._autoD = c.desc; }
+  });
+}
+
+// ---------- legendas em segundo plano ----------
+function capDlProgress(d) {
+  const F = capDlProgress.files = capDlProgress.files || {}; F[d.file] = d;
+  const tot = Object.values(F).reduce((s, x) => s + (x.total || 0), 0), ld = Object.values(F).reduce((s, x) => s + (x.loaded || 0), 0);
+  const txt = tot ? `Baixando a IA de legendas ${(ld / 1e6).toFixed(0)}/${(tot / 1e6).toFixed(0)} MB` : 'Baixando a IA de legendas…';
+  step(6, 'active', tot ? `${(ld / 1e6).toFixed(0)}/${(tot / 1e6).toFixed(0)} MB` : '');
+  if (S.capRunning) setCapStatus(txt + ' (só na primeira vez)');
+}
+function setCapStatus(txt) {
+  let el = $('#capStatus');
+  if (!el) { const sub = $('#resSub'); if (!sub) return; sub.insertAdjacentHTML('afterend', '<div id="capStatus" class="capstat hidden"><span class="dotspin"></span><b></b></div>'); el = $('#capStatus'); }
+  el.classList.toggle('hidden', !txt); el.querySelector('b').textContent = txt || '';
+}
+async function captionInBackground(list, asrP) {
+  const isLive = () => S.clips === list;
+  setCapStatus('Preparando as legendas…');
+  let err = null;
+  try { await asrP; } catch (e) { err = e; }
+  if (!err && isLive()) {
+    $('#resSub').textContent = resSubText();
+    const done = new Set();
+    for (let k = 0; k < list.length && isLive(); k++) {
+      // prioridade: o corte que a pessoa abriu no editor/Estúdio
+      const open = (S.cur && list.includes(S.cur) && !done.has(S.cur)) ? S.cur : (ADV.open && list.includes(ADV.clip) && !done.has(ADV.clip)) ? ADV.clip : null;
+      const c = open || list.find(x => !done.has(x)); if (!c) break;
+      setCapStatus(`Legendando as falas ${k + 1}/${list.length}… você já pode editar e baixar`);
+      try { await transcribeClip(c); c.wordsVer = (c.wordsVer || 0) + 1; } catch (e) { console.warn('legenda falhou', e); }
+      done.add(c); c._capDone = true; c._capR && c._capR();
+      autoTitles([c]); refreshCard(c);
+      if (S.cur === c) { renderCaps(); drawPreview(); if (document.activeElement !== $('#inTitle')) $('#inTitle').value = c.title; $('#edScore').textContent = '🔥 ' + c.score; }
+      if (ADV.open && ADV.clip === c) advRenderAll();
+    }
+  } else if (err && isLive()) {
+    $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = '⚠ Legendas indisponíveis: ' + err.message + ' Os cortes funcionam normalmente sem legenda.';
+  }
+  list.forEach(c => { if (!c._capDone) { c._capDone = true; c._capR && c._capR(); refreshCard(c); } });
+  if (isLive()) { S.capRunning = false; setCapStatus(''); saveProjectSoon(); }
+}
+function refreshCard(c) {
+  const t = $('#ct' + c.idx), st = $('#cs' + c.idx), sc = $('#csc' + c.idx);
+  if (t) t.textContent = c.title; if (st) st.textContent = cardStatus(c); if (sc) sc.textContent = '🔥 ' + c.score;
+  queueThumb(c);
+}
+const cardStatus = c => `${fmt(c.start)} → ${fmt(c.end)} · ${Math.round(c.end - c.start)}s · ${c.words.length ? '💬 legendado' : (S.capRunning && !c._capDone ? '⏳ legendando…' : 'sem fala')}`;
+// miniaturas numa fila: nunca duas ao mesmo tempo no mesmo vídeo
+let thumbQ = Promise.resolve();
+function queueThumb(c) { thumbQ = thumbQ.then(() => drawThumb(c)).catch(e => console.warn('miniatura', e)); return thumbQ; }
 function defaultDesc(c) { return `${c.title.replace(/["]/g, '')}\n\n${brandKit().tags || '#gta6 #gtavi #gameplay #cortes #viral #fyp'}`; }
 
 const thumbBig = document.createElement('canvas'); thumbBig.width = W; thumbBig.height = H;
@@ -1912,19 +2269,22 @@ async function drawThumb(clip) {
 function showResults(capErr) {
   $('#proc').classList.add('hidden'); $('#results').classList.remove('hidden');
   if (capErr) { $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = '⚠ Legendas indisponíveis: ' + capErr + ' Os cortes funcionam normalmente sem legenda.'; }
-  const asr = S.asrInfo ? ` · Legendas: ${S.asrInfo.device === 'webgpu' ? 'GPU' : 'CPU'}${S.asrInfo.wordMode ? ', palavra a palavra' : ''}` : '';
-  $('#resSub').textContent = `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo, ordenados pela nota de viralização${asr}. Clique para ajustar.`;
+  $('#resSub').textContent = resSubText();
   renderGrid();
+}
+function resSubText() {
+  const asr = S.asrInfo ? ` · Legendas: ${S.asrInfo.device === 'webgpu' ? 'GPU' : 'CPU'}${S.asrInfo.wordMode ? ', palavra a palavra' : ''}` : '';
+  return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo, ordenados pela nota de viralização${asr}. Clique para ajustar.`;
 }
 function renderGrid() {
   $('#grid').innerHTML = S.clips.map(c => `
     <div class="clip">
-      <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><span class="score">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span></div>
-      <div class="meta"><div class="t">${esc(c.title)}</div><div class="s">${fmt(c.start)} → ${fmt(c.end)} · ${Math.round(c.end - c.start)}s · ${c.words.length ? '💬 legendado' : 'sem fala'}</div>
+      <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><span class="score" id="csc${c.idx}">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span></div>
+      <div class="meta"><div class="t" id="ct${c.idx}">${esc(c.title)}</div><div class="s" id="cs${c.idx}">${cardStatus(c)}</div>
       <div class="row" style="margin-bottom:8px"><button class="btn ghost small" data-ed="${c.idx}" style="flex:1">✏️ Editar</button><button class="btn ghost small" data-adv="${c.idx}" style="flex:1" title="Editor avançado com linha do tempo">🎬 Estúdio${isPro() ? '' : ' 🔒'}</button></div>
       <button class="btn small" data-dl="${c.idx}" style="width:100%">⬇ Baixar corte</button></div>
     </div>`).join('');
-  (async () => { for (const c of S.clips) await drawThumb(c); })();
+  S.clips.forEach(c => queueThumb(c));
 }
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 $('#grid').addEventListener('click', e => {
@@ -1948,7 +2308,9 @@ async function exportWithUI(list, btn) {
         try { const r = await api('/api/usage/hd', {}); S.plan.hd_left = r.hd_left; renderQSel(); }
         catch (e) { if (e.status === 402) { openUpgrade(e.message, 'proplus'); S.exportQ = 720; renderQSel(); } else toast(e.message, 5000); break; }
       }
+      if (c._capP && !c._capDone) { btn.textContent = '💬 legendando…'; toast('Terminando a legenda deste corte antes de exportar…', 3000); await c._capP; }
       const blob = await exportClip(c, p => { btn.textContent = `${list.length > 1 ? (i + 1) + '/' + list.length + ' · ' : ''}${Math.round(clamp(p, 0, 1) * 100)}%`; if (S.cur === c) $('#expStatus').textContent = `Renderizando ${Math.round(clamp(p, 0, 1) * 100)}%`; });
+      if (!S.demo) track('export', { tpl: c.tpl });
       saveBlob(blob, fileName(c, blob));
     }
     toast('Pronto! Vídeo salvo nos downloads ✅');
@@ -2155,6 +2517,7 @@ $('#caps').addEventListener('change', e => {
   const i0 = c.words.indexOf(l.words[0]); c.words.splice(i0, l.words.length, ...nw); c.wordsVer++; renderCaps(); drawPreview();
 });
 $('#retrans').onclick = async e => {
+  if (S.capRunning) { toast('As legendas ainda estão sendo geradas, um instante…'); return; }
   const btn = e.target, c = S.cur; btn.disabled = true; btn.textContent = '🎙 Legendando…';
   try { if (!S.asrInfo) await loadASR(S.settings.model === 'none' ? 'base' : S.settings.model); await transcribeClip(c); c.wordsVer++; renderCaps(); drawPreview(); toast('Legendas atualizadas'); }
   catch (err) { toast('Não consegui legendar: ' + err.message, 5000); }
@@ -2210,7 +2573,9 @@ async function loadMe() {
   try { const r = await api('/api/me'); setUser(r.user); } catch { setUser(null); }
 }
 function setUser(u) {
+  const wasId = S.user && S.user.id;
   S.user = u;
+  if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
   if (u) S.plan = Object.assign({}, u);
   else S.plan = { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
@@ -2220,8 +2585,11 @@ function renderNav() {
   const u = S.user, h = location.hash || '';
   const L = (href, txt) => `<a href="${href}" class="${h === href ? 'on' : ''}">${txt}</a>`;
   $('#navLinks').innerHTML = u
-    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#estudio', '🎬 Estúdio') + L('#precos', 'Planos') + `<a href="#" data-tutorial>📘 Tutorial</a>`
+    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#estudio', '🎬 Estúdio') + L('#precos', 'Planos') + `<a href="#" data-tutorial>📘 Tutorial</a>` + (u.admin ? L('#metricas', '📊 Métricas') : '')
     : L('#como', 'Como funciona') + L('#precos', 'Preços') + L('#faq', 'Dúvidas') + `<a href="#" data-tutorial>📘 Tutorial</a>`;
+  document.body.classList.toggle('authed', !!u);
+  const T = (href, ic, txt, extra) => `<a href="${href}" ${extra || ''} class="${h === href ? 'on' : ''}"><i>${ic}</i><span>${txt}</span></a>`;
+  $('#tabbar').innerHTML = u ? T('#criar', '✂️', 'Criar') + T('#projetos', '📁', 'Projetos') + T('#estudio', '🎬', 'Estúdio') + T('#precos', '💎', 'Planos') + (u.admin ? T('#metricas', '📊', 'Métricas') : T('#', '📘', 'Tutorial', 'data-tutorial')) : '';
   $('#navRight').innerHTML = u
     ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
     : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
@@ -2234,8 +2602,8 @@ function renderUsage() {
 }
 
 // ---------- rotas ----------
-const VIEWS = { '': 'vLanding', '#inicio': 'vLanding', '#como': 'vLanding', '#precos': 'vLanding', '#faq': 'vLanding', '#criar': 'vApp', '#projetos': 'vProjects', '#conta': 'vAccount', '#termos': 'vTerms', '#privacidade': 'vPrivacy', '#entrar': 'vLanding' };
-const NEEDS_LOGIN = ['#criar', '#projetos', '#conta'];
+const VIEWS = { '': 'vLanding', '#inicio': 'vLanding', '#como': 'vLanding', '#precos': 'vLanding', '#faq': 'vLanding', '#criar': 'vApp', '#projetos': 'vProjects', '#conta': 'vAccount', '#metricas': 'vMetrics', '#termos': 'vTerms', '#privacidade': 'vPrivacy', '#entrar': 'vLanding' };
+const NEEDS_LOGIN = ['#criar', '#projetos', '#conta', '#metricas'];
 function route() {
   let h = location.hash || '';
   if ((!h || h === '#inicio') && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
@@ -2252,6 +2620,7 @@ function route() {
   if (v === 'vApp' && typeof loadStreams === 'function' && !$('#upload').classList.contains('hidden')) { loadStreams(); renderYT(); updateBackBar(); }
   if (v === 'vLanding') { renderViral(); renderProof(); }
   if (v === 'vAccount') renderAccount();
+  if (v === 'vMetrics') { if (!S.user || !S.user.admin) { history.replaceState(null, '', '#criar'); route(); return; } loadMetrics(); }
   renderNav();
 }
 window.addEventListener('hashchange', () => { if (/(decorado|demo)/i.test(location.hash) && !S.demo) { enterDemo(); return; } route(); });
@@ -2296,6 +2665,7 @@ document.addEventListener('click', e => {
 
 // ---------- upgrade e pagamento ----------
 function openUpgrade(msg, focus) {
+  if (!S.demo) track('upgrade_open', { why: (msg || '').slice(0, 60) });
   renderPrices();
   $('#upMsg').textContent = msg || "Sem marca d'água, todos os templates e mais vídeos. No Pro+ o 1080p é ilimitado.";
   $('#upModal').classList.remove('hidden');
@@ -2556,6 +2926,11 @@ for (const id of ['#optDur', '#optN', '#optModel']) $(id).addEventListener('chan
     sel.value = sel.dataset.prev; openUpgrade(`${what} ${sel.id === 'optModel' ? 'é' : 'são'} do plano ${need === 'pro' ? 'Pro' : 'Pro+'}.`);
   } else sel.dataset.prev = sel.value;
 });
+(function smartModelDefault() {
+  const sel = $('#optModel'); if (!sel) return;
+  const phone = matchMedia('(max-width:760px), (pointer:coarse)').matches;
+  if (phone && !navigator.gpu && sel.value === 'base') { sel.value = 'tiny'; sel.dataset.prev = 'tiny'; }
+})();
 function applyKitToForm() {
   const bk = brandKit();
   if (TEMPLATES.some(t => t.id === bk.tpl)) $('#optTpl').value = (isPro() || FREE_TPLS.includes(bk.tpl)) ? bk.tpl : 'stream';
@@ -2982,6 +3357,7 @@ $('#advPb').addEventListener('click', async e => {
   const dl = t.closest('[data-dl]'); if (dl && ADV._lines) { advPush(); const l = ADV._lines[+dl.dataset.dl]; c.words = c.words.filter(w => !l.words.includes(w)); advWordsChanged(); advRenderAll(); return; }
   const tp = t.closest('[data-tp]'); if (tp) { if (!isPro() && !FREE_TPLS.includes(tp.dataset.tp)) return; advPush(); c.tpl = tp.dataset.tp; advPanel('templates'); advDraw(); return; }
   if (t.id === 'advNewTitle') { advPush(); c.title = suggestTitle(c, Math.floor(Math.random() * 9) + 1); advRenderAll(); return; }
+  if (t.id === 'advTrans' && S.capRunning) { toast('As legendas deste corte já estão sendo geradas…'); return; }
   if (t.id === 'advTrans') { t.disabled = true; t.textContent = '🎙 Legendando…'; try { if (!S.asrInfo) await loadASR(S.settings.model && S.settings.model !== 'none' ? S.settings.model : 'base'); advPush(); await transcribeClip(c); advWordsChanged(); advRenderAll(); } catch (err) { toast('Não consegui legendar: ' + err.message, 5000); t.disabled = false; t.textContent = '🎙 Gerar legendas'; } }
 });
 $('#advPb').addEventListener('dblclick', e => {
@@ -3228,6 +3604,145 @@ function exitDemo() { S.demo = false; document.body.classList.remove('demo'); lo
   if (/(decorado|demo)/i.test(location.hash)) { await enterDemo(); } else route();
 })();
 
+
+// ============================================================
+// MÉTRICAS: rastreio leve (sem cookies de terceiros) + balão de avaliação + painel do admin
+// ============================================================
+const NCK = { vid: 'nc_vid', fref: 'nc_fref', fb: 'nc_fb', gens: 'nc_gens' };
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
+function ncVid() { let v = lsGet(NCK.vid); if (!v) { v = (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)).replace(/-/g, ''); lsSet(NCK.vid, v); } return v; }
+// de onde a pessoa veio: ?ref=tiktok (link da bio), utm_source, ou o site que mandou ela pra cá
+const REF_MAP = [[/tiktok/, 'tiktok'], [/instagram|ig\.me/, 'instagram'], [/youtube|youtu\.be/, 'youtube'], [/twitch/, 'twitch'], [/kick\.com/, 'kick'], [/(^|\.)x\.com|twitter|t\.co$/, 'x'], [/facebook|fb\.com|fb\.me/, 'facebook'], [/whatsapp|wa\.me/, 'whatsapp'], [/discord/, 'discord'], [/google\./, 'google'], [/bing\.|duckduckgo|yahoo/, 'busca'], [/reddit/, 'reddit'], [/kwai/, 'kwai']];
+function ncRef() {
+  const q = new URLSearchParams(location.search);
+  const p = q.get('ref') || q.get('utm_source') || q.get('src');
+  if (p) return { ref: p.toLowerCase().replace(/[^a-z0-9._-]/g, '').slice(0, 40), link: true };
+  try { const h = document.referrer && new URL(document.referrer).hostname; if (h && h !== location.hostname) { for (const [re, n] of REF_MAP) if (re.test(h)) return { ref: n, link: false }; return { ref: h.replace(/^www\./, '').slice(0, 40), link: false }; } } catch (e) { }
+  return { ref: '', link: false };
+}
+const NC_REF = ncRef();
+if (NC_REF.ref && !lsGet(NCK.fref)) lsSet(NCK.fref, NC_REF.ref);
+function track(kind, meta) {
+  if (S.demo) return;
+  const body = JSON.stringify({ kind, vid: ncVid(), ref: NC_REF.ref || lsGet(NCK.fref) || '', first_ref: lsGet(NCK.fref) || '', meta: meta || {} });
+  try { fetch(API + '/api/track', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => { }); } catch (e) { }
+}
+// visita (1 a cada 30 min por visitante) e clique no link com ?ref= (contado à parte)
+setTimeout(() => {
+  if (/(decorado|demo)/i.test(location.hash)) return;
+  track(NC_REF.link ? 'link' : 'visit', { path: location.hash || '#inicio' });
+  if (NC_REF.link) { const q = new URLSearchParams(location.search); ['ref', 'utm_source', 'utm_medium', 'utm_campaign', 'src'].forEach(k => q.delete(k)); const qs = q.toString(); history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash); }
+}, 600);
+
+// ---------- balão "Está gostando do app?" (depois do primeiro corte) ----------
+function afterClipGenerated() {
+  const n = (+lsGet(NCK.gens) || 0) + 1; lsSet(NCK.gens, n);
+  const st = lsGet(NCK.fb) || ''; // '' nunca perguntou · 'later1' adiou uma vez · 'done' respondeu · 'no' recusou de vez
+  if (st === 'done' || st === 'no') return;
+  if (st === 'later1' && n < 3) return;
+  setTimeout(() => { if (!$('#results') || $('#results').classList.contains('hidden') || $('#modal:not(.hidden)')) { setTimeout(showFeedbackBalloon, 15000); return; } showFeedbackBalloon(); }, 9000);
+}
+function showFeedbackBalloon() {
+  if ($('#fbBalloon') || S.demo) return;
+  const st = lsGet(NCK.fb) || '';
+  if (st === 'done' || st === 'no') return;
+  track('feedback_shown');
+  const el = document.createElement('div'); el.id = 'fbBalloon'; el.className = 'fbb'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Avaliar o NEONCUT');
+  el.innerHTML = `<button class="fbx" aria-label="Fechar">✕</button>
+    <div class="fbq"><b>Está gostando do NEONCUT?</b><span>Sua opinião ajuda a deixar os cortes ainda melhores.</span></div>
+    <div class="fbfaces">${[[1, '😖', 'Odiei'], [2, '😕', 'Ruim'], [3, '😐', 'Ok'], [4, '🙂', 'Bom'], [5, '😍', 'Amei']].map(([r, e, t]) => `<button data-r="${r}" title="${t}"><i>${e}</i><small>${t}</small></button>`).join('')}</div>
+    <div class="fbmore hidden"><textarea id="fbText" rows="3" maxlength="800" placeholder=""></textarea>
+      <div class="row"><button class="btn small" id="fbSend">Enviar</button><button class="btn ghost small" id="fbSkip">Pular</button></div></div>`;
+  document.body.appendChild(el); requestAnimationFrame(() => el.classList.add('in'));
+  let rating = 0;
+  const close = (state) => { if (state) lsSet(NCK.fb, state); el.classList.remove('in'); setTimeout(() => el.remove(), 300); };
+  const send = async (withText) => {
+    lsSet(NCK.fb, 'done');
+    try { await api('/api/feedback', { rating, comment: withText ? $('#fbText').value : '', ref: lsGet(NCK.fref) || '' }); } catch (e) { }
+    el.querySelector('.fbmore').innerHTML = `<p class="fbthanks">${rating >= 4 ? 'Valeu demais! 💜 Bons cortes!' : 'Obrigado! Vamos usar isso pra melhorar. 🙏'}</p>`;
+    setTimeout(() => close(), 1800);
+  };
+  el.querySelector('.fbx').onclick = () => close(st === 'later1' ? 'no' : 'later1');
+  el.querySelectorAll('.fbfaces button').forEach(b => b.onclick = () => {
+    rating = +b.dataset.r; el.querySelectorAll('.fbfaces button').forEach(x => x.classList.toggle('on', x === b));
+    const m = el.querySelector('.fbmore'); m.classList.remove('hidden');
+    $('#fbText').placeholder = rating >= 4 ? 'O que você mais curtiu? (opcional)' : 'O que podemos melhorar? (opcional)';
+    setTimeout(() => $('#fbText').focus({ preventScroll: true }), 50);
+  });
+  el.addEventListener('click', e => { if (e.target.id === 'fbSend') send(true); if (e.target.id === 'fbSkip') send(false); });
+}
+
+// ---------- painel de métricas ----------
+S.mDays = 30;
+const fmtN = n => Number(n || 0).toLocaleString('pt-BR');
+const pctOf = (a, b) => b ? Math.round(100 * a / b) + '%' : '—';
+const REF_LABEL = { direto: 'Direto / sem origem', tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube', twitch: 'Twitch', kick: 'Kick', x: 'X (Twitter)', facebook: 'Facebook', whatsapp: 'WhatsApp', discord: 'Discord', google: 'Google', busca: 'Outras buscas', reddit: 'Reddit', kwai: 'Kwai' };
+function mSpark(series, key, money) {
+  const W = 560, H = 120, n = series.length, max = Math.max(1, ...series.map(d => d[key]));
+  const bw = W / n;
+  const bars = series.map((d, i) => { const h = Math.max(d[key] ? 3 : 0, (H - 18) * d[key] / max); const dd = d.day.slice(8, 10) + '/' + d.day.slice(5, 7);
+    return `<rect x="${(i * bw + 1).toFixed(1)}" y="${(H - 14 - h).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${h.toFixed(1)}" rx="2"><title>${dd}: ${money ? 'R$ ' + money_(d[key]) : fmtN(d[key])}</title></rect>`; }).join('');
+  const lbl = [0, Math.floor(n / 2), n - 1].filter((v, i, a) => a.indexOf(v) === i && series[v]).map(i => `<text x="${i === n - 1 ? W : Math.max(0, i * bw).toFixed(0)}" text-anchor="${i === n - 1 ? 'end' : i ? 'middle' : 'start'}" y="${H - 2}">${series[i].day.slice(8, 10)}/${series[i].day.slice(5, 7)}</text>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" class="mspark" preserveAspectRatio="none">${bars}${lbl}</svg>`;
+}
+const money_ = v => Number(v || 0).toFixed(2).replace('.', ',');
+async function loadMetrics() {
+  const body = $('#mBody'); if (!body) return;
+  $('#mPeriod').querySelectorAll('button').forEach(b => b.classList.toggle('on', +b.dataset.d === S.mDays));
+  let m; try { m = await api('/api/admin/metrics?days=' + S.mDays); } catch (e) { body.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  const t = m.totals, td = m.today, fb = m.feedback, per = S.mDays === 1 ? 'hoje' : `nos últimos ${S.mDays} dias`;
+  const kpi = (ic, lbl, val, sub, cls) => `<div class="mkpi ${cls || ''}"><span>${ic} ${lbl}</span><b>${val}</b><small>${sub || ''}</small></div>`;
+  const fmax = Math.max(1, m.funnel[0][1]);
+  const base = location.origin;
+  body.innerHTML = `
+    <div class="mtoday"><b>Hoje:</b> ${fmtN(td.visitors)} visitantes · ${fmtN(td.signups)} cadastros · ${fmtN(td.generated)} vídeos cortados · <b class="g">${fmtN(td.purchases)} compras · R$ ${money_(td.revenue)}</b></div>
+    <div class="mkpis">
+      ${kpi('👀', 'Visitantes', fmtN(t.visitors), per)}
+      ${kpi('🔗', 'Cliques no seu link', fmtN(t.link_clicks), 'links com ?ref= (bio, posts)')}
+      ${kpi('🙋', 'Cadastros', fmtN(t.signups), pctOf(t.signups, t.visitors) + ' dos visitantes')}
+      ${kpi('✂️', 'Vídeos cortados', fmtN(t.generated), fmtN(t.gen_users) + ' pessoas · ' + fmtN(t.exports) + ' cortes baixados')}
+      ${kpi('🛒', 'Clicaram em assinar', fmtN(t.checkout_users), fmtN(t.upgrade_open) + ' viram os planos')}
+      ${kpi('💳', 'Compraram', fmtN(t.buyers), fmtN(t.purchases) + ' pagamentos' + (t.pending ? ' · ' + t.pending + ' pendentes' : ''), 'hl')}
+      ${kpi('💰', 'Receita', 'R$ ' + money_(t.revenue), per, 'hl')}
+      ${kpi('⭐', 'Assinantes ativos', fmtN(t.pro_active + t.proplus_active), `${t.pro_active} Pro · ${t.proplus_active} Pro+ · ${fmtN(t.users_total)} contas`)}
+    </div>
+    <div class="mgrid">
+      <section class="panel"><h4 class="h4">Funil ${per}</h4>
+        <div class="mfunnel">${m.funnel.map(([l, v], i) => `<div class="mfrow"><span>${l}</span><div class="mfbar"><i style="width:${Math.max(v ? 2 : 0, 100 * v / fmax)}%"></i></div><b>${fmtN(v)}</b><small>${i ? pctOf(v, m.funnel[i - 1][1]) : ''}</small></div>`).join('')}</div>
+        <p class="note" style="margin-top:8px">A porcentagem é em relação à etapa anterior. Conversão total: <b>${pctOf(m.funnel[4][1], m.funnel[0][1])}</b> dos visitantes compram.</p>
+      </section>
+      <section class="panel"><h4 class="h4">Por dia <span class="mtabs" id="mSerTabs"><button data-k="visitors" class="on">Visitantes</button><button data-k="signups">Cadastros</button><button data-k="generated">Cortes</button><button data-k="purchases">Compras</button><button data-k="revenue">R$</button></span></h4>
+        <div id="mSer">${mSpark(m.series, 'visitors')}</div></section>
+    </div>
+    <section class="panel"><h4 class="h4">De onde vêm (origens)</h4>
+      <div class="mtable"><table><thead><tr><th>Origem</th><th>Cliques</th><th>Visitantes</th><th>Cadastros</th><th>Compraram</th><th>Receita</th></tr></thead><tbody>
+      ${m.sources.length ? m.sources.map(r => `<tr><td>${esc(REF_LABEL[r.src] || r.src)}</td><td>${fmtN(r.clicks)}</td><td>${fmtN(r.visitors)}</td><td>${fmtN(r.signups)}</td><td>${fmtN(r.buyers)}</td><td>R$ ${money_(r.revenue)}</td></tr>`).join('') : '<tr><td colspan="6" class="note">Ainda sem visitas registradas neste período.</td></tr>'}
+      </tbody></table></div>
+      <div class="mlinks"><b>Seus links rastreados</b> — use um em cada rede para saber de onde vêm as visitas e as compras:
+        ${['tiktok', 'instagram', 'youtube', 'twitch', 'kwai', 'whatsapp'].map(r => `<button class="mlink" data-copy="${base}/?ref=${r}"><span>${REF_LABEL[r]}</span><code>${base.replace(/^https?:\/\//, '')}/?ref=${r}</code><i>Copiar</i></button>`).join('')}
+        <div class="row" style="margin-top:8px"><input type="text" id="mRefNew" placeholder="crie o seu: ex. parceria-joao" maxlength="40" style="flex:1"><button class="btn small ghost" id="mRefMake">Copiar link</button></div>
+      </div>
+    </section>
+    <div class="mgrid">
+      <section class="panel"><h4 class="h4">Está gostando do app? <span class="note" style="text-transform:none;letter-spacing:0">${fb.n ? fmtN(fb.n) + ' respostas ' + per : ''}</span></h4>
+        ${fb.n ? `<div class="mfbsum"><div><b>${String(fb.avg).replace('.', ',')}</b><small>nota média (1 a 5)</small></div><div><b>${fb.liked_pct}%</b><small>estão gostando (4 ou 5)</small></div><div><b>${pctOf(fb.n, fb.shown)}</b><small>responderam ao balão</small></div></div>
+        <div class="mdist">${[5, 4, 3, 2, 1].map(r => `<div><span>${['', '😖', '😕', '😐', '🙂', '😍'][r]}</span><div class="mfbar"><i style="width:${100 * (fb.dist[r] || 0) / Math.max(1, fb.n)}%"></i></div><b>${fb.dist[r] || 0}</b></div>`).join('')}</div>` : '<p class="note">Ninguém respondeu ainda. O balão aparece depois que a pessoa gera o primeiro corte.</p>'}
+        <div class="mfblist">${fb.list.map(f => `<div class="${f.rating <= 2 ? 'bad' : f.rating >= 4 ? 'good' : ''}"><span class="r">${['', '😖', '😕', '😐', '🙂', '😍'][f.rating]}</span><div><small>${esc(f.email)} · ${({ free: 'Grátis', pro: 'Pro', proplus: 'Pro+', anon: 'sem conta' })[f.plan] || esc(f.plan || '')} · ${new Date(f.ts * 1000).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small>${f.comment ? `<p>${esc(f.comment)}</p>` : ''}</div></div>`).join('')}</div>
+      </section>
+      <section class="panel"><h4 class="h4">Últimas compras</h4>
+        <div class="mbuys">${m.purchases.length ? m.purchases.map(p => `<div><span class="st ${p.status === 'approved' ? 'ok' : ''}">${p.status === 'approved' ? '✅' : p.status === 'rejected' ? '❌' : '⏳'}</span><div><b>${esc(p.email)}</b><small>${p.plan === 'proplus' ? 'Pro+' : 'Pro'} · via ${esc(REF_LABEL[p.ref] || p.ref)} · ${new Date(p.ts * 1000).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small></div><b class="v">R$ ${money_(p.amount)}</b></div>`).join('') : '<p class="note">Nenhuma compra ainda. Elas aparecem aqui assim que o Mercado Pago confirmar.</p>'}</div>
+      </section>
+    </div>`;
+  $('#mSerTabs').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; $('#mSerTabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); $('#mSer').innerHTML = mSpark(m.series, b.dataset.k, b.dataset.k === 'revenue'); };
+}
+const copyTxt = async (txt) => { try { await navigator.clipboard.writeText(txt); toast('Link copiado ✅'); } catch (e) { prompt('Copie o link:', txt); } };
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-copy]'); if (c) { copyTxt(c.dataset.copy); return; }
+  if (e.target.id === 'mRefMake') { const v = ($('#mRefNew').value || '').toLowerCase().replace(/[^a-z0-9._-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''); if (!v) { toast('Escreva um nome para o link'); return; } copyTxt(`${location.origin}/?ref=${v}`); }
+  const pb = e.target.closest('#mPeriod [data-d]'); if (pb) { S.mDays = +pb.dataset.d; loadMetrics(); }
+  if (e.target.id === 'mRefresh') loadMetrics();
+});
 </script>
 </body>
 </html>
