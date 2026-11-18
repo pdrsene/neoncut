@@ -171,7 +171,7 @@ async def security_headers(request: Request, call_next):
     # imagens e o player embutido. Os outros seguem como antes.
     ua = request.headers.get("user-agent", "")
     ctype = resp.headers.get("content-type", "")
-    if "text/html" in ctype:
+    if "text/html" in ctype and request.url.path != "/relay.html":
         resp.headers["Vary"] = "User-Agent"
         if "Chrome/" in ua and "Firefox" not in ua and "CriOS" not in ua:
             resp.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin")

@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>NEONCUT · envio</title>
+<body style="background:#0d0618;color:#fff;font:16px Inter,system-ui,sans-serif;padding:24px">
+<p id="s">Preparando o vídeo…</p>
+<script>
+// Página de passagem: busca um vídeo do repositório da marca e entrega para a aba que abriu esta (Instagram/TikTok).
+(async () => {
+  const q = new URLSearchParams(location.search), src = q.get('src') || '', name = q.get('name') || 'video.mp4';
+  const OK_SRC = /^https:\/\/raw\.githubusercontent\.com\/pdrsene\/neoncut\/media\/[\w.\-%]+$/;
+  const OK_DST = ['https://www.instagram.com', 'https://www.tiktok.com'];
+  const s = document.getElementById('s');
+  if (!OK_SRC.test(src) || !window.opener) { s.textContent = 'Link inválido.'; return; }
+  try {
+    const r = await fetch(src); if (!r.ok) throw new Error('HTTP ' + r.status);
+    const buf = await r.arrayBuffer();
+    for (const o of OK_DST) { try { window.opener.postMessage({ nc: 'video', name, type: 'video/mp4', buf }, o); } catch (e) { } }
+    s.textContent = 'Vídeo entregue (' + (buf.byteLength / 1e6).toFixed(1) + ' MB). Pode fechar.';
+    setTimeout(() => window.close(), 1500);
+  } catch (e) { s.textContent = 'Erro: ' + e.message; }
+})();
+</script>
