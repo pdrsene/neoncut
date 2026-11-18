@@ -8,13 +8,14 @@
   const OK_SRC = /^https:\/\/raw\.githubusercontent\.com\/pdrsene\/neoncut\/media\/[\w.\-%]+$/;
   const OK_DST = ['https://www.instagram.com', 'https://www.tiktok.com'];
   const s = document.getElementById('s');
-  if (!OK_SRC.test(src) || !window.opener) { s.textContent = 'Link inválido.'; return; }
+  const target = window.opener || (window.parent !== window ? window.parent : null);
+  if (!OK_SRC.test(src) || !target) { s.textContent = 'Link inválido.'; return; }
   try {
     const r = await fetch(src); if (!r.ok) throw new Error('HTTP ' + r.status);
     const buf = await r.arrayBuffer();
-    for (const o of OK_DST) { try { window.opener.postMessage({ nc: 'video', name, type: 'video/mp4', buf }, o); } catch (e) { } }
+    for (const o of OK_DST) { try { target.postMessage({ nc: 'video', name, type: 'video/mp4', buf }, o); } catch (e) { } }
     s.textContent = 'Vídeo entregue (' + (buf.byteLength / 1e6).toFixed(1) + ' MB). Pode fechar.';
-    setTimeout(() => window.close(), 1500);
+    if (window.opener) setTimeout(() => window.close(), 1500);
   } catch (e) { s.textContent = 'Erro: ' + e.message; }
 })();
 </script>

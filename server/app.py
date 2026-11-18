@@ -164,7 +164,10 @@ async def security_headers(request: Request, call_next):
     if proto == "https":
         resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
-    resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    if request.url.path != "/relay.html":
+        resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    else:
+        resp.headers["Content-Security-Policy"] = "frame-ancestors https://www.instagram.com https://www.tiktok.com"
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     # isolamento de origem: libera vários núcleos para a IA de legendas (WASM multi-thread).
     # Só em navegadores Chromium, que suportam o modo "credentialless" sem quebrar fontes,
