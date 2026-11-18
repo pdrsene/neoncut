@@ -114,6 +114,13 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
 .how p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
 .dl{display:flex;flex-direction:column;gap:6px;font-size:13px}
 .tabs{display:flex;gap:8px;margin-bottom:18px}
+.guestbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px solid rgba(0,229,255,.35);background:linear-gradient(90deg,rgba(0,229,255,.10),rgba(255,61,154,.10));border-radius:14px;padding:12px 14px;margin:0 0 14px;font-size:14px;line-height:1.4}
+.guestbar b{color:#fff}.guestbar .spacer{flex:1}
+.guestsave{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid rgba(255,61,154,.5);background:linear-gradient(90deg,rgba(255,61,154,.16),rgba(124,58,237,.16));border-radius:14px;padding:14px 16px;margin-top:14px}
+.guestsave .spacer{flex:1}.guestsave b{color:#fff;font-size:16px}
+.mob{display:none}@media(max-width:700px){.mob{display:inline}.desk{display:none}.tabs .tab[data-tab=file]{order:-1}}
+.hookchip{position:absolute;left:8px;bottom:8px;background:rgba(255,61,154,.92);color:#fff;font-size:11px;font-weight:800;border-radius:999px;padding:3px 8px}
+.xbadge{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.06em;background:linear-gradient(90deg,#ff3d9a,#7c3aed);color:#fff;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
 .tab{background:#120824;border:1px solid var(--line);color:var(--muted);padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px}
 .tab.on{color:var(--text);border-color:var(--pink);background:rgba(255,61,139,.12)}
 .urlrow{display:flex;gap:10px}
@@ -702,7 +709,7 @@ select option:disabled{color:#6d5a8f}
         <button class="btn big" data-cta>⚡ Começar grátis</button>
         <a class="btn ghost big" href="#precos">Ver preços</a>
       </div>
-      <p class="note" style="margin-top:14px">Sem cartão · Sem instalar nada · 3 vídeos grátis por mês</p>
+      <p class="note" style="margin-top:14px">Teste sem cadastro · Sem cartão · Sem instalar nada</p>
       <div class="plats lp-plats"><span>Twitch</span><span>Kick</span><span>ou arquivo do PC</span><span class="ytchip">YouTube<em class="ytm">🛠 em manutenção</em></span></div>
     </section>
 
@@ -718,6 +725,7 @@ select option:disabled{color:#6d5a8f}
     <section class="lp-sec">
       <h2 class="lp-h">Tudo que um bom corte precisa</h2>
       <div class="feats">
+        <div><i>🔁</i><b>Gancho Turbo <span class="xbadge">EXCLUSIVO</span></b><p>A IA pega o momento mais insano do corte e mostra ele nos 2 primeiros segundos, com "ESPERA O FINAL". Quem está rolando o feed para pra ver.</p></div>
         <div><i>🔥</i><b>Nota de viralização</b><p>Cada corte ganha uma nota de 0 a 100. Poste primeiro os que têm mais chance de bombar.</p></div>
         <div><i>💬</i><b>Legenda automática</b><p>Fala transcrita palavra por palavra, com destaque animado e emojis automáticos.</p></div>
         <div><i>🎨</i><b>Templates prontos</b><p>Neon, Streamer Cam com facecam, Cinema, Meme. Um clique e o corte está pronto.</p></div>
@@ -748,18 +756,20 @@ select option:disabled{color:#6d5a8f}
 
     <section class="lp-sec" id="precos-sec">
       <h2 class="lp-h">Preços simples</h2>
-      <p class="sub" style="text-align:center">Preço promocional nos 3 primeiros meses. Pague com PIX ou cartão pelo Mercado Pago, sem renovação automática.</p>
+      <p class="sub" style="text-align:center">Pro com preço promocional no 1º mês. Pague com PIX ou cartão pelo Mercado Pago, sem renovação automática.</p>
       <div class="prices" id="priceCards"></div>
     </section>
 
     <section class="lp-sec" id="faq">
       <h2 class="lp-h">Perguntas frequentes</h2>
       <div class="faq">
+        <details><summary>Preciso criar conta para testar?</summary><p>Não. Você faz o primeiro corte sem cadastro: envie um vídeo e veja os cortes prontos. Para baixar e salvar, crie a conta grátis (leva 10 segundos) e os cortes continuam lá. Com a conta são 3 vídeos grátis por mês.</p></details>
+        <details><summary>O que é o Gancho Turbo?</summary><p>É uma função exclusiva do NEONCUT: a IA encontra o momento mais forte do corte e mostra ele nos 2 primeiros segundos, com um texto como "ESPERA O FINAL 😱". Depois o vídeo volta pro começo. Isso prende quem está rolando o feed. Você pode trocar o texto ou desligar no editor.</p></details>
         <details><summary>Preciso instalar alguma coisa?</summary><p>Não. Tudo funciona no navegador. Recomendamos Chrome ou Edge no computador.</p></details>
         <details><summary>Quais plataformas funcionam?</summary><p>Links da Twitch e da Kick (VODs, vídeos e lives ao vivo), ou qualquer arquivo de vídeo do seu computador. Links do YouTube estão em manutenção por enquanto.</p></details>
         <details><summary>Funciona com qualquer jogo?</summary><p>Sim. A detecção usa o som e a imagem do vídeo, então funciona com GTA, FPS, corrida, react e até podcast. Os títulos sugeridos vêm no clima de GTA.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>Não. O corte, a legenda e a exportação acontecem no seu navegador. Vídeos baixados por link ficam no servidor só pelo tempo do processamento e são apagados em até 1 hora.</p></details>
-        <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser. Nos 3 primeiros meses de cada plano você paga o preço promocional.</p></details>
+        <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser. No 1º mês do Pro você paga o preço promocional de R$ 12,90; depois, R$ 19,90. O Pro+ custa R$ 29,90.</p></details>
         <details><summary>Qual a diferença entre Pro e Pro+?</summary><p>Os dois tiram a marca d'água e liberam todos os templates. O Grátis exporta só em 720p. O Pro tem 5 exportações em 1080p por mês e até 12 cortes de 60 segundos por vídeo. O Pro+ tem 1080p ilimitado, até 20 cortes de até 2 minutos por vídeo, legenda Precisa e vídeos e lives mais longos.</p></details>
         <details><summary>O YouTube não funcionou, e agora?</summary><p>Os links do YouTube estão em manutenção no momento. Enquanto isso, baixe o vídeo e envie pela aba "Enviar arquivo": o corte, a legenda e os templates funcionam igualzinho. Twitch e Kick funcionam normalmente por link.</p></details>
         <details><summary>Posso cortar vídeo de outros criadores?</summary><p>Use com o seu próprio conteúdo ou com autorização do criador. Você é responsável pelos direitos do que publica.</p></details>
@@ -782,6 +792,7 @@ select option:disabled{color:#6d5a8f}
   <div class="backbar hidden" id="backBar"><span>✂ Você tem cortes abertos: <b id="backTitle"></b></span><div class="spacer"></div><button class="btn small" id="backToRes">Voltar aos cortes</button></div>
   <!-- UPLOAD -->
   <section class="panel" id="upload">
+    <div class="guestbar hidden" id="guestBar"><span>🎁 <b>Teste grátis, sem cadastro.</b> Envie um vídeo seu e veja os cortes prontos. Para baixar, é só criar a conta (10 segundos).</span><div class="spacer"></div><button class="btn ghost small" data-auth-open="login">Já tenho conta</button></div>
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
     <div id="tabLink">
       <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link da Twitch ou da Kick" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
@@ -811,9 +822,9 @@ select option:disabled{color:#6d5a8f}
     <div id="tabFile" class="hidden">
     <div class="drop" id="drop">
       <div style="font-size:44px">🎮</div>
-      <h3>Arraste seu vídeo de gameplay aqui</h3>
-      <p>MP4, MOV ou WEBM · até ~1 hora funciona bem · nada sai do seu computador</p>
-      <button class="btn" id="pick">Escolher vídeo</button>
+      <h3><span class="desk">Arraste seu vídeo de gameplay aqui</span><span class="mob">Escolha um vídeo da sua galeria</span></h3>
+      <p>MP4, MOV ou WEBM · até ~1 hora funciona bem · <span class="desk">nada sai do seu computador</span><span class="mob">nada sai do seu celular</span></p>
+      <button class="btn" id="pick"><span class="desk">Escolher vídeo</span><span class="mob">📱 Escolher da galeria</span></button>
       <input type="file" id="file" accept="video/*" hidden>
       <div class="filechip" id="chip"></div>
     </div>
@@ -920,6 +931,7 @@ select option:disabled{color:#6d5a8f}
       <button class="btn ghost small" id="restart">↺ Novo vídeo</button>
       <button class="btn small" id="exportAll">⬇ Baixar todos</button>
     </div>
+    <div class="guestsave hidden" id="guestSave"><div><b>🎉 Seus cortes estão prontos!</b><div class="note" style="margin-top:4px">Crie sua conta grátis para baixar e salvar. Leva 10 segundos e os cortes continuam aqui.</div></div><div class="spacer"></div><button class="btn" id="guestSaveBtn">Criar conta e baixar</button></div>
     <div class="warn hidden" id="capWarn"></div>
     <div class="grid" id="grid" style="margin-top:14px"></div>
     <div class="dl" id="dlList" style="margin-top:16px"></div>
@@ -1052,6 +1064,12 @@ select option:disabled{color:#6d5a8f}
       <div class="sec">
         <h4>Template</h4>
         <div class="tpls" id="tpls"></div>
+      </div>
+      <div class="sec">
+        <h4>🔁 Gancho Turbo <span class="xbadge">EXCLUSIVO</span></h4>
+        <div class="row"><label class="check"><input type="checkbox" id="inHook"> Mostrar o momento mais insano nos 2 primeiros segundos</label></div>
+        <div class="row" style="margin-top:8px"><input type="text" id="inHookTxt" maxlength="40" style="flex:1;min-width:0" placeholder="ESPERA O FINAL 😱"><button class="btn ghost small" id="hookNext">🎲</button><button class="btn ghost small" id="hookPlay">▶ Ver gancho</button></div>
+        <p class="note" id="hookNote" style="margin:8px 0 0">Prende quem está rolando o feed: o corte abre com o pico e depois volta pro começo.</p>
       </div>
       <div class="sec">
         <h4>Título</h4>
@@ -1936,6 +1954,31 @@ function pickMime() {
   const c = ['video/mp4;codecs=avc1.640028,mp4a.40.2', 'video/mp4;codecs=avc1.4d0028,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
   return c.find(m => window.MediaRecorder && MediaRecorder.isTypeSupported(m)) || '';
 }
+// ============ GANCHO TURBO: abre o corte com o pico (flash-forward) ============
+const HOOK_TXTS = ['ESPERA O FINAL 😱', 'OLHA O QUE VAI ACONTECER 👀', 'NÃO PISCA 🔥', 'ESPERA ESSA... 😳', 'ASSISTE ATÉ O FIM 💀', 'VAI DAR RUIM 😂'];
+function hookRange(c) {
+  if (!c || !c.hookOn) return null;
+  const pk = c.peakT ?? c.start; if (pk - c.start < 4 || c.end - c.start < 10) return null;
+  const hs = Math.max(c.start, pk - 1.2), he = Math.min(c.end, hs + 2.2);
+  return he - hs > 1 ? [hs, he] : null;
+}
+function drawHook(ctx, w, h, p, txt) {
+  ctx.save();
+  const g = ctx.createLinearGradient(0, 0, 0, h * .3); g.addColorStop(0, 'rgba(0,0,0,.75)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h * .3);
+  const pulse = 1 + .06 * Math.sin(p * Math.PI * 6), fs = Math.round(w * .075 * pulse);
+  ctx.font = `400 ${fs}px Anton, Impact, sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const tx = (txt || HOOK_TXTS[0]).toUpperCase(), y = h * .12;
+  ctx.lineJoin = 'round'; ctx.lineWidth = fs * .16; ctx.strokeStyle = '#000'; ctx.strokeText(tx, w / 2, y);
+  ctx.shadowColor = '#ff3d9a'; ctx.shadowBlur = fs * .5; ctx.fillStyle = '#fff'; ctx.fillText(tx, w / 2, y); ctx.shadowBlur = 0;
+  const bf = Math.round(w * .03); ctx.font = `900 ${bf}px Inter, sans-serif`;
+  const bt = '⏩ DAQUI A POUCO', bw = ctx.measureText(bt).width + bf * 1.4;
+  ctx.fillStyle = 'rgba(255,61,154,.95)'; const bx = w / 2 - bw / 2, by = y + fs * .75;
+  if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(bx, by, bw, bf * 1.8, bf * .9); ctx.fill(); } else ctx.fillRect(bx, by, bw, bf * 1.8);
+  ctx.fillStyle = '#fff'; ctx.fillText(bt, w / 2, by + bf * .95);
+  ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillRect(0, h - h * .006, w * p, h * .006);
+  ctx.restore();
+}
 async function exportClip(clip, onProg) {
   const ev = $('#ev');
   if (!actx) { actx = new AudioContext(); evSrc = actx.createMediaElementSource(ev); evDest = actx.createMediaStreamDestination(); evSrc.connect(evDest); }
@@ -1952,27 +1995,37 @@ async function exportClip(clip, onProg) {
     };
   } else {
     const sc = q / W; canvas.width = q; canvas.height = Math.round(H * sc); ctx.setTransform(sc, 0, 0, sc, 0, 0);
-    draw = t => renderFrame(ctx, ev, clip, t, clip.tpl);
+    draw = (t, c) => renderFrame(ctx, ev, c || clip, t, clip.tpl);
   }
-  await ensureSrc(ev, clipSrc(clip)); ev.muted = false; ev.pause(); await seek(ev, clip.start);
-  draw(clip.start);
+  const hk = hookRange(clip), segs = hk ? [[hk[0], hk[1], true], [clip.start, clip.end, false]] : [[clip.start, clip.end, false]];
+  const total = segs.reduce((a, g) => a + g[1] - g[0], 0); let doneT = 0;
+  const ow = raw ? canvas.width : W, oh = raw ? canvas.height : H;
+  const hookClip = Object.assign(Object.create(clip), { showTitle: false });
+  const drawSeg = (t, g) => { draw(t, g[2] ? hookClip : clip); if (g[2]) drawHook(ctx, ow, oh, (t - g[0]) / (g[1] - g[0]), clip.hookTxt); };
+  await ensureSrc(ev, clipSrc(clip)); ev.muted = false; ev.pause(); await seek(ev, segs[0][0]);
+  drawSeg(segs[0][0], segs[0]);
   const stream = new MediaStream([...canvas.captureStream(30).getVideoTracks(), ...(S.pcm ? evDest.stream.getAudioTracks() : [])]);
   const mime = pickMime();
   const rec = new MediaRecorder(stream, { mimeType: mime || undefined, videoBitsPerSecond: q >= 1080 ? 9_000_000 : 5_000_000, audioBitsPerSecond: 160_000 });
   const chunks = []; rec.ondataavailable = e => e.data.size && chunks.push(e.data);
   const stopped = new Promise(r => rec.onstop = r);
   rec.start(250);
-  await ev.play();
-  await new Promise(res => {
-    const tick = () => {
-      const t = ev.currentTime;
-      draw(t);
-      onProg && onProg((t - clip.start) / (clip.end - clip.start));
-      if (t >= clip.end || ev.ended) { res(); return; }
-      ev.requestVideoFrameCallback ? ev.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
-    };
-    tick();
-  });
+  for (let si = 0; si < segs.length; si++) {
+    const g = segs[si];
+    if (si > 0) { ev.pause(); if (rec.state === 'recording') rec.pause(); await seek(ev, g[0]); drawSeg(g[0], g); await sleep(60); if (rec.state === 'paused') rec.resume(); }
+    await ev.play();
+    await new Promise(res => {
+      const tick = () => {
+        const t = ev.currentTime;
+        drawSeg(t, g);
+        onProg && onProg((doneT + Math.max(0, t - g[0])) / total);
+        if (t >= g[1] || ev.ended) { res(); return; }
+        ev.requestVideoFrameCallback ? ev.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
+      };
+      tick();
+    });
+    doneT += g[1] - g[0];
+  }
   ev.pause(); rec.stop(); await stopped;
   const type = (mime || 'video/webm').split(';')[0];
   return new Blob(chunks, { type });
@@ -2008,6 +2061,7 @@ drop.addEventListener('drop', e => setFile(e.dataTransfer.files[0]));
 // ---------------- Link (YouTube / Twitch / Kick…) ----------------
 const API = (window.NEONCUT_API || '').replace(/\/$/, '');
 S.mode = 'link';
+const IS_MOBILE = matchMedia('(max-width: 700px)').matches || /Android|iPhone|iPad/i.test(navigator.userAgent);
 const PLAT_RE = { youtube: /(youtube\.com|youtu\.be)/i, twitch: /twitch\.tv/i, kick: /kick\.com/i };
 const PLAT_NAME = { youtube: 'YouTube', twitch: 'Twitch', kick: 'Kick', tiktok: 'TikTok', instagram: 'Instagram', x: 'X', facebook: 'Facebook', outro: 'Link' };
 async function api(path, body, method, body2) {
@@ -2038,6 +2092,7 @@ document.querySelectorAll('.tab').forEach(b => b.onclick = () => {
   updateGo();
 });
 function updateGo() { $('#go').disabled = S.mode === 'link' ? !S.link : !S.file; }
+if (IS_MOBILE) setTimeout(() => { const t = document.querySelector('.tab[data-tab="file"]'); if (t && S.mode === 'link' && !S.link) t.click(); }, 0);
 $('#url').addEventListener('input', e => {
   const v = e.target.value; document.querySelectorAll('#plats span').forEach(sp => sp.classList.toggle('on', PLAT_RE[sp.dataset.p].test(v)));
   S.link = null; $('#linkInfo').classList.add('hidden'); showLinkErr(''); updateGo();
@@ -2046,7 +2101,7 @@ $('#url').addEventListener('keydown', e => { if (e.key === 'Enter') $('#fetchInf
 $('#url').addEventListener('paste', () => setTimeout(() => $('#fetchInfo').click(), 50));
 $('#fetchInfo').onclick = async () => {
   const url = $('#url').value.trim(); if (!url) return;
-  if (!S.user) { openAuth('signup', () => $('#fetchInfo').click()); return; }
+  if (!S.user) { toast('Para colar link, crie sua conta grátis. Sem cadastro, use "Enviar arquivo".', 5000); openAuth('signup', () => $('#fetchInfo').click()); return; }
   if (!S.cfg.youtube && /(^|\/\/|\.)(youtube\.com|youtu\.be)\//i.test(url)) { showLinkErr('O YouTube está em manutenção no NEONCUT. Por enquanto use um link da Twitch ou da Kick, ou baixe o vídeo e envie pela aba "Enviar arquivo".'); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
@@ -2154,7 +2209,7 @@ function ensureSrc(v, src) { if (!src || v.dataset.ncsrc === src) return Promise
 const clipSrc = c => (c && c.src) || S.url;
 
 $('#go').onclick = async () => {
-  if (!S.user) { openAuth('signup', () => $('#go').click()); return; }
+  if (!S.user && (S.mode === 'link' || !guestOk())) { if (S.mode !== 'link') toast('Você já fez o seu corte de teste. Crie a conta grátis para continuar (3 vídeos por mês).', 5000); openAuth('signup', () => $('#go').click()); return; }
   if (S.mode === 'link') { const e = linkRangeError(); if (e) { showLinkErr(e); return; } }
   if (!isPro() && !FREE_TPLS.includes($('#optTpl').value)) { openUpgrade('O template ' + tplById($('#optTpl').value).name + ' é do plano Pro.'); return; }
   const go = $('#go'); go.disabled = true;
@@ -2195,7 +2250,7 @@ async function pipelineRun(skip) {
   const D = Math.min(S.settings.D, S.duration);
   S.clips = findMoments(S.feats, V, S.duration, D, S.settings.N, S.settings.focus, { sens: S.settings.sens, boostVoice: S.settings.boostVoice, snapSilence: S.settings.snapSilence });
   const kit = brandKit();
-  S.clips.forEach(c => Object.assign(c, { tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
+  S.clips.forEach((c, i) => Object.assign(c, { hookOn: true, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
   S.clips.sort((a, b) => b.score - a.score); S.clips.forEach((c, i) => c.idx = i);
   autoTitles(S.clips);
@@ -2209,7 +2264,8 @@ async function pipelineRun(skip) {
   await document.fonts.load('900 40px Montserrat').catch(() => { }); await document.fonts.load('700 40px Inter').catch(() => { });
   showResults(!S.pcm ? 'O vídeo não tem áudio, então os cortes saem sem legenda.' : null);
   step(8, 'done'); mark('cortes_na_tela');
-  if (!S.demo) { track('clip_generated', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file' }); afterClipGenerated(); }
+  if (!S.demo) { track('clip_generated', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file', guest: S.user ? 0 : 1 }); afterClipGenerated(); }
+  if (S.project && S.project.guest) guestDone();
   saveProject();
   if (S.project && S.project.id && S.file) VDB.put(S.project.id, S.file); // guarda o vídeo no aparelho: reabrir o projeto depois não pede o arquivo de novo
   if (capsNow) captionInBackground(S.clips, asrP).then(() => { mark('legendas'); console.info('NEONCUT tempos (ms):', lap); S.lastLap = lap; });
@@ -2298,7 +2354,7 @@ function resSubText() {
 function renderGrid() {
   $('#grid').innerHTML = S.clips.map(c => `
     <div class="clip">
-      <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><span class="score" id="csc${c.idx}">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span></div>
+      <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><span class="score" id="csc${c.idx}">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span>${hookRange(c) ? '<span class="hookchip">🔁 Gancho</span>' : ''}</div>
       <div class="meta"><div class="t" id="ct${c.idx}">${esc(c.title)}</div><div class="s" id="cs${c.idx}">${cardStatus(c)}</div>
       <div class="row" style="margin-bottom:8px"><button class="btn ghost small" data-ed="${c.idx}" style="flex:1">✏️ Editar</button><button class="btn ghost small" data-adv="${c.idx}" style="flex:1" title="Editor avançado com linha do tempo">🎬 Estúdio${isPro() ? '' : ' 🔒'}</button></div>
       <button class="btn small" data-dl="${c.idx}" style="width:100%">⬇ Baixar corte</button></div>
@@ -2316,6 +2372,7 @@ $('#restart').onclick = () => { location.hash = '#criar'; location.reload(); };
 
 let busy = false;
 async function exportWithUI(list, btn) {
+  if (!S.user && !S.demo) { toast('Crie sua conta grátis para baixar seus cortes 🎬', 4000); openAuth('signup', async () => { await claimGuest(); exportWithUI(list, btn); }); return; }
   if (busy) { toast('Já estou exportando um corte, aguarde…'); return; }
   busy = true; const old = btn.textContent; btn.disabled = true;
   toast('Exportando em tempo real. Mantenha esta aba aberta e visível.', 4000);
@@ -2351,6 +2408,7 @@ function openEditor(clip) {
   $('#retrans').disabled = !S.pcm || S.settings.model === 'none';
   $('#inTitleS').value = Math.round((clip.titleScale || 1) * 100); $('#inCapS').value = Math.round((clip.capScale || 1) * 100);
   $('#inTitleY').value = Math.round((clip.titleY ?? .13) * 100);
+  S.hookPv = false; $('#inHook').checked = !!clip.hookOn; $('#inHookTxt').value = clip.hookTxt || ''; hookNoteUI();
   $('#vgenTitles').classList.add('hidden'); $('#vgenTags').innerHTML = '';
   renderTpls(); renderCaps(); renderStylePicks(); drawWave();
   const pv = $('#pv'); pv.pause(); ensureSrc(pv, clipSrc(clip)).then(() => seek(pv, clip.start)).then(drawPreview);
@@ -2362,14 +2420,16 @@ $('#close').onclick = closeEditor;
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') closeEditor(); });
 document.addEventListener('keydown', e => { if (ADV.open) return; if (e.key === 'Escape' && S.cur) closeEditor(); if (e.key === ' ' && S.cur && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); togglePlay(); } });
 
-function drawPreview() { const c = S.cur; if (!c) return; const pv = $('#pv'); renderFrame($('#pc').getContext('2d'), pv, c, pv.currentTime, c.tpl); updateTimeline(); }
+function drawPreview() { const c = S.cur; if (!c) return; const pv = $('#pv'), x = $('#pc').getContext('2d'); const hk = S.hookPv && hookRange(c); renderFrame(x, pv, hk ? Object.assign(Object.create(c), { showTitle: false }) : c, pv.currentTime, c.tpl); if (hk) drawHook(x, W, H, clamp((pv.currentTime - hk[0]) / (hk[1] - hk[0]), 0, 1), c.hookTxt); updateTimeline(); }
 function loop() {
   const pv = $('#pv'), c = S.cur; if (!c) return;
-  if (pv.currentTime >= c.end) { pv.currentTime = c.start; }
+  const hk = S.hookPv && hookRange(c);
+  if (hk && pv.currentTime >= hk[1]) { S.hookPv = false; pv.currentTime = c.start; }
+  else if (pv.currentTime >= c.end) { pv.currentTime = c.start; }
   drawPreview();
   if (!pv.paused) raf = requestAnimationFrame(loop);
 }
-function togglePlay() { const pv = $('#pv'), c = S.cur; if (pv.paused) { if (pv.currentTime < c.start || pv.currentTime >= c.end - .05) pv.currentTime = c.start; pv.play(); raf = requestAnimationFrame(loop); } else pv.pause(); updatePlay(); }
+function togglePlay() { const pv = $('#pv'), c = S.cur; if (pv.paused) { if (pv.currentTime < c.start || pv.currentTime >= c.end - .05) { const hk = hookRange(c); S.hookPv = !!hk; pv.currentTime = hk ? hk[0] : c.start; } pv.play(); raf = requestAnimationFrame(loop); } else pv.pause(); updatePlay(); }
 function updatePlay() { $('#play').textContent = $('#pv').paused ? '▶ Play' : '⏸ Pausar'; }
 $('#play').onclick = togglePlay; $('#pv').onpause = () => { updatePlay(); drawPreview(); }; $('#pv').onplay = updatePlay;
 
@@ -2409,6 +2469,11 @@ $('#tpls').addEventListener('click', e => { const b = e.target.closest('[data-t]
 $('#inTitle').oninput = e => { S.cur.title = e.target.value; drawPreview(); };
 let salt = 1; $('#newTitle').onclick = () => { S.cur.title = suggestTitle(S.cur, salt++); $('#inTitle').value = S.cur.title; drawPreview(); };
 $('#inShowTitle').onchange = e => { S.cur.showTitle = e.target.checked; drawPreview(); };
+function hookNoteUI() { const c = S.cur; if (!c) return; const ok = !c.hookOn || hookRange(c); $('#hookNote').textContent = !c.hookOn ? 'Desligado: o corte começa direto.' : ok ? 'O corte abre com o pico (2 s) e depois volta pro começo. Prende quem está rolando o feed.' : 'O pico já está no começo deste corte, então o gancho não é necessário.'; }
+$('#inHook').onchange = e => { S.cur.hookOn = e.target.checked; if (!S.cur.hookTxt) S.cur.hookTxt = HOOK_TXTS[0]; hookNoteUI(); drawPreview(); };
+$('#inHookTxt').oninput = e => { S.cur.hookTxt = e.target.value; drawPreview(); };
+$('#hookNext').onclick = () => { const c = S.cur; const i = (HOOK_TXTS.indexOf(c.hookTxt) + 1) % HOOK_TXTS.length; c.hookTxt = HOOK_TXTS[i]; c.hookOn = true; $('#inHook').checked = true; $('#inHookTxt').value = c.hookTxt; hookNoteUI(); if (!S.hookPv) $('#hookPlay').click(); };
+$('#hookPlay').onclick = () => { const c = S.cur, pv = $('#pv'); if (!c.hookOn) { c.hookOn = true; $('#inHook').checked = true; hookNoteUI(); } const hk = hookRange(c); if (!hk) { toast('O pico já está no começo deste corte.'); return; } S.hookPv = true; pv.currentTime = hk[0]; pv.play(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); updatePlay(); };
 $('#inShowCaps').onchange = e => { S.cur.showCaps = e.target.checked; drawPreview(); };
 $('#inEmoji').onchange = e => { S.cur.emojis = e.target.checked; drawPreview(); };
 $('#inCapY').oninput = e => { S.cur.capY = +e.target.value / 100; drawPreview(); };
@@ -2548,7 +2613,7 @@ $('#retrans').onclick = async e => {
 // ============================================================
 const FREE_TPLS = FREE_TPLS_EARLY;
 const COLORS = ['#ffcf3c', '#ffe600', '#39ff14', '#29e0d0', '#ff3d8b', '#ff8a3c', '#ffffff'];
-S.cfg = { intro_months: 3, hd_free_uses: 5, prices: { pro: { intro: 19.9, regular: 29.9 }, proplus: { intro: 39.9, regular: 49.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: 5 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
+S.cfg = { intro_months: 1, hd_free_uses: 5, prices: { pro: { intro: 12.9, regular: 19.9 }, proplus: { intro: 29.9, regular: 29.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: 5 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
 S.exportQ = 720;
 S.user = null;
 S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
@@ -2573,7 +2638,7 @@ function planCard(plan, opts = {}) {
   return `<div class="price ${plan === 'pro' && !opts.compact ? 'hot' : ''}">${plan === 'pro' && !opts.compact ? '<div class="tag">MAIS ESCOLHIDO</div>' : ''}
     <h3>${plan === 'pro' ? 'Pro' : 'Pro+'}</h3>
     <div class="amt">R$ ${money(now)}<small>/mês</small></div>
-    <div class="old">${promo ? `nos ${S.user ? (S.plan.intro_left ? S.plan.intro_left[plan] : m) : m} primeiros meses, depois R$ ${money(P.regular)}/mês` : 'por 30 dias'}</div>
+    <div class="old">${promo ? `${(n => n > 1 ? `nos ${n} primeiros meses` : 'no 1º mês')(S.user ? (S.plan.intro_left ? S.plan.intro_left[plan] : m) : m)}, depois R$ ${money(P.regular)}/mês` : 'por 30 dias'}</div>
     <ul>${feats.filter(Boolean).map(f => `<li>${f}</li>`).join('')}</ul>
     <button class="btn ${plan === 'pro' ? '' : 'teal'}" data-buy="${plan}" style="width:100%">${cur ? 'Renovar +30 dias' : 'Assinar ' + (plan === 'pro' ? 'Pro' : 'Pro+')}</button></div>`;
 }
@@ -2597,6 +2662,8 @@ function setUser(u) {
   S.user = u;
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
   if (u) S.plan = Object.assign({}, u);
+  if (u && S.project && S.project.guest) setTimeout(claimGuest, 0);
+  const gs = document.getElementById('guestSave'); if (gs) gs.classList.toggle('hidden', !!u || !(S.project && S.project.guest));
   else S.plan = { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
   renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick(); renderOpts(); if (typeof renderDurTabs === 'function') renderDurTabs();
@@ -2627,7 +2694,7 @@ const NEEDS_LOGIN = ['#criar', '#projetos', '#conta', '#metricas'];
 function route() {
   let h = location.hash || '';
   if ((!h || h === '#inicio') && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
-  if (NEEDS_LOGIN.includes(h) && !S.user) { openAuth('signup'); history.replaceState(null, '', '#inicio'); h = '#inicio'; }
+  if (NEEDS_LOGIN.includes(h) && !S.user && !(h === '#criar' && guestOk())) { openAuth('signup'); history.replaceState(null, '', '#inicio'); h = '#inicio'; }
   if (h === '#entrar') openAuth('login');
   if (h === '#estudio') { history.replaceState(null, '', '#criar'); h = '#criar'; setTimeout(openStudioFromNav, 60); }
   const v = VIEWS[h] || 'vLanding';
@@ -2637,6 +2704,8 @@ function route() {
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
   if (v === 'vProjects') renderProjects();
+  const gb = $('#guestBar'); if (gb) gb.classList.toggle('hidden', !!S.user || v !== 'vApp');
+  if (v === 'vApp' && !S.user && S.mode === 'link' && !S.guestTabSet) { S.guestTabSet = true; document.querySelector('.tab[data-tab="file"]').click(); }
   if (v === 'vApp' && typeof loadStreams === 'function' && !$('#upload').classList.contains('hidden')) { loadStreams(); renderYT(); updateBackBar(); }
   if (v === 'vLanding') { renderViral(); renderProof(); }
   if (v === 'vAccount') renderAccount();
@@ -2677,7 +2746,7 @@ document.addEventListener('click', e => {
   const t = e.target;
   if (t.closest('[data-close]')) { t.closest('.modal')?.classList.add('hidden'); }
   if (t.classList && t.classList.contains('modal') && t.id !== 'modal') t.classList.add('hidden');
-  const cta = t.closest('[data-cta]'); if (cta) { e.preventDefault(); if (S.user) location.hash = '#criar'; else openAuth('signup'); }
+  const cta = t.closest('[data-cta]'); if (cta) { e.preventDefault(); if (S.user || guestOk()) location.hash = '#criar'; else openAuth('signup'); }
   const ao = t.closest('[data-auth-open]'); if (ao) openAuth(ao.dataset.authOpen);
   const up = t.closest('[data-up]'); if (up) { e.preventDefault(); openUpgrade(); }
   const buy = t.closest('[data-buy]'); if (buy) { e.preventDefault(); buyPlan(buy.dataset.buy, buy); }
@@ -2700,6 +2769,12 @@ async function buyPlan(plan, btn) {
 // ---------- gate antes de gerar ----------
 function fileDuration(file) { return new Promise(res => { const v = document.createElement('video'); v.preload = 'metadata'; v.onloadedmetadata = () => { res(v.duration || 0); URL.revokeObjectURL(v.src); }; v.onerror = () => res(0); v.src = URL.createObjectURL(file); }); }
 async function startProject() {
+  if (!S.user) {  // visitante: o 1º corte acontece todo no aparelho, sem conta (salvar/baixar pede cadastro)
+    const source = S.file.name, title = S.file.name.replace(/\.[^.]+$/, ''), minutes = (await fileDuration(S.file)) / 60, lim = S.cfg.limits.free.max_minutes;
+    if (minutes > lim + .5) { const e = new Error(`No teste grátis o limite é ${Math.round(lim)} minutos por vídeo. Escolha um vídeo menor.`); throw e; }
+    S.project = { id: null, guest: true, kind: 'file', source, title, minutes, range: null };
+    return { guest: true };
+  }
   let minutes = 0, kind = 'file', source = '', title = '';
   if (S.mode === 'link') {
     const L = S.link; kind = L.is_live ? 'live' : 'link'; source = L.url; title = L.title;
@@ -2710,7 +2785,7 @@ async function startProject() {
   S.plan = Object.assign(S.plan, r.plan); S.reuseId = null; loadMe();
   return r;
 }
-const CLIP_KEYS = ['title', 'score', 'cat', 'quote', 'tpl', 'corner', 'camSize', 'camRect', 'pan', 'showTitle', 'showCaps', 'handle', 'emojis', 'capColor', 'capY', 'capStyle', 'capScale', 'titleKind', 'titleY', 'titleScale', 'titleEnd', 'desc', 'transcribed', 'tags'];
+const CLIP_KEYS = ['hookOn', 'hookTxt', 'title', 'score', 'cat', 'quote', 'tpl', 'corner', 'camSize', 'camRect', 'pan', 'showTitle', 'showCaps', 'handle', 'emojis', 'capColor', 'capY', 'capStyle', 'capScale', 'titleKind', 'titleY', 'titleScale', 'titleEnd', 'desc', 'transcribed', 'tags'];
 const r2 = x => Math.round(x * 100) / 100;
 function packClip(c) {
   const o = { start: r2(c.start), end: r2(c.end), peakT: r2(c.peakT ?? c.start) };
@@ -2727,6 +2802,7 @@ function unpackClip(o, i) {
   return c;
 }
 async function saveProject() {
+  if (S.project && S.project.guest) { guestStash(); return; }
   if (S.demo || !S.project || !S.project.id) return;
   const clips = S.clips.map(packClip);
   const meta = { range: S.project.range, kind: S.project.kind, settings: S.settings };
@@ -3545,7 +3621,7 @@ function demoUser() {
     plan: 'proplus', plan_name: 'Pro+', pro_until: Date.now() / 1000 + 300 * 86400,
     used: 7, limit: 250, max_minutes: 120, max_live_minutes: 60, watermark: false,
     hd_unlimited: true, hd_left: null, hd_total: null, all_templates: true,
-    next_price: { pro: 29.9, proplus: 49.9 }, intro_left: { pro: 0, proplus: 0 },
+    next_price: { pro: 19.9, proplus: 29.9 }, intro_left: { pro: 0, proplus: 0 },
     settings: { handle: DEMO_HANDLE, tpl: 'neon', color: '', emojis: true, tags: '#gta6 #gtavi #gameplay #cortes #viral #fyp' } };
 }
 function renderDemoProjects() {
@@ -3612,6 +3688,56 @@ function exitDemo() { S.demo = false; document.body.classList.remove('demo'); lo
 })();
 
 
+// ---------- visitante: 1º corte sem conta; baixar/salvar pede cadastro ----------
+const GUEST_K = 'nc_guest_done', GUEST_P = 'nc_guest_proj';
+function guestOk() { try { return localStorage.getItem(GUEST_K) !== '1' || !!(S.project && S.project.guest); } catch (e) { return true; } }
+function guestDone() {
+  try { localStorage.setItem(GUEST_K, '1'); } catch (e) { }
+  if (!S.user) $('#guestSave').classList.remove('hidden');
+  guestStash(true);
+}
+let _gFileSaved = false;
+function guestStash(withFile) {
+  if (!S.project || !S.project.guest || !S.clips) return;
+  try { localStorage.setItem(GUEST_P, JSON.stringify({ t: Date.now(), source: S.project.source, title: S.project.title, minutes: S.project.minutes, duration: S.duration, settings: S.settings, clips: S.clips.map(packClip) })); } catch (e) { }
+  if (withFile && !_gFileSaved && S.file) { _gFileSaved = true; VDB.put('guest', S.file); }
+}
+let _claimP = null;
+function claimGuest() {
+  if (!S.user || !S.project || !S.project.guest) return Promise.resolve();
+  return _claimP || (_claimP = (async () => {
+    const P = S.project;
+    try {
+      const r = await api('/api/projects', { source: P.source, kind: 'file', title: P.title, minutes: P.minutes || 0 });
+      S.project = { id: r.id, kind: 'file', source: P.source, title: P.title, range: null };
+      S.plan = Object.assign(S.plan, r.plan); loadMe();
+      await saveProject(); if (S.file) VDB.put(r.id, S.file);
+      try { localStorage.removeItem(GUEST_P); } catch (e) { }
+      $('#guestSave').classList.add('hidden');
+      toast('Conta pronta! Seus cortes foram salvos em Meus projetos ✅', 4000);
+    } catch (e) { toast(e.message, 5000); }
+    _claimP = null;
+  })());
+}
+// voltou do login com o Google: recupera os cortes do teste e reabre
+async function restoreGuest() {
+  let g = null; try { g = JSON.parse(localStorage.getItem(GUEST_P) || 'null'); } catch (e) { }
+  if (!g || !S.user || Date.now() - g.t > 86400000) return false;
+  const file = await VDB.get('guest'); if (!file) return false;
+  try {
+    const r = await api('/api/projects', { source: g.source, kind: 'file', title: g.title, minutes: g.minutes || 0 });
+    const meta = { range: null, kind: 'file', settings: g.settings };
+    await api('/api/projects/' + r.id, null, 'PUT', { duration: g.duration, clips: g.clips, meta });
+    await VDB.put(r.id, file);
+    localStorage.removeItem(GUEST_P);
+    await openProject({ id: r.id, created: Date.now() / 1000, source: g.source, kind: 'file', title: g.title, duration: g.duration, meta, clips: g.clips });
+    toast('Conta criada! Seus cortes do teste estão aqui. Toque em ⬇ Baixar.', 5000);
+    return true;
+  } catch (e) { console.warn(e); return false; }
+}
+$('#guestSaveBtn').onclick = () => openAuth('signup', claimGuest);
+document.getElementById('gBtn').addEventListener('click', () => { if (S.project && S.project.guest) guestStash(true); });
+
 // ---------- início ----------
 (async () => {
   await Promise.all([loadConfig(), loadMe()]);
@@ -3621,7 +3747,7 @@ function exitDemo() { S.demo = false; document.body.classList.remove('demo'); lo
   applyKitToForm();
   const q = new URLSearchParams(location.search);
   if (q.get('erro')) { toast('Não foi possível entrar com o Google. Tente de novo.', 5000); history.replaceState(null, '', location.pathname + location.hash); }
-  if (/(decorado|demo)/i.test(location.hash)) { await enterDemo(); } else route();
+  if (/(decorado|demo)/i.test(location.hash)) { await enterDemo(); } else { route(); if (S.user) restoreGuest(); }
 })();
 
 

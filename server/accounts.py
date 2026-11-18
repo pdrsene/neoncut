@@ -33,11 +33,11 @@ def _f(name, default):
     return float(os.environ.get(name, default))
 
 
-INTRO_MONTHS = int(os.environ.get("INTRO_MONTHS", "3"))          # meses com preço promocional
+INTRO_MONTHS = int(os.environ.get("INTRO_MONTHS", "1"))          # meses com preço promocional
 # preço promocional (primeiros meses) e preço normal de cada plano
 PRICES = {
-    "pro": (_f("PRO_INTRO_PRICE", "19.90"), _f("PRO_PRICE", "29.90")),
-    "proplus": (_f("PROPLUS_INTRO_PRICE", "39.90"), _f("PROPLUS_PRICE", "49.90")),
+    "pro": (_f("PRO_INTRO_PRICE", "12.90"), _f("PRO_PRICE", "19.90")),
+    "proplus": (_f("PROPLUS_INTRO_PRICE", "29.90"), _f("PROPLUS_PRICE", "29.90")),
 }
 HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "5"))         # exportações 1080p/mês no Grátis e no Pro
 # limites de cada plano: vídeos/mês, minutos por vídeo, minutos de live
