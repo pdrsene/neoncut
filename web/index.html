@@ -784,7 +784,6 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 .mtab th{color:var(--muted);font-weight:600}
 .mlist{margin:0;padding-left:18px;font-size:13px;line-height:1.6}
 @media (max-width:600px){.fun .fr{grid-template-columns:110px 1fr 86px}}
-@media (prefers-reduced-motion:reduce){.hx-cut{display:none}}
 </style>
 </head>
 <body class="yt-off">
@@ -4185,8 +4184,9 @@ function heroTick() {
 }
 function heroStart() {
   const v = $('#hxOrig'); if (!v) return;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.addEventListener('loadeddata', heroDraw, { once: true }); return; }
-  v.play().then(() => { if (!HERO.raf) heroTick(); }).catch(() => { v.addEventListener('loadeddata', heroDraw, { once: true }); });
+  const still = () => { if (v.readyState >= 2) heroDraw(); else v.addEventListener('loadeddata', heroDraw, { once: true }); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { if (v.currentTime < 1) v.currentTime = 8; v.addEventListener('seeked', heroDraw, { once: true }); still(); return; }
+  v.play().then(() => { if (!HERO.raf) heroTick(); }).catch(still);
 }
 if ('IntersectionObserver' in window && $('.hx-vis')) {
   new IntersectionObserver(es => { HERO.vis = es.some(x => x.isIntersecting); if (HERO.vis) heroStart(); }, { threshold: .15 }).observe($('.hx-vis'));
