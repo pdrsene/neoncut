@@ -1623,7 +1623,7 @@ const emojiFor = w => { const x = w.replace(/[^\p{L}\p{N}]/gu, ''); for (const [
 const HALLUC = /(amara\.org|legendas pela comunidade|obrigad[oa] por assistir|inscreva-se|legenda(s)? (por|de) |transcrição|subtitles by|thanks for watching|zanotto|♪)/i;
 
 function suggestTitle(clip, salt = 0) {
-  if (clip.quote && (salt % 2 === 0)) return `"${clip.quote.toUpperCase()}" 😂`;
+  if (clip.quote && (salt % 2 === 0)) return clip.quote.toUpperCase().slice(0,45);
   const arr = TITLES[clip.cat] || TITLES.epico;
   return arr[(clip.idx + salt) % arr.length];
 }
@@ -2033,6 +2033,48 @@ async function transcribeClip(clip) {
   const lines = buildLines(clip.words, CAPTION_STYLES.shorts);
   const best = lines.find(l => HYPE.some(h => l.words.map(w => w.text).join(' ').toLowerCase().includes(h)) && l.words.length >= 2);
   clip.quote = best ? best.words.map(w => w.text).join(' ').replace(/[.,!?…]+$/, '') : null;
+}
+
+// Critérios de seleção inspirados no fluxo de candidatos do clipper GTA:
+// volume indica candidatos; a fala precisa confirmar reação, descoberta ou conclusão.
+function rankSpokenMoment(c) {
+  const words = (c.words || []).filter(w => w.text && w.end > w.start);
+  const text = words.map(w => w.text).join(' ').trim();
+  if (!text || words.length < 6) return { score: 35, quote: null };
+  const low = text.toLowerCase();
+  const banned = /\b(super chat|superchat|pix|patrocinador|cupom de desconto|deixa o like|se inscrev[ae]|obrigado pela doação|thanks for the donation|subscribe to the channel)\b/i;
+  const filler = /^(é+|então|tipo assim|voltando|uh|um|so yeah)[ ,.!]+/i;
+  const strong = /\b(não acredito|nao acredito|meu deus|que isso|que porra|socorro|absurdo|tá maluco|ta maluco|morri|bug|olha isso|descobri|no way|oh my god|what the hell|first time)\b/i;
+  const lines = buildLines(words, {maxWords: 12,maxChars: 75});
+  const hook = lines.find(l => l.words.length >= 3 && strong.test(l.words.map(w=>w.text).join(' '))) ||
+    lines.find(l => l.words.length >= 5 && /[!?]$/.test(l.words[l.words.length-1].text));
+  const density = words.length / Math.max(1,c.end-c.start);
+  let score = 45 + Math.min(18, Math.max(0,(c.score-55)*.4));
+  score += hook ? 19 : 0;
+  score += density >= .8 ? 8 : -12;
+  if (filler.test(low)) score -= 9;
+  if (banned.test(low)) score -= 30;
+  if (/[.!?…]$/.test(text)) score += 5;
+  const quote = hook ? hook.words.map(w=>w.text).join(' ').replace(/[.,!?…]+$/,'').slice(0,45).replace(/\s+\S*$/,'') : null;
+  return {score:Math.round(clamp(score,0,99)),quote:quote || null};
+}
+
+async function chooseSpokenMoments(candidates, count, asrP) {
+  try { await asrP; } catch (_) { return {clips:candidates.slice(0,count), fallback:true}; }
+  const ranked=[];
+  for (let i=0;i<candidates.length;i++) {
+    const c=candidates[i];
+    step(5,'active','Confirmando falas '+(i+1)+'/'+candidates.length);
+    try {
+      await transcribeClip(c);
+      const result=rankSpokenMoment(c);
+      c.score=result.score; c.quote=result.quote; c.wordsVer=1;
+      ranked.push(c);
+    } catch (_) { /* no invented transcript or semantic score */ }
+  }
+  if (!ranked.length) return {clips:candidates.slice(0,count),fallback:true};
+  const qualified=ranked.filter(c=>c.score>=60).sort((a,b)=>b.score-a.score);
+  return {clips:qualified.slice(0,count),fallback:false};
 }
 
 // ============================================================
@@ -2594,7 +2636,16 @@ async function pipelineRun(skip) {
   // momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
-  S.clips = findMoments(S.feats, V, S.duration, D, S.settings.N, S.settings.focus, { sens: S.settings.sens, boostVoice: S.settings.boostVoice, snapSilence: S.settings.snapSilence });
+  const spokenMode = wantCaps && !!S.pcm && !S.sample && S.settings.focus === 'viral';
+  const pool = findMoments(S.feats,V,S.duration,D,spokenMode ? Math.min(S.settings.N+2,12) : S.settings.N,S.settings.focus,{sens:S.settings.sens,boostVoice:S.settings.boostVoice,snapSilence:S.settings.snapSilence});
+  let selectionNote=null;
+  if(spokenMode){
+    const selected=await chooseSpokenMoments(pool,S.settings.N,asrP);
+    S.clips=selected.clips;
+    if(selected.fallback) selectionNote='Não foi possível confirmar as falas; mostrando candidatos por áudio e imagem.';
+    else if(!S.clips.length) selectionNote='Nenhum momento passou de 60 pontos na análise das falas. Tente outro trecho ou foco.';
+    else if(S.clips.length<S.settings.N) selectionNote='Mostrando apenas momentos que atingiram 60 pontos.';
+  }else S.clips=pool;
   const kit = brandKit();
   const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { credit: _cr, hookOn: true, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
@@ -2602,14 +2653,14 @@ async function pipelineRun(skip) {
   autoTitles(S.clips);
   step(5, 'done'); mark('momentos');
   // os cortes aparecem AGORA; as legendas vão entrando em cada card conforme ficam prontas
-  const capsNow = wantCaps && !!S.pcm;
+  const capsNow = wantCaps && !!S.pcm && S.clips.some(c => !c.transcribed);
   S.capRunning = capsNow;
   if (capsNow) S.clips.forEach(c => { c._capDone = false; c._capP = new Promise(r => c._capR = r); });
   step(8, 'active');
   // Do not block first results on external fonts; render again as they become available.
   const fontsReady=Promise.allSettled(['Anton','Bebas Neue','Bangers','Montserrat','Inter'].map(f=>document.fonts.load(`40px "${f}"`)));
   await Promise.race([fontsReady,sleep(700)]);
-  showResults(!S.pcm ? 'O vídeo não tem áudio, então os cortes saem sem legenda.' : null);
+  showResults(selectionNote || (!S.pcm ? 'O vídeo não tem áudio, então os cortes saem sem legenda.' : null));
   step(8, 'done'); mark('cortes_na_tela');
   if (!S.demo) { track('generation_completed', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file', guest: S.user ? 0 : 1, demo: S.project && S.project.sample ? 1 : 0, ms: Math.round(performance.now() - (S._genT0 || T0)),download_ms:lap.download||0,analysis_ms:Math.max(0,(lap.momentos||0)-(lap.download||0)),preview_ms:Math.max(0,(lap.cortes_na_tela||0)-(lap.momentos||0)) }); afterClipGenerated(); }
   if (S.project && S.project.guest) guestDone();
@@ -2656,7 +2707,7 @@ async function captionInBackground(list, asrP) {
       const open = (S.cur && list.includes(S.cur) && !done.has(S.cur)) ? S.cur : (ADV.open && list.includes(ADV.clip) && !done.has(ADV.clip)) ? ADV.clip : null;
       const c = open || list.find(x => !done.has(x)); if (!c) break;
       setCapStatus(`Legendando as falas ${k + 1}/${list.length}… você já pode editar e baixar`);
-      try { await transcribeClip(c); c.wordsVer = (c.wordsVer || 0) + 1; } catch (e) { console.warn('legenda falhou', e); }
+      try { if(!c.transcribed){await transcribeClip(c); c.wordsVer = (c.wordsVer || 0) + 1;} } catch (e) { console.warn('legenda falhou', e); }
       done.add(c); c._capDone = true; c._capR && c._capR();
       autoTitles([c]); refreshCard(c);
       if (S.cur === c) { renderCaps(); drawPreview(); if (document.activeElement !== $('#inTitle')) $('#inTitle').value = c.title; $('#edScore').textContent = '🔥 ' + c.score; }
