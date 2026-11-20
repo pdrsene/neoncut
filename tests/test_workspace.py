@@ -71,6 +71,13 @@ class WorkspaceTests(unittest.TestCase):
         self.assertEqual(len(A.billing_conversions(self.req)["purchases"]),1)
         A.conversion_ack(A.ConversionAck(transaction_id="123456"),self.req)
         self.assertEqual(A.billing_conversions(self.req)["purchases"],[])
+    def test_webhook_signature(self):
+        import hmac,hashlib
+        secret="test"; msg="id:123;request-id:req;ts:123456;"
+        sig=hmac.new(secret.encode(),msg.encode(),hashlib.sha256).hexdigest()
+        self.assertTrue(A.valid_mp_signature(secret,"ts=123456,v1="+sig,"req","123"))
+        self.assertFalse(A.valid_mp_signature(secret,"ts=123456,v1="+sig,"req","124"))
+        self.assertFalse(A.valid_mp_signature(secret,"invalid","req","123"))
     def test_payment_invalid(self):
         for i,changes,expected in [(123457,{"currency_id":"USD"},"invalid"),(123458,{"transaction_amount":1},"amount_mismatch"),(123459,{"id":1},"invalid")]:
             p={"id":i,"currency_id":"BRL","status":"approved","external_reference":f"{self.uid}:pro:1290","transaction_amount":12.9,**changes}
