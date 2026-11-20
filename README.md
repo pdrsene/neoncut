@@ -85,3 +85,20 @@ Sem isso, as contas e os pagamentos são apagados a cada deploy.
 Pro e Pro+ são vendidos como pagamento único (PIX ou cartão) que libera 30 dias. Os 3 primeiros meses pagos de cada plano saem com o preço promocional. O site confirma o pagamento sozinho
 pelo retorno do checkout e pelo webhook `https://SEU-SITE/api/billing/webhook` (configurado automaticamente em cada compra).
 Para dar ou tirar Pro manualmente, use o painel de administração em **Minha conta**.
+
+## Kit de crescimento (novembro/2026)
+
+| Variável | Padrão | Para que serve |
+|---|---|---|
+| `FIRST_FREE` | `1` | 1º corte baixado da conta grátis sai em 1080p e sem marca d'água (uma vez por conta). `0` desliga |
+| `GA4_ID` | (vazio) | ID do Google Analytics 4 (`G-...`). Só carrega depois que a pessoa aceita os cookies |
+| `GADS_ID` | (vazio) | ID do Google Ads (`AW-...`) |
+| `GADS_PURCHASE_LABEL` | (vazio) | Rótulo da conversão de compra (enviada só depois que o pagamento é confirmado no servidor, com `transaction_id`) |
+| `GADS_DOWNLOAD_LABEL` | (vazio) | Rótulo da conversão "primeiro download" (meta intermediária enquanto não há vendas) |
+| `MP_FEE_PCT` / `INFRA_MONTH_BRL` | `4.99` / `30` | Só para o custo estimado no painel de métricas |
+| `DEMO_MAX_MB` | `80` | Tamanho máximo de cada vídeo de demonstração enviado pelo admin |
+
+- Demonstrações: Minha conta → Administração → "Vídeos de demonstração". Só vídeos próprios ou autorizados. Sem nenhum cadastrado, o site usa `web/demo/exemplo.mp4` (animação própria).
+- Funil completo: `#metricas` (endpoint `/api/admin/funnel`, só administradores).
+- Módulo independente: `server/growth.py`. Para desligar, remova `app.include_router(growth.router)` em `server/app.py`.
+- Testes: `python3 tests/test_pagamentos.py` (pagamento simulado) e `tests/e2e.py` (Playwright, com o servidor rodando).

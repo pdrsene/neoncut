@@ -11,6 +11,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import secrets
 import sqlite3
 import threading
@@ -147,6 +148,11 @@ def init_db():
         db().execute("ALTER TABLE users ADD COLUMN plan TEXT DEFAULT 'pro'")
     if "ref" not in cols:
         db().execute("ALTER TABLE users ADD COLUMN ref TEXT DEFAULT ''")
+    if "first_free" not in cols:
+        db().execute("ALTER TABLE users ADD COLUMN first_free REAL DEFAULT 0")
+    pcols = [r[1] for r in db().execute("PRAGMA table_info(payments)").fetchall()]
+    if "reported" not in pcols:
+        db().execute("ALTER TABLE payments ADD COLUMN reported INTEGER DEFAULT 0")
 
 
 init_db()
@@ -252,6 +258,7 @@ def plan_info(u) -> dict:
         "all_templates": plan != "free",
         "next_price": {"pro": price_for(u["id"], "pro"), "proplus": price_for(u["id"], "proplus")},
         "intro_left": {k: max(0, INTRO_MONTHS - paid_months(u["id"], k)) for k in PRICES},
+        "first_free": bool(FIRST_FREE and plan == "free" and not (u["first_free"] if "first_free" in u.keys() else 0)),
     }
 
 
@@ -325,13 +332,20 @@ router = APIRouter()
 # YouTube em manutenção: o IP do servidor é bloqueado pelo YouTube. Volta sozinho se configurar
 # cookies (YTDLP_COOKIES / YTDLP_COOKIES_TEXT) ou proxy (YTDLP_PROXY), ou com YT_ENABLED=1.
 YT_ENABLED = os.environ.get("YT_ENABLED", "") == "1" or bool(os.environ.get("YTDLP_COOKIES") or os.environ.get("YTDLP_COOKIES_TEXT") or os.environ.get("YTDLP_PROXY"))
+GA4_ID = os.environ.get("GA4_ID", "").strip()                  # ex.: G-XXXXXXX
+GADS_ID = os.environ.get("GADS_ID", "").strip()                # ex.: AW-123456789
+GADS_PURCHASE_LABEL = os.environ.get("GADS_PURCHASE_LABEL", "").strip()
+GADS_DOWNLOAD_LABEL = os.environ.get("GADS_DOWNLOAD_LABEL", "").strip()
+FIRST_FREE = os.environ.get("FIRST_FREE", "1") == "1"         # 1º corte grátis em 1080p e sem marca d'água
 YT_MAINT_MSG = 'O YouTube está em manutenção no NEONCUT. Por enquanto use um link da Twitch ou da Kick, ou baixe o vídeo e envie pela aba "Enviar arquivo".'
 
 
 @router.get("/api/config")
 def public_config():
     return {"brand": BRAND, "google": bool(GOOGLE_ID and GOOGLE_SECRET), "payments": bool(MP_TOKEN), "youtube": YT_ENABLED,
-            "intro_months": INTRO_MONTHS, "hd_free_uses": HD_FREE_USES, "support_email": SUPPORT_EMAIL,
+            "intro_months": INTRO_MONTHS, "first_free": FIRST_FREE,
+            "analytics": {"ga4": GA4_ID, "gads": GADS_ID, "gads_purchase": GADS_PURCHASE_LABEL, "gads_download": GADS_DOWNLOAD_LABEL},
+            "hd_free_uses": HD_FREE_USES, "support_email": SUPPORT_EMAIL,
             "prices": {k: {"intro": v[0], "regular": v[1]} for k, v in PRICES.items()},
             "limits": {k: {"projects": v[0], "max_minutes": v[1], "live_minutes": v[2], **OPTIONS[k],
                            "hd": None if k == "proplus" else HD_USES[k]} for k, v in LIMITS.items()}}
@@ -367,7 +381,7 @@ def signup(body: SignupReq, req: Request, resp: Response):
     cur = db().execute("INSERT INTO users(email,name,pw,created,last_seen) VALUES(?,?,?,?,?)",
                        (email, body.name.strip()[:60], hash_pw(body.password), time.time(), time.time()))
     set_session(resp, req, cur.lastrowid)
-    log_event("signup", uid=cur.lastrowid, meta={"via": "email"})
+    log_event("sign_up", uid=cur.lastrowid, meta={"via": "email"})
     return user_public(db().execute("SELECT * FROM users WHERE id=?", (cur.lastrowid,)).fetchone())
 
 
@@ -459,8 +473,9 @@ def google_cb(req: Request, code: str = "", state: str = ""):
         uid = db().execute("INSERT INTO users(email,name,google_sub,avatar,created,last_seen) VALUES(?,?,?,?,?,?)",
                            (email, info.get("name", ""), info.get("sub"), info.get("picture", ""),
                             time.time(), time.time())).lastrowid
-        log_event("signup", uid=uid, meta={"via": "google"})
-    r = RedirectResponse("/#criar")
+        log_event("sign_up", uid=uid, meta={"via": "google"})
+        u = None
+    r = RedirectResponse("/#criar" if u else "/?cadastro=google#criar")
     set_session(r, req, uid)
     r.delete_cookie("nc_oauth", path="/")
     return r
@@ -553,8 +568,22 @@ def use_hd(req: Request):
     return {"ok": True, "hd_left": p["hd_left"] - 1}
 
 
+@router.post("/api/usage/first")
+def use_first_free(req: Request):
+    """Gasta o 1º corte grátis (1080p e sem marca d'água). Só uma vez por conta."""
+    u = current_user(req)
+    if not FIRST_FREE or plan_of(u) != "free":
+        raise HTTPException(400, "Oferta indisponível para esta conta.")
+    cur = db().execute("UPDATE users SET first_free=? WHERE id=? AND COALESCE(first_free,0)=0", (time.time(), u["id"]))
+    if cur.rowcount != 1:
+        raise HTTPException(402, "Você já usou o seu 1º corte grátis em 1080p. No Pro os cortes saem sem marca d'água.")
+    log_event("first_free_used", uid=u["id"])
+    return {"ok": True}
+
+
 # ---------------------------------------------------------------- pagamento (Mercado Pago)
 PLAN_DAYS = 30
+_PAY_LOCK = threading.Lock()
 
 
 class CheckoutReq(BaseModel):
@@ -569,7 +598,7 @@ def checkout(body: CheckoutReq, req: Request):
     if not MP_TOKEN:
         raise HTTPException(503, "Pagamentos ainda não foram ativados neste site.")
     price = price_for(u["id"], body.plan)
-    log_event("checkout", uid=u["id"], ref=u["ref"] if "ref" in u.keys() else "", meta={"plan": body.plan, "price": price})
+    log_event("begin_checkout", uid=u["id"], ref=u["ref"] if "ref" in u.keys() else "", meta={"plan": body.plan, "price": price})
     base = base_url(req)
     pref = http_json(MP_API + "/checkout/preferences", "POST", {
         "items": [{"id": body.plan, "title": f"{BRAND} {PLAN_NAMES[body.plan]} (30 dias)", "quantity": 1,
@@ -603,19 +632,33 @@ def apply_payment(payment_id: str) -> str:
         plan = "pro"
     if plan not in PRICES:
         return "invalid"
-    exists = db().execute("SELECT status FROM payments WHERE id=?", (str(payment_id),)).fetchone()
-    if exists and exists["status"] == "approved":
-        return "approved"
-    db().execute("INSERT OR REPLACE INTO payments(id,user_id,plan,amount,status,created) VALUES(?,?,?,?,?,?)",
-                 (str(payment_id), uid, plan, p.get("transaction_amount") or 0, status, time.time()))
-    if status == "approved":
-        floor = expected if expected is not None else min(PRICES[plan])
-        if float(p.get("transaction_amount") or 0) + 0.01 < min(floor, max(PRICES[plan])):
-            return "amount_mismatch"
-        u = db().execute("SELECT pro_until FROM users WHERE id=?", (uid,)).fetchone()
-        if u:
-            start = max(time.time(), u["pro_until"] or 0)
-            db().execute("UPDATE users SET pro_until=?, plan=? WHERE id=?", (start + PLAN_DAYS * 86400, plan, uid))
+    amount = float(p.get("transaction_amount") or 0)
+    c = db()
+    with _PAY_LOCK:  # retorno do checkout e webhook podem chegar juntos: só um libera os 30 dias
+        c.execute("BEGIN IMMEDIATE")
+        try:
+            exists = c.execute("SELECT status FROM payments WHERE id=?", (str(payment_id),)).fetchone()
+            if exists and exists["status"] == "approved":
+                c.execute("COMMIT")
+                return "approved"
+            if status == "approved":
+                floor = expected if expected is not None else min(PRICES[plan])
+                if amount + 0.01 < min(floor, max(PRICES[plan])):
+                    status = "amount_mismatch"   # não conta como venda nem libera o plano
+            c.execute("INSERT OR REPLACE INTO payments(id,user_id,plan,amount,status,created,reported) VALUES(?,?,?,?,?,?,0)",
+                      (str(payment_id), uid, plan, amount, status, time.time()))
+            if status == "approved":
+                u = c.execute("SELECT pro_until, ref FROM users WHERE id=?", (uid,)).fetchone()
+                if u:
+                    start = max(time.time(), u["pro_until"] or 0)
+                    c.execute("UPDATE users SET pro_until=?, plan=? WHERE id=?", (start + PLAN_DAYS * 86400, plan, uid))
+                log_event("purchase", uid=uid, ref=(u["ref"] if u else "") or "",
+                          meta={"transaction_id": str(payment_id), "value": round(amount, 2), "currency": "BRL", "plan": plan,
+                                "method": p.get("payment_type_id") or ""})
+            c.execute("COMMIT")
+        except Exception:
+            c.execute("ROLLBACK")
+            raise
     return status
 
 
@@ -627,6 +670,20 @@ def billing_return(payment_id: str = "", collection_id: str = "", status: str = 
     except HTTPException:
         st = "pending"
     return RedirectResponse(f"/?pagamento={urllib.parse.quote(st)}#conta")
+
+
+@router.get("/api/billing/conversions")
+def billing_conversions(req: Request):
+    u = current_user(req, required=False)
+    if not u:
+        return {"purchases": []}
+    rows = db().execute("SELECT id, plan, amount FROM payments WHERE user_id=? AND status='approved' AND COALESCE(reported,0)=0",
+                        (u["id"],)).fetchall()
+    out = []
+    for r in rows:
+        if db().execute("UPDATE payments SET reported=1 WHERE id=? AND COALESCE(reported,0)=0", (r["id"],)).rowcount == 1:
+            out.append({"transaction_id": r["id"], "value": round(r["amount"] or 0, 2), "currency": "BRL", "plan": r["plan"]})
+    return {"purchases": out}
 
 
 @router.post("/api/billing/webhook")
@@ -806,7 +863,60 @@ def admin_review_status(body: ReviewStatus, req: Request):
 
 
 # ---------------------------------------------------------------- métricas
-TRACK_KINDS = {"visit", "link", "clip_generated", "export", "upgrade_open", "signup_open", "feedback_shown"}
+TRACK_KINDS = {"visit", "link", "clip_generated", "export", "upgrade_open", "signup_open", "feedback_shown",
+               # funil completo (kit de crescimento)
+               "page_view", "demo_started", "source_selected", "video_uploaded", "generation_started", "generation_failed",
+               "generation_completed", "signup_started", "export_started", "export_failed", "download_completed",
+               "survey_shown", "inapp_open_browser", "js_error"}
+SAFE_META = {"n", "dur", "mode", "guest", "tpl", "why", "path", "login", "src", "kind", "code", "stage", "ms", "msg", "q",
+             "demo", "first_free", "share", "focus", "quick", "size_mb", "cat", "plan", "utm_source", "utm_medium",
+             "utm_campaign", "utm_content", "utm_term", "gclid", "fbclid", "ttclid", "lp", "vw", "id"}
+
+
+def ua_info(ua: str) -> dict:
+    """Aparelho, sistema e navegador a partir do User-Agent (sem guardar o User-Agent inteiro)."""
+    u = ua or ""
+    low = u.lower()
+    os_ = ("ios" if re.search(r"iphone|ipad|ipod", low) else "android" if "android" in low else "windows" if "windows" in low
+           else "mac" if "mac os" in low else "linux" if "linux" in low else "outro")
+    if "instagram" in low:
+        br = "instagram"
+    elif re.search(r"musical_ly|bytedancewebview|tiktok|trill", low):
+        br = "tiktok"
+    elif re.search(r"fban|fbav|fb_iab", low):
+        br = "facebook"
+    elif "edg/" in low or "edga/" in low or "edgios/" in low:
+        br = "edge"
+    elif "samsungbrowser" in low:
+        br = "samsung"
+    elif "firefox" in low or "fxios" in low:
+        br = "firefox"
+    elif "opr/" in low or "opera" in low:
+        br = "opera"
+    elif "crios" in low or "chrome/" in low:
+        br = "chrome"
+    elif "safari" in low:
+        br = "safari"
+    else:
+        br = "outro"
+    dev = "mobile" if (os_ in ("ios", "android") or "mobi" in low) else "desktop"
+    if "ipad" in low or ("android" in low and "mobile" not in low):
+        dev = "tablet"
+    return {"dev": dev, "os": os_, "br": br, "inapp": br in ("instagram", "tiktok", "facebook")}
+
+
+def clean_meta(meta: dict) -> dict:
+    out = {}
+    for k, v in (meta or {}).items():
+        if k not in SAFE_META:
+            continue
+        if isinstance(v, (int, float, bool)):
+            out[k] = v
+        elif isinstance(v, str):
+            v = re.sub(r"https?://\S+", "[url]", v)                   # nunca guarda URLs (podem ser privadas)
+            v = re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email]", v)      # nem e-mails
+            out[k] = v[:120]
+    return out
 
 
 def _clean_ref(r: str) -> str:
@@ -848,7 +958,13 @@ def track(body: TrackReq, req: Request):
         last = db().execute("SELECT ts FROM events WHERE vid=? AND kind=? ORDER BY ts DESC LIMIT 1", (vid, body.kind)).fetchone()
         if last and time.time() - last["ts"] < 1800:
             return {"ok": True}
-    log_event(body.kind, vid, uid, body.ref, body.meta)
+    if body.kind in ("demo_started", "signup_started", "survey_shown", "inapp_open_browser") and vid:
+        last = db().execute("SELECT ts FROM events WHERE vid=? AND kind=? ORDER BY ts DESC LIMIT 1", (vid, body.kind)).fetchone()
+        if last and time.time() - last["ts"] < 60:
+            return {"ok": True}
+    meta = clean_meta(body.meta)
+    meta.update(ua_info(req.headers.get("user-agent", "")))
+    log_event(body.kind, vid, uid, body.ref, meta)
     return {"ok": True}
 
 
@@ -875,13 +991,20 @@ def admin_metrics(req: Request, days: int = 30):
     days = max(1, min(365, days))
     now = time.time(); since = now - days * 86400
     one = lambda sql, *a: db().execute(sql, a).fetchone()[0] or 0
-    ev = lambda kind: one("SELECT COUNT(*) FROM events WHERE kind=? AND ts>=?", kind, since)
-    evu = lambda kind: one("SELECT COUNT(DISTINCT COALESCE(CAST(uid AS TEXT), vid)) FROM events WHERE kind=? AND ts>=?", kind, since)
+    ALIAS = {"clip_generated": ("clip_generated", "generation_completed"), "export": ("export", "download_completed"),
+             "checkout": ("checkout", "begin_checkout")}
+    def _in(kind):
+        ks = ALIAS.get(kind, (kind,))
+        return "kind IN (" + ",".join("?" * len(ks)) + ")", ks
+    def ev(kind):
+        w, ks = _in(kind); return one(f"SELECT COUNT(*) FROM events WHERE {w} AND ts>=?", *ks, since)
+    def evu(kind):
+        w, ks = _in(kind); return one(f"SELECT COUNT(DISTINCT COALESCE(CAST(uid AS TEXT), vid)) FROM events WHERE {w} AND ts>=?", *ks, since)
 
     visitors = one("SELECT COUNT(DISTINCT vid) FROM events WHERE kind IN ('visit','link') AND ts>=?", since)
     signups = one("SELECT COUNT(*) FROM users WHERE created>=?", since)
     gen_users = evu("clip_generated")
-    checkout_users = one("SELECT COUNT(DISTINCT uid) FROM events WHERE kind='checkout' AND ts>=?", since)
+    checkout_users = one("SELECT COUNT(DISTINCT uid) FROM events WHERE kind IN ('checkout','begin_checkout') AND ts>=?", since)
     paid = db().execute("SELECT COUNT(*) n, COUNT(DISTINCT user_id) b, COALESCE(SUM(amount),0) r FROM payments WHERE status='approved' AND created>=?", (since,)).fetchone()
 
     # origens: cliques no link (?ref=) e visitas, cadastros, compradores e receita por origem
@@ -906,7 +1029,7 @@ def admin_metrics(req: Request, days: int = 30):
     for r in db().execute("SELECT ts, vid FROM events WHERE kind IN ('visit','link') AND ts>=?", (now - 90 * 86400,)):
         k = daykey(r["ts"])
         if k in series: series[k]["visitors"].add(r["vid"])
-    for r in db().execute("SELECT ts FROM events WHERE kind='clip_generated' AND ts>=?", (now - 90 * 86400,)):
+    for r in db().execute("SELECT ts FROM events WHERE kind IN ('clip_generated','generation_completed') AND ts>=?", (now - 90 * 86400,)):
         k = daykey(r["ts"])
         if k in series: series[k]["generated"] += 1
     for r in db().execute("SELECT created FROM users WHERE created>=?", (now - 90 * 86400,)):
@@ -927,7 +1050,7 @@ def admin_metrics(req: Request, days: int = 30):
         "today": {
             "visitors": one("SELECT COUNT(DISTINCT vid) FROM events WHERE kind IN ('visit','link') AND ts>=?", today0),
             "signups": one("SELECT COUNT(*) FROM users WHERE created>=?", today0),
-            "generated": one("SELECT COUNT(*) FROM events WHERE kind='clip_generated' AND ts>=?", today0),
+            "generated": one("SELECT COUNT(*) FROM events WHERE kind IN ('clip_generated','generation_completed') AND ts>=?", today0),
             "purchases": one("SELECT COUNT(*) FROM payments WHERE status='approved' AND created>=?", today0),
             "revenue": round(one("SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='approved' AND created>=?", today0), 2),
         },
