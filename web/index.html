@@ -2566,14 +2566,16 @@ async function exportWithUI(list, btn) {
       if (free1) { S.plan.watermark = false; S.exportQ = 1080; }
       try {
         const noHd = tplById(c.tpl).layout === 'raw' && Math.min(S.vw, S.vh) <= 720; // vídeo original já é 720p: não gasta 1080p
-        if (!free1 && (S.exportQ || 720) >= 1080 && !S.plan.hd_unlimited && !noHd) {
-          try { const r = await api('/api/usage/hd', {}); S.plan.hd_left = r.hd_left; renderQSel(); }
-          catch (e) { if (e.status === 402) { openUpgrade(e.message, 'proplus'); S.exportQ = 720; renderQSel(); } else toast(e.message, 5000); break; }
-        }
+        const paidHd = !free1 && !S.demo && (S.exportQ || 720) >= 1080 && !S.plan.hd_unlimited && !noHd;
+        if (paidHd && !(S.plan.hd_left > 0)) { openUpgrade('Você usou a cota de exportações Full HD.', 'proplus'); S.exportQ=720; renderQSel(); break; }
         if (c._capP && !c._capDone) { btn.textContent = '💬 legendando…'; toast('Terminando a legenda deste corte antes de exportar…', 3000); await c._capP; }
         if (!S.demo) track('export_started', { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0, demo: S.project && S.project.sample ? 1 : 0 });
         const blob = await exportClip(c, p => { btn.textContent = `${list.length > 1 ? (i + 1) + '/' + list.length + ' · ' : ''}${Math.round(clamp(p, 0, 1) * 100)}%`; if (S.cur === c) $('#expStatus').textContent = `Renderizando ${Math.round(clamp(p, 0, 1) * 100)}%`; });
         if (!blob || blob.size < 1000) throw Object.assign(new Error('O navegador não gerou o vídeo. Tente no Chrome ou no Safari atualizados.'), { code: 'empty' });
+        if (paidHd) {
+          try { const r=await api('/api/usage/hd',{}); S.plan.hd_left=r.hd_left; renderQSel(); }
+          catch(e){if(e.status===402){S.plan.hd_left=0;S.exportQ=720;renderQSel();openUpgrade(e.message,'proplus');}throw e;}
+        }
         if (free1) {
           try { await api('/api/usage/first', {}); }
           catch (e) {
@@ -2888,7 +2890,7 @@ function renderNav() {
     : L('#como', 'Como funciona') + L('#precos', 'Preços') + L('#faq', 'Dúvidas') + `<a href="#" data-tutorial>📘 Tutorial</a>`;
   document.body.classList.toggle('authed', !!u);
   const T = (href, ic, txt, extra) => `<a href="${href}" ${extra || ''} class="${h === href ? 'on' : ''}"><i>${ic}</i><span>${txt}</span></a>`;
-  $('#tabbar').innerHTML = u ? T('#criar', '✂️', 'Criar') + T('#projetos', '📁', 'Projetos') + T('#creator', '🏆', 'Creator') + T('#precos', '💎', 'Planos') + (u.admin ? T('#metricas', '📊', 'Métricas') : T('#', '📘', 'Tutorial', 'data-tutorial')) : '';
+  $('#tabbar').innerHTML = u ? T('#criar', '✂️', 'Criar') + T('#projetos', '📁', 'Projetos') + T('#creator', '🏆', 'Creator') + T('#estudio', '🎬', 'Estúdio') + T('#precos', '💎', 'Planos') + (u.admin ? T('#metricas', '📊', 'Métricas') : T('#', '📘', 'Tutorial', 'data-tutorial')) : '';
   $('#navRight').innerHTML = u
     ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' || !sawResult() ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
     : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
@@ -2897,7 +2899,7 @@ function renderUsage() {
   const b = $('#usageBox'); if (!b) return;
   if (!S.user) { b.innerHTML = ''; return; }
   const p = S.plan, pct = Math.min(100, 100 * p.used / Math.max(1, p.limit));
-  b.innerHTML = `<b style="color:var(--text)">${p.used}/${p.limit}</b> vídeos este mês · ${p.plan_name || 'Grátis'} · 1080p: ${p.hd_unlimited ? 'ilimitado' : p.plan === 'free' ? 'só no Pro' : (p.hd_left ?? 0) + ' restantes'}${p.plan === 'proplus' ? '' : ' · <a href="#" data-up>Upgrade</a>'}<div class="bar"><i style="width:${pct}%"></i></div>`;
+  b.innerHTML = `<b style="color:var(--text)">${p.used}/${p.limit}</b> vídeos este mês · ${p.plan_name || 'Grátis'} · 1080p: ${p.hd_unlimited ? 'ilimitado' : p.plan === 'free' ? (p.first_free ? '1º corte grátis' : 'só no Pro') : (p.hd_left ?? 0) + ' restantes'}${p.plan === 'proplus' ? '' : ' · <a href="#" data-up>Upgrade</a>'}<div class="bar"><i style="width:${pct}%"></i></div>`;
 }
 
 // ---------- rotas ----------
@@ -3353,7 +3355,7 @@ async function loadStreams(cat = streamCat) {
   if (seq !== radarSeq) return;
   if (!r.enabled || S.demo) { radarData = null; sec.classList.add('hidden'); return; }
   sec.classList.remove('hidden');
-  if (!r.streams.length) { grid.innerHTML = `<p class="note">${esc(r.error || 'Nenhuma live de GTA em português agora. Volte daqui a pouco.')}</p>`; return; }
+  if (!r.streams.length) { radarData=null; grid.innerHTML = `<p class="note">${esc(r.error || 'Nenhuma live de GTA em português agora. Volte daqui a pouco.')}</p>`; return; }
   if (r.note) toast(r.note, 3500);
   radarData = r; renderRadar();
 }
