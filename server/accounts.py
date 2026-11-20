@@ -577,11 +577,19 @@ def use_hd(req: Request):
         return {"ok": True, "hd_left": None}
     if p["plan"] == "free":
         raise HTTPException(402, "Exportar em 1080p é do Pro e do Pro+. No Pro+ é ilimitado.")
-    if p["hd_left"] <= 0:
-        raise HTTPException(402, f"Você já usou as {HD_USES['pro']} exportações em 1080p deste mês. "
-                                 "No Pro+ o 1080p é ilimitado.")
-    db().execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
-    return {"ok": True, "hd_left": p["hd_left"] - 1}
+    c = db()
+    c.execute("BEGIN IMMEDIATE")
+    try:
+        used = hd_used(u["id"])
+        if used >= HD_USES["pro"]:
+            raise HTTPException(402, f"Você já usou as {HD_USES['pro']} exportações em 1080p deste mês. "
+                                     "No Pro+ o 1080p é ilimitado.")
+        c.execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
+        c.execute("COMMIT")
+    except Exception:
+        c.execute("ROLLBACK")
+        raise
+    return {"ok": True, "hd_left": HD_USES["pro"] - used - 1}
 
 
 @router.post("/api/usage/first")
