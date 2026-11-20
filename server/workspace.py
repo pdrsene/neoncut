@@ -1,4 +1,4 @@
-"""Workspace: publishing planner, moderated opportunities and bounded cloud export."""
+"""Workspace: moderated opportunities, missions and bounded cloud export."""
 from __future__ import annotations
 import datetime as dt
 import json
@@ -27,8 +27,8 @@ CLOUD_DIR.mkdir(parents=True,exist_ok=True)
 MAX_BYTES=50_000_000
 TTL=24*3600
 CLOUD_LIMIT={"free":1,"pro":3,"proplus":5}
-PLATFORMS={"TikTok","Instagram Reels","YouTube Shorts"}
 def init():
+    # Retain legacy calendar table and its data; the feature and API are retired.
     A.db().executescript("""
     CREATE TABLE IF NOT EXISTS content_calendar(
       id INTEGER PRIMARY KEY, uid INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -50,51 +50,6 @@ def init():
     CREATE INDEX IF NOT EXISTS ix_cloud_user ON cloud_exports(uid,created);
     """)
 init()
-
-class CalendarItem(BaseModel):
-    day:str
-    platform:str
-    title:str
-    description:str=""
-    tags:str=""
-    status:str="planejado"
-
-def calendar_values(body):
-    try:
-        date=dt.date.fromisoformat(body.day)
-        if date.isoformat()!=body.day: raise ValueError()
-    except ValueError: raise HTTPException(400,"Data inválida.")
-    if body.platform not in PLATFORMS or body.status not in {"planejado","publicado"} or not body.title.strip():
-        raise HTTPException(400,"Preencha título, plataforma e status válidos.")
-    return (body.day,body.platform,body.title.strip()[:120],body.description[:2000],body.tags[:500],body.status)
-
-@router.get("/api/workspace/calendar")
-def calendar(req:Request):
-    uid=A.current_user(req)["id"]
-    return [dict(r) for r in A.db().execute("SELECT id,day,platform,title,description,tags,status FROM content_calendar WHERE uid=? ORDER BY day,id LIMIT 500",(uid,))]
-
-@router.post("/api/workspace/calendar")
-def calendar_add(body:CalendarItem,req:Request):
-    uid=A.current_user(req)["id"]; c=A.db(); vals=calendar_values(body)
-    c.execute("BEGIN IMMEDIATE")
-    try:
-        if c.execute("SELECT COUNT(*) FROM content_calendar WHERE uid=?",(uid,)).fetchone()[0]>=500: raise HTTPException(400,"Limite de 500 publicações.")
-        pid=c.execute("INSERT INTO content_calendar(uid,day,platform,title,description,tags,status) VALUES(?,?,?,?,?,?,?)",(uid,*vals)).lastrowid
-        c.execute("COMMIT")
-    except Exception: c.execute("ROLLBACK"); raise
-    return {"id":pid}
-
-@router.put("/api/workspace/calendar/{pid}")
-def calendar_edit(pid:int,body:CalendarItem,req:Request):
-    uid=A.current_user(req)["id"]
-    if not A.db().execute("UPDATE content_calendar SET day=?,platform=?,title=?,description=?,tags=?,status=? WHERE id=? AND uid=?",(*calendar_values(body),pid,uid)).rowcount: raise HTTPException(404,"Publicação não encontrada.")
-    return {"ok":True}
-
-@router.delete("/api/workspace/calendar/{pid}")
-def calendar_delete(pid:int,req:Request):
-    uid=A.current_user(req)["id"]
-    if not A.db().execute("DELETE FROM content_calendar WHERE id=? AND uid=?",(pid,uid)).rowcount: raise HTTPException(404,"Publicação não encontrada.")
-    return {"ok":True}
 
 class Opportunity(BaseModel):
     title:str

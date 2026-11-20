@@ -36,14 +36,12 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(A.plan_info(self.u(self.uid))["hd_unlimited"])
         with self.assertRaises(HTTPException) as e:A.use_hd(self.req)
         self.assertEqual(e.exception.status_code,402)
-    def test_calendar_owner(self):
-        item=W.CalendarItem(day="2026-11-20",platform="TikTok",title="Corte")
-        i=W.calendar_add(item,self.req)["id"]
-        self.assertEqual(W.calendar(self.req)[0]["title"],"Corte")
-        self.uid=user()
-        self.assertEqual(W.calendar(self.req),[])
-        with self.assertRaises(HTTPException):W.calendar_delete(i,self.req)
-        with self.assertRaises(HTTPException):W.calendar_edit(i,item,self.req)
+    def test_retired_calendar_preserves_data(self):
+        A.db().execute("INSERT INTO content_calendar(uid,day,platform,title,description,tags,status) VALUES(?,?,?,?,?,?,?)",
+                       (self.uid,"2026-11-20","TikTok","Legacy","","","planejado"))
+        W.init()
+        self.assertEqual(A.db().execute("SELECT title FROM content_calendar WHERE uid=?",(self.uid,)).fetchone()["title"],"Legacy")
+        self.assertFalse(any(r.path.startswith("/api/workspace/calendar") for r in W.router.routes))
     def test_opportunity_admin(self):
         o=W.Opportunity(title="Editor",creator="Teste",platform="Twitch",requirements="Autorizado",url="https://example.com/apply")
         with self.assertRaises(HTTPException):W.opportunity_add(o,self.req)
