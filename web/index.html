@@ -146,6 +146,9 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:30px 0 40px}
 .planpill.free{background:#111113;border:1px solid var(--line);color:var(--muted)}
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--sunset);display:grid;place-items:center;font-weight:900;color:#09090B;text-decoration:none;overflow:hidden;font-size:14px}
 .avatar img{width:100%;height:100%;object-fit:cover}
+.navlevel{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;min-width:48px;padding:5px 7px;border:1px solid var(--line);border-radius:9px;background:#111113;color:var(--muted);text-decoration:none;white-space:nowrap;font-size:10px;line-height:1.12}
+.navlevel b{font-size:12px;color:var(--accent)}.navlevel[data-level="2"] b{color:#60a5fa}.navlevel[data-level="4"] b{color:#facc15}.navlevel[data-level="5"] b{color:#a78bfa}.navlevel:hover,.navlevel:focus-visible{border-color:var(--accent)}.nav .avatar{flex:none}
+@media(max-width:400px){.navlevel{min-width:37px;padding:4px 5px}.navlevel b{font-size:11px}.navlevel small{display:none}.nav .right{gap:4px}}
 @media (max-width:760px){.nav{flex-wrap:wrap}.nav .links{order:3;width:100%}.hide-sm{display:none!important}}
 .view{min-height:60vh}
 .btn.big{padding:16px 28px;font-size:17px;border-radius:14px}
@@ -2910,13 +2913,14 @@ async function loadMe() {
 function setUser(u) {
   const wasId = S.user && S.user.id;
   S.user = u;
-  if (!u || u.id !== wasId) { S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
+  if (!u || u.id !== wasId) { S.creatorLevel = null; S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
   S.plan = u ? Object.assign({}, u) : { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (u && S.project && S.project.guest) setTimeout(claimGuest, 0);
   const gs = document.getElementById('guestSave'); if (gs) gs.classList.toggle('hidden', !!u || !(S.project && S.project.guest));
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
   renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick(); renderOpts(); if (typeof renderDurTabs === 'function') renderDurTabs();
+  if(u && u.id!==wasId && !S.demo) refreshNavLevel(u.id);
 }
 function renderNav() {
   const u = S.user, h = location.hash || '';
@@ -2928,8 +2932,24 @@ function renderNav() {
   const T = (href, ic, txt, extra) => `<a href="${href}" ${extra || ''} class="${h === href ? 'on' : ''}"><i>${ic}</i><span>${txt}</span></a>`;
   $('#tabbar').innerHTML = u ? T('#criar', '✂️', 'Criar') + T('#projetos', '📁', 'Projetos') + T('#creator', '🏆', 'Creator') + T('#estudio', '🎬', 'Estúdio') + T('#precos', '💎', 'Planos') + (u.admin ? T('#metricas', '📊', 'Métricas') : T('#', '📘', 'Tutorial', 'data-tutorial')) : '';
   $('#navRight').innerHTML = u
-    ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' || !sawResult() ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
+    ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' || !sawResult() ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a id="navLevel" class="navlevel hidden" href="#creator" aria-label="Seu nível no Creator Hub"><b></b><small></small></a><a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
     : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
+  paintNavLevel();
+}
+function paintNavLevel(){
+  const el=$('#navLevel'),d=S.creatorLevel;if(!el)return;
+  el.classList.toggle('hidden',!d);if(!d)return;
+  el.dataset.level=String(d.level);el.querySelector('b').textContent='NV. '+d.level;
+  el.querySelector('small').textContent=d.title;
+  el.title=d.title+' · '+d.xp+' XP — Creator Hub';el.setAttribute('aria-label',el.title);
+}
+function updateNavLevel(d){
+  if(!d||!Number.isInteger(d.level)||!Number.isFinite(d.xp)||!S.user)return;
+  if(S.creatorLevel && S.creatorLevel.xp>d.xp)return;
+  S.creatorLevel={level:d.level,title:String(d.title||''),xp:d.xp};paintNavLevel();
+}
+async function refreshNavLevel(uid){
+  try{const r=await fetch(API+'/api/creator/me',{credentials:'include'});if(!r.ok)return;const d=await r.json();if(S.user?.id===uid)updateNavLevel(d);}catch(e){}
 }
 function renderUsage() {
   const b = $('#usageBox'); if (!b) return;
@@ -4625,7 +4645,7 @@ function fillPortfolio(d) {
 async function loadCreator() {
  if(S.demo){$('#creatorStats').textContent='Entre em uma conta real para usar o Creator Hub.';return;}
  const uid=S.user?.id;
- try{const d=await api('/api/creator/me');if(S.user?.id!==uid)return;S.creator=d;drawCreator(d);fillPortfolio(d);}
+ try{const d=await api('/api/creator/me');if(S.user?.id!==uid)return;S.creator=d;updateNavLevel(d);drawCreator(d);fillPortfolio(d);}
  catch(e){$('#creatorStats').textContent=e.message||'Não foi possível carregar. Atualize a página.';}
 }
 async function awardCreator(c) {
@@ -4634,6 +4654,7 @@ async function awardCreator(c) {
    await saveProject();
    if(S.user?.id!==uid||S.project?.id!==pid)return;
    const d=await api('/api/creator/clip',{project_id:pid,index:idx});
+   if(S.user?.id!==uid)return;updateNavLevel(d);
    if(d.added)toast('+'+d.added+' XP · Nível '+d.level+' '+d.title,3500);
  }catch(e){console.warn('XP não registrado',e);}
 }
