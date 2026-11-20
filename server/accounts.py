@@ -370,6 +370,20 @@ def _valid_email(e: str) -> str:
     return e
 
 
+def record_creator_invite(req: Request, uid: int):
+    code = req.cookies.get("nc_invite", "")[:40]
+    if not code:
+        return
+    c = db()
+    # The creator module creates these tables at app startup.
+    if not c.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='creator_profiles'").fetchone():
+        return
+    p = c.execute("SELECT uid FROM creator_profiles WHERE token=?", (code,)).fetchone()
+    if p and p["uid"] != uid:
+        c.execute("INSERT OR IGNORE INTO creator_referrals(invited,inviter,created) VALUES(?,?,?)",
+                  (uid,p["uid"],time.time()))
+
+
 @router.post("/api/auth/signup")
 def signup(body: SignupReq, req: Request, resp: Response):
     throttle("signup:" + (req.client.host if req.client else "?"), 10, 3600)
@@ -380,6 +394,7 @@ def signup(body: SignupReq, req: Request, resp: Response):
         raise HTTPException(409, "Já existe uma conta com esse e-mail. Faça login.")
     cur = db().execute("INSERT INTO users(email,name,pw,created,last_seen) VALUES(?,?,?,?,?)",
                        (email, body.name.strip()[:60], hash_pw(body.password), time.time(), time.time()))
+    record_creator_invite(req, cur.lastrowid)
     set_session(resp, req, cur.lastrowid)
     log_event("sign_up", uid=cur.lastrowid, meta={"via": "email"})
     return user_public(db().execute("SELECT * FROM users WHERE id=?", (cur.lastrowid,)).fetchone())
@@ -473,6 +488,7 @@ def google_cb(req: Request, code: str = "", state: str = ""):
         uid = db().execute("INSERT INTO users(email,name,google_sub,avatar,created,last_seen) VALUES(?,?,?,?,?,?)",
                            (email, info.get("name", ""), info.get("sub"), info.get("picture", ""),
                             time.time(), time.time())).lastrowid
+        record_creator_invite(req, uid)
         log_event("sign_up", uid=uid, meta={"via": "google"})
         u = None
     r = RedirectResponse("/#criar" if u else "/?cadastro=google#criar")
@@ -561,11 +577,19 @@ def use_hd(req: Request):
         return {"ok": True, "hd_left": None}
     if p["plan"] == "free":
         raise HTTPException(402, "Exportar em 1080p é do Pro e do Pro+. No Pro+ é ilimitado.")
-    if p["hd_left"] <= 0:
-        raise HTTPException(402, f"Você já usou as {HD_USES['pro']} exportações em 1080p deste mês. "
-                                 "No Pro+ o 1080p é ilimitado.")
-    db().execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
-    return {"ok": True, "hd_left": p["hd_left"] - 1}
+    c = db()
+    c.execute("BEGIN IMMEDIATE")
+    try:
+        used = hd_used(u["id"])
+        if used >= HD_USES["pro"]:
+            raise HTTPException(402, f"Você já usou as {HD_USES['pro']} exportações em 1080p deste mês. "
+                                     "No Pro+ o 1080p é ilimitado.")
+        c.execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
+        c.execute("COMMIT")
+    except Exception:
+        c.execute("ROLLBACK")
+        raise
+    return {"ok": True, "hd_left": HD_USES["pro"] - used - 1}
 
 
 @router.post("/api/usage/first")

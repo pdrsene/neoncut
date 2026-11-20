@@ -31,6 +31,8 @@ RUN mkdir -p /app/yt-plugins \
     || echo "provedor de PO token nao instalado"
 
 COPY server server
+COPY tests/test_creator.py tests/test_creator.py
+RUN PYTHONPATH=/app python tests/test_creator.py && python -m compileall -q server
 COPY --from=webmin /w/web web
 
 ENV DATA_DIR=/tmp/neoncut PORT=8000

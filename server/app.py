@@ -31,12 +31,13 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 try:
-    from . import accounts, growth, streams, youtube
+    from . import accounts, growth, streams, youtube, creator
 except ImportError:  # executado como script
     import accounts  # type: ignore
     import growth  # type: ignore
     import streams  # type: ignore
     import youtube  # type: ignore
+    import creator  # type: ignore
 
 # ---------------------------------------------------------------- config
 ROOT = Path(__file__).resolve().parent.parent
@@ -156,6 +157,7 @@ app.include_router(accounts.router)
 app.include_router(streams.router)
 app.include_router(youtube.router)
 app.include_router(growth.router)
+app.include_router(creator.router)
 
 
 @app.middleware("http")
