@@ -10,6 +10,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 import secrets
@@ -40,7 +41,7 @@ PRICES = {
     "pro": (_f("PRO_INTRO_PRICE", "12.90"), _f("PRO_PRICE", "19.90")),
     "proplus": (_f("PROPLUS_INTRO_PRICE", "29.90"), _f("PROPLUS_PRICE", "29.90")),
 }
-HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "5"))         # exportações 1080p/mês no Grátis e no Pro
+HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "10"))         # exportações 1080p/mês no Grátis e no Pro
 # limites de cada plano: vídeos/mês, minutos por vídeo, minutos de live
 LIMITS = {
     "free": (int(os.environ.get("FREE_PROJECTS", "3")), _f("FREE_MAX_MINUTES", "30"), _f("FREE_LIVE_MINUTES", "10")),
@@ -656,7 +657,14 @@ def apply_payment(payment_id: str) -> str:
         plan = "pro"
     if plan not in PRICES:
         return "invalid"
-    amount = float(p.get("transaction_amount") or 0)
+    try:
+        amount = float(p.get("transaction_amount") or 0)
+    except (TypeError, ValueError):
+        return "invalid"
+    if not math.isfinite(amount) or amount <= 0 or str(p.get("id")) != str(payment_id) or p.get("currency_id") != "BRL":
+        return "invalid"
+    if not db().execute("SELECT 1 FROM users WHERE id=?", (uid,)).fetchone():
+        return "invalid"
     c = db()
     with _PAY_LOCK:  # retorno do checkout e webhook podem chegar juntos: só um libera os 30 dias
         c.execute("BEGIN IMMEDIATE")
@@ -667,7 +675,7 @@ def apply_payment(payment_id: str) -> str:
                 return "approved"
             if status == "approved":
                 floor = expected if expected is not None else min(PRICES[plan])
-                if amount + 0.01 < min(floor, max(PRICES[plan])):
+                if not math.isfinite(floor) or floor <= 0 or amount + 0.01 < floor:
                     status = "amount_mismatch"   # não conta como venda nem libera o plano
             c.execute("INSERT OR REPLACE INTO payments(id,user_id,plan,amount,status,created,reported) VALUES(?,?,?,?,?,?,0)",
                       (str(payment_id), uid, plan, amount, status, time.time()))
@@ -724,7 +732,8 @@ async def billing_webhook(req: Request):
         try:
             apply_payment(str(pid))
         except HTTPException:
-            pass
+            # Return retryable status instead of acknowledging a failed upstream lookup.
+            raise HTTPException(503, "Confirmação temporariamente indisponível.")
     return {"ok": True}
 
 
