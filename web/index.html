@@ -1015,7 +1015,8 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
   <!-- UPLOAD -->
   <section class="panel quick" id="upload">
     <div class="inapp hidden" data-inapp></div>
-    <div class="modesw" role="tablist" aria-label="Modo de criação"><button type="button" data-mode="quick" class="on" role="tab">Modo rápido</button><button type="button" data-mode="adv" role="tab">Modo avançado</button></div>
+    <div class="modesw" role="tablist" aria-label="Modo de criação"><button type="button" data-mode="quick" class="on" role="tab">⚡ Modo Turbo</button><button type="button" data-mode="adv" role="tab">✦ IA Avançada</button></div>
+    <p id="modeDescription" class="note" style="margin:-6px 0 18px;line-height:1.5"></p>
     <div class="demotag hidden" id="sampleTag" style="margin-bottom:12px">MODO DEMONSTRAÇÃO · vídeo de exemplo</div>
     <div class="guestbar hidden" id="guestBar"><span>🎁 <b>Teste grátis, sem cadastro.</b> Envie um vídeo seu e veja os cortes prontos. Para baixar, é só criar a conta (10 segundos).</span><div class="spacer"></div><button class="btn ghost small" data-auth-open="login">Já tenho conta</button></div>
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
@@ -1651,17 +1652,17 @@ async function bandRender(buf, type, freq, Q) {
 }
 function rmsDb(d, a, b) { let s = 0; for (let i = a; i < b; i++) s += d[i] * d[i]; return 10 * Math.log10(s / Math.max(1, b - a) + 1e-10); }
 
-async function audioFeatures(audio, onProg) {
+async function audioFeatures(audio, onProg, turbo = false) {
   const { buf, mono } = audio;
   onProg(.1);
   // os dois filtros rodam ao mesmo tempo (o navegador processa fora da tela principal)
-  const [voice, low] = await Promise.all([bandRender(buf, 'bandpass', 1100, 0.7), bandRender(buf, 'lowpass', 140, 0.7)]); onProg(.6);
+  const [voice, low] = turbo ? [await bandRender(buf, 'bandpass', 1100, 0.7), null] : await Promise.all([bandRender(buf, 'bandpass', 1100, 0.7), bandRender(buf, 'lowpass', 140, 0.7)]); onProg(.6);
   const hop = Math.round(HOP * SR), n = Math.floor(mono.length / hop);
   const F = { loud: new Float32Array(n), voice: new Float32Array(n), low: new Float32Array(n), flux: new Float32Array(n) };
   const sub = Math.round(hop / 10); let prevE = -100;
   for (let i = 0; i < n; i++) {
     const a = i * hop, b = a + hop;
-    F.voice[i] = rmsDb(voice, a, b); F.low[i] = rmsDb(low, a, b);
+    F.voice[i] = rmsDb(voice, a, b); F.low[i] = low ? rmsDb(low, a, b) : -100;
     // volume geral e "fluxo" (subidas bruscas) calculados na mesma passada pelo áudio
     let fl = 0, tot = 0;
     for (let k = 0; k < 10; k++) {
@@ -1891,6 +1892,7 @@ function findMoments(F, V, dur, D, N, focus, opts) {
   let wts;
   if (!F) wts = { motion: 1 };
   else { wts = Object.assign({}, FOCUS_W[focus] || FOCUS_W.viral); if (opts.boostVoice && wts.voice != null) wts.voice *= 1.8; if (!Z.motion) { const mv = wts.motion || 0; delete wts.motion; for (const k in wts) wts[k] *= (1 + mv); } }
+  if(F && opts.turbo) wts = {loud:.30,voice:.40,flux:.30};
   const ex = new Float32Array(n);
   for (const k in wts) if (Z[k]) for (let i = 0; i < n; i++) ex[i] += wts[k] * Z[k][i];
   const s1 = movAvg(ex, 4);
@@ -2682,7 +2684,8 @@ $('#go').onclick = async () => {
   try { if (sample) S.project = { id: null, sample: true, guest: false, kind: 'file', source: S.file.name, title: S.sample.title }; else await startProject(); }
   catch (e) { go.disabled = false; track('generation_failed', { code: e.status ? 'http' + e.status : 'start', stage: 'inicio', msg: shortMsg(e), mode: S.mode }); if (e.status === 402) openUpgrade(e.message); else if (e.status !== 401) { if (S.mode === 'link') showLinkErr(e.message); else toast(e.message, 5000); } return; }
   go.disabled = false;
-  S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: $('#optSilence') ? $('#optSilence').checked : true };
+  const turbo = $('#upload').classList.contains('quick');
+  S.settings = { turbo, D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: !turbo && $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: turbo || ($('#optSilence') ? $('#optSilence').checked : true) };
   if (S.settings.tpl === 'raw') S.settings.model = 'none'; // formato original não renderiza legendas
   if (sample) { S.settings.N = S.sample.has_audio ? 2 : 3; S.settings.D = Math.min(S.sample.has_audio ? 12 : 30, S.settings.D); if (S.sample.builtin && !S.sample.has_audio) S.settings.model = 'none'; }
   track('generation_started', { mode: S.mode, quick: $('#upload').classList.contains('quick') ? 1 : 0, focus: S.settings.focus, n: S.settings.N, demo: sample ? 1 : 0, guest: S.user ? 0 : 1 });
@@ -2705,7 +2708,7 @@ async function pipelineRun(skip) {
   S.fullIndex=null;$('#fullHits').textContent='';$('#fullState').textContent='';$('#fullPreview').pause();$('#fullPreview').removeAttribute('src');$('#fullPreview').classList.add('hidden');
   // a IA de legendas começa a baixar/carregar JÁ, enquanto o vídeo baixa e é analisado
   let asrP = null;
-  if (wantCaps && !lowMemory) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
+  if (wantCaps && !lowMemory && !S.settings.turbo) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
   const st7 = $('#st7'); if (st7) st7.classList.add('hidden'); // legendar agora acontece depois, com os cortes já na tela
   if (S.mode === 'link') { let f;try{f=await fetchRemote();}catch(e){e.ncRemoteFailure=true;throw e;} S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
   const pv = $('#pv'), ev = $('#ev'), av = $('#av');
@@ -2716,21 +2719,22 @@ async function pipelineRun(skip) {
   const audioJob = (async () => {
     const audio = await decodeAudio(S.file);
     S.pcm = audio ? audio.mono : null; step(2, 'done'); mark('decode');
-    S.feats = audio ? await audioFeatures(audio, p => step(3, 'active', Math.round(p * 100) + '%')) : null;
+    S.feats = audio ? await audioFeatures(audio, p => step(3, 'active', Math.round(p * 100) + '%'), S.settings.turbo) : null;
     step(3, 'done'); mark('som');
   })();
   if(lowMemory) await audioJob; // avoid simultaneous decoder allocations on mobile
   const visJob = skip.includes(4) ? Promise.resolve(null)
     : visualFeatures(av, S.duration, p => step(4, 'active', Math.round(p * 100) + '%'), S.file).then(v => { step(4, 'done'); mark('imagem'); lap.players = v && v.K; return v; });
-  const [, V] = await Promise.all([audioJob, visJob]);
-  if(wantCaps && lowMemory){onDl=capDlProgress;asrP=S.asrInfo&&S.asrInfo.size===S.settings.model?Promise.resolve(S.asrInfo):loadASR(S.settings.model);asrP.then(()=>step(6,'done'),()=>step(6,'done'));}
+  let [, V] = await Promise.all([audioJob, visJob]);
+  if(S.settings.turbo && !S.pcm) { $('#st4')?.classList.remove('hidden'); step(4,'active'); V=await visualFeatures(av,S.duration,p=>step(4,'active',Math.round(p*100)+'%'),S.file); step(4,'done'); }
+  if(wantCaps && (lowMemory || S.settings.turbo)){onDl=capDlProgress;asrP=S.asrInfo&&S.asrInfo.size===S.settings.model?Promise.resolve(S.asrInfo):loadASR(S.settings.model);asrP.then(()=>step(6,'done'),()=>step(6,'done'));}
   // momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
   // Quick mode displays audio/visual candidates immediately; advanced mode retains strict speech confirmation.
   const quickMode = $('#upload').classList.contains('quick');
-  const spokenMode = !quickMode && wantCaps && !!S.pcm && !S.sample && S.settings.focus === 'viral';
-  const pool = findMoments(S.feats,V,S.duration,D,spokenMode ? Math.min(S.settings.N+2,12) : S.settings.N,S.settings.focus,{sens:S.settings.sens,boostVoice:S.settings.boostVoice,snapSilence:S.settings.snapSilence});
+  const spokenMode = !quickMode && wantCaps && !!S.pcm && !S.sample;
+  const pool = findMoments(S.feats,V,S.duration,D,spokenMode ? Math.min(S.settings.N+2,12) : S.settings.N,S.settings.focus,{sens:S.settings.sens,boostVoice:S.settings.boostVoice,snapSilence:S.settings.snapSilence,turbo:S.settings.turbo});
   let selectionNote=null;
   if(spokenMode){
     const selected=await chooseSpokenMoments(pool,S.settings.N,asrP);
@@ -2740,7 +2744,7 @@ async function pipelineRun(skip) {
     else if(S.clips.length<S.settings.N) selectionNote='Mostrando apenas momentos que atingiram 60 pontos.';
   }else S.clips=pool;
   const kit = brandKit();
-  const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { credit: _cr, hookOn: true, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
+  const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { credit: _cr, hookOn: !S.settings.turbo, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
   S.clips.sort((a, b) => b.score - a.score); S.clips.forEach((c, i) => c.idx = i);
   autoTitles(S.clips);
@@ -2845,8 +2849,8 @@ function showResults(capErr) {
 }
 function resSubText() {
   const asr = S.asrInfo ? ` · Legendas: ${S.asrInfo.device === 'webgpu' ? 'GPU' : 'CPU'}${S.asrInfo.wordMode ? ', palavra a palavra' : ''}` : '';
-  const provisional = S.capRunning && $('#upload').classList.contains('quick');
-  return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo${provisional ? ' · sugestões iniciais por áudio/imagem; refinando falas' : ' · nota estimada de viralização'}${asr}. Clique para ajustar.`;
+  const provisional = S.capRunning && S.settings?.turbo;
+  return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo${provisional ? ' · sugestões por intensidade; legendando falas' : ' · nota estimada de viralização'}${asr}. Clique para ajustar.`;
 }
 function renderGrid() {
   $('#grid').innerHTML = S.clips.map(c => `
@@ -4182,7 +4186,7 @@ $('#focusTabs').addEventListener('click', e => {
   S.focus = b.dataset.focus;
   document.querySelectorAll('#focusTabs [data-focus]').forEach(x => x.classList.toggle('on', x === b));
   $('#focusHint').textContent = FOCUS_HINT[S.focus];
-  $('#optVisual').checked = FOCUS_VISUAL[S.focus];
+  $('#optVisual').checked = !$('#upload').classList.contains('quick');
   if ($('#optVoice')) $('#optVoice').checked = ['podcast', 'dicas', 'humor'].includes(S.focus);
 });
 // ---------- duração em faixas ----------
@@ -4762,13 +4766,16 @@ $('#autoBox').addEventListener('change', e => {
 function setMode(m, save) {
   const q = m !== 'adv', up = $('#upload'); if (!up) return;
   up.classList.toggle('quick', q);
+  $('#modeDescription').textContent = q ? 'Mais rápido · GTA, gameplays e lives. Seleção por picos de áudio, intensidade e sinais de reação; bordas ajustadas por pausas e legendas apenas nos cortes escolhidos.' : 'Mais detalhado · podcasts, entrevistas e debates. Analisa sinais visuais e falas dos candidatos, classifica os trechos e prioriza o contexto. Pode demorar mais.';
+  $('#optVisual').checked = !q;
+  if(q && !save && $('#optModel').querySelector('option[value="tiny"]')) $('#optModel').value='tiny';
   document.querySelectorAll('.modesw [data-mode]').forEach(b => { const on = (b.dataset.mode === 'quick') === q; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
   if (q && !save && !$('#autoBox').dataset.ready) {
     $('#optN').value = '3'; S.durTab = '60'; $('#optDur').value = '60'; $('#durCustomWrap').style.display = 'none';
     document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x.dataset.dur === '60'));
-    if (S.defModel && [...$('#optModel').options].some(o => o.value === S.defModel)) $('#optModel').value = S.defModel;
+    if ([...$('#optModel').options].some(o => o.value === 'tiny')) $('#optModel').value = 'tiny';
     $('#optHook').checked = false; if ($('#optSens')) $('#optSens').value = 3; if ($('#optSilence')) $('#optSilence').checked = true;
-    $('#optVisual').checked = FOCUS_VISUAL[S.focus || 'viral'] !== false;
+    $('#optVisual').checked = false;
     renderOpts();
   }
   syncQuickDuration();
