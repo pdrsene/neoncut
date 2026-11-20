@@ -36,6 +36,24 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(A.plan_info(self.u(self.uid))["hd_unlimited"])
         with self.assertRaises(HTTPException) as e:A.use_hd(self.req)
         self.assertEqual(e.exception.status_code,402)
+    def test_import_fast_path_and_timeout(self):
+        import sys
+        from server import app as B
+        self.assertTrue(B.whole_requested(120,0,120))
+        self.assertFalse(B.whole_requested(3600,0,300))
+        self.assertFalse(B.whole_requested(120,10,120))
+        self.assertFalse(B.whole_download_allowed(None,0,300))
+        self.assertFalse(B.whole_download_allowed(100000,0,300))
+        self.assertIn("height<=480",B.import_format(480))
+        self.assertNotIn("/bv*+ba/b",B.import_format(480))
+        j={"dir":tmp.name,"progress":0}
+        code,log=B.stream_proc([sys.executable,"-c","print('[download] 40%');print('[download] 20%')"],j,30,"Teste",5)
+        self.assertEqual(code,0)
+        self.assertAlmostEqual(j["progress"],.4)
+        begin=time.monotonic()
+        with self.assertRaises(subprocess.TimeoutExpired):
+            B.stream_proc([sys.executable,"-c","import time;time.sleep(10)"],j,30,"Teste",.2)
+        self.assertLess(time.monotonic()-begin,3)
     def test_youtube_canonical_and_reference(self):
         from server import app as B
         canonical="https://www.youtube.com/watch?v=jNQXAC9IVRw"

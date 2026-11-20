@@ -12,6 +12,9 @@ Rodar localmente:
 from __future__ import annotations
 
 import json
+import math
+import selectors
+import signal
 import os
 import re
 import secrets
@@ -29,7 +32,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 try:
     from . import accounts, growth, streams, youtube, creator, workspace
@@ -236,6 +239,7 @@ JOBS: dict[str, dict] = {}
 LOCK = threading.Lock()
 SLOTS = threading.Semaphore(MAX_PARALLEL)
 HITS: dict[str, list[float]] = {}
+VIDEO_INFO: dict[tuple[int,str],tuple[float,float]] = {}  # bounded, short-lived duration cache
 
 
 def client_ip(req: Request) -> str:
@@ -291,6 +295,14 @@ def info(body: InfoReq, req: Request):
     j = json.loads(r.stdout)
     if j.get("_type") == "playlist" and j.get("entries"):
         j = j["entries"][0]
+    video_url = j.get("webpage_url") or body.url
+    duration=j.get("duration")
+    if isinstance(duration,(int,float)) and math.isfinite(duration) and duration>0 and not j.get("is_live"):
+        with LOCK:
+            for key in {body.url,video_url}:
+                VIDEO_INFO[(u["id"],key)]=(time.monotonic(),float(duration))
+            while len(VIDEO_INFO)>256:
+                VIDEO_INFO.pop(next(iter(VIDEO_INFO)))
     return {
         "platform": plat,
         "title": j.get("title") or "Vídeo",
@@ -336,6 +348,20 @@ class JobReq(BaseModel):
     start: float = 0
     end: float | None = None
     live_minutes: float | None = None  # para lives: grava os próximos N minutos
+    quality: int = Field(default=720)
+
+
+def import_format(quality: int) -> str:
+    # Explicitly requested 480p has no silent higher-resolution fallback.
+    return f"bv*[height<={quality}][vcodec^=avc1]+ba[ext=m4a]/b[height<={quality}][vcodec^=avc1]/bv*[height<={quality}]+ba/b[height<={quality}]" + ("/bv*+ba/b" if quality==720 else "")
+
+
+def whole_download_allowed(duration, start, end):
+    return bool(duration and math.isfinite(duration) and duration<=900 and duration<=max(1,end-start)*1.25+5)
+
+
+def whole_requested(duration,start,end):
+    return whole_download_allowed(duration,start,end) and start<=.01 and end>=duration-.55
 
 
 @app.post("/api/jobs")
@@ -345,6 +371,8 @@ def create_job(body: JobReq, req: Request):
     max_min, max_live = min(MAX_MINUTES, plan["max_minutes"]), min(MAX_LIVE_MINUTES, plan["max_live_minutes"])
     plat = check_url(body.url)
     if plat=="youtube":body.url=youtube_canonical(body.url)
+    if body.quality not in (480,720) or not math.isfinite(body.start) or (body.end is not None and not math.isfinite(body.end)):
+        raise HTTPException(400,"Qualidade ou trecho inválido.")
     if body.live_minutes is not None:
         if not (0.5 <= body.live_minutes <= max_live):
             raise HTTPException(400, f"No seu plano, grave entre 1 e {int(max_live)} minutos da live.")
@@ -361,7 +389,9 @@ def create_job(body: JobReq, req: Request):
             raise HTTPException(429, "Você já tem downloads em andamento. Espere terminarem.")
         rate_limit(f"u{u['id']}")
         jid = uuid.uuid4().hex[:12]
-        job = {"id": jid, "ip": client_ip(req), "uid": u["id"], "url": body.url, "platform": plat, "status": "queued",
+        cached=VIDEO_INFO.get((u["id"],body.url))
+        duration=cached[1] if cached and time.monotonic()-cached[0]<900 else None
+        job = {"id": jid, "ip": client_ip(req), "uid": u["id"], "url": body.url, "platform": plat, "status": "queued","known_duration":duration,
                "progress": 0.0, "message": "Na fila…", "error": None, "file": None, "size": 0,
                "created": time.time(), "req": body.model_dump()}
         JOBS[jid] = job
@@ -403,33 +433,43 @@ PCT_RE = re.compile(r"\[download\]\s+(\d+(?:\.\d+)?)%")
 
 def stream_proc(cmd: list[str], job: dict, total_secs: float | None, label: str, timeout: float) -> tuple[int, str]:
     """Roda um processo, lê o progresso (yt-dlp % ou ffmpeg time=) e devolve (código, log)."""
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=job["dir"])
-    log, buf, t0 = [], b"", time.time()
-    while True:
-        ch = proc.stdout.read(1)
-        if not ch:
-            break
-        if ch in (b"\r", b"\n"):
-            line = buf.decode("utf-8", "replace"); buf = b""
-            if not line.strip():
-                continue
-            log.append(line); log[:] = log[-80:]
-            m = PCT_RE.search(line)
-            if m:
-                job["progress"] = min(.99, float(m.group(1)) / 100)
-            m = TIME_RE.search(line)
-            if m and total_secs:
-                secs = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3))
-                job["progress"] = min(.99, secs / total_secs)
-            job["message"] = f"{label} {int(job['progress'] * 100)}%"
-        else:
-            buf += ch
-        if time.time() - t0 > timeout:
-            proc.kill()
-            log.append("timeout")
-            break
-    proc.wait()
-    return proc.returncode, "\n".join(log)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=job["dir"], start_new_session=True)
+    log, buf = [], b""
+    deadline=time.monotonic()+timeout
+    def consume(raw):
+        line=raw.decode("utf-8","replace").strip()
+        if not line:return
+        log.append(line[:2000]);log[:]=log[-80:]
+        m=PCT_RE.search(line)
+        q=float(m.group(1))/100 if m else None
+        m=TIME_RE.search(line)
+        if m and total_secs:
+            q=(int(m.group(1))*3600+int(m.group(2))*60+float(m.group(3)))/total_secs
+        if q is not None:
+            job["progress"]=max(job.get("progress",0),min(.99,max(0,q)))
+        job["message"]=f"{label} {int(job.get('progress',0)*100)}%"
+    try:
+        with selectors.DefaultSelector() as sel:
+            sel.register(proc.stdout,selectors.EVENT_READ)
+            while True:
+                remaining=deadline-time.monotonic()
+                if remaining<=0:raise subprocess.TimeoutExpired(cmd,timeout)
+                if not sel.select(min(1,remaining)):continue
+                data=os.read(proc.stdout.fileno(),16384)
+                if not data:break
+                parts=re.split(br"[\r\n]",buf+data)
+                buf=parts.pop()[-8192:]
+                for line in parts:consume(line)
+            if buf:consume(buf)
+            proc.wait(timeout=max(.01,deadline-time.monotonic()))
+    except BaseException:
+        try:os.killpg(proc.pid,signal.SIGKILL)
+        except ProcessLookupError:pass
+        proc.wait()
+        raise
+    finally:
+        proc.stdout.close()
+    return proc.returncode,"\n".join(log)
 
 
 def ffprobe_codec(path: Path) -> tuple[str, bool]:
@@ -473,10 +513,11 @@ def run_job(job: dict):
         try:
             wait_for_disk(job)
             job["status"] = "downloading"; job["message"] = "Conectando na plataforma…"
-            fmt = "bv*[height<=720][vcodec^=avc1]+ba[ext=m4a]/bv*[height<=720]+ba/b[height<=720]/bv*+ba/b"
+            quality=r.get("quality",720)
+            fmt=import_format(quality)
             if r.get("live_minutes"):
                 secs = r["live_minutes"] * 60
-                g = subprocess.run(ytdlp_base(job["url"]) + ["-g", "-f", "b[height<=720]/b", job["url"]],
+                g = subprocess.run(ytdlp_base(job["url"]) + ["-g", "-f", f"b[height<={quality}]"+("/b" if quality==720 else ""), job["url"]],
                                    capture_output=True, text=True, timeout=60)
                 if g.returncode != 0 or not g.stdout.strip():
                     raise RuntimeError(friendly_error(g.stderr or g.stdout))
@@ -486,10 +527,14 @@ def run_job(job: dict):
                 code, log = stream_proc(cmd, job, secs, "Gravando a live…", secs + 300)
             else:
                 start, end = float(r.get("start") or 0), float(r["end"])
-                tail = ["-f", fmt, "-S", "res:720,vcodec:h264,acodec:m4a", "--merge-output-format", "mp4", "--newline", "-o", "raw.%(ext)s"]
+                tail = ["-f", fmt, "-S", f"res:{quality},vcodec:h264,acodec:m4a", "--merge-output-format", "mp4", "--newline", "-o", "raw.%(ext)s"]
                 cmd = ytdlp_base(job["url"]) + tail
-                code, log = stream_proc(cmd + ["--download-sections", f"*{start:.2f}-{end:.2f}", job["url"]],
-                                        job, end - start, "Baixando…", MAX_MINUTES * 60 * 2 + 600)
+                duration=job.get("known_duration")
+                native=whole_requested(duration,start,end)
+                section=[] if native else ["--download-sections", f"*{start:.2f}-{end:.2f}"]
+                timeout=min(MAX_MINUTES*120+600,max(120,(end-start)*2+120))
+                code, log = stream_proc(cmd + section + [job["url"]],
+                                        job, end - start, "Baixando…", timeout)
                 if not valid_video(find_raw(d)) and is_youtube(job["url"]) and is_bot_check(log):
                     # verificação anti-robô do YouTube: tenta de novo com outros clientes do YouTube
                     global _yt_alt_until
@@ -497,18 +542,19 @@ def run_job(job: dict):
                         if p.name.startswith("raw."):
                             p.unlink(missing_ok=True)
                     cmd = ytdlp_base(job["url"], alt=True) + tail
-                    code, log = stream_proc(cmd + ["--download-sections", f"*{start:.2f}-{end:.2f}", job["url"]],
-                                            job, end - start, "Baixando…", MAX_MINUTES * 60 * 2 + 600)
+                    job["progress"]=0
+                    code, log = stream_proc(cmd + section + [job["url"]],
+                                            job, end - start, "Baixando…", timeout)
                     if valid_video(find_raw(d)):
                         _yt_alt_until = time.time() + 1800
                 raw = find_raw(d)
-                if not valid_video(raw) and "sign in" not in log.lower():
-                    # alguns sites não aceitam baixar só um trecho: baixa tudo e corta aqui
+                if not valid_video(raw) and not native and whole_download_allowed(duration,start,end) and not any(x in log.lower() for x in ("sign in","private","drm","not a bot","403","429")):
+                    # Only retry with a whole download when its known length is close to the requested range; never fetch hours silently.
                     for p in d.iterdir():
                         if p.name.startswith("raw."):
                             p.unlink(missing_ok=True)
                     job["message"] = "Baixando o vídeo inteiro…"; job["progress"] = 0
-                    code, log = stream_proc(cmd + [job["url"]], job, None, "Baixando…", MAX_MINUTES * 60 * 4 + 900)
+                    code, log = stream_proc(cmd + [job["url"]], job, None, "Baixando…", timeout)
                     full = find_raw(d)
                     if valid_video(full):
                         cut = d / "raw.cut.mp4"
@@ -518,7 +564,14 @@ def run_job(job: dict):
                         cut.rename(d / "raw.mp4")
             raw = find_raw(d)
             if not valid_video(raw):
-                raise RuntimeError(friendly_error(log) if code != 0 else "Não consegui baixar o vídeo.")
+                raise RuntimeError(friendly_error(log) if code != 0 else "Não consegui baixar o trecho. Tente um intervalo menor ou envie o arquivo original.")
+            actual=probe_duration(raw)
+            if not actual or not math.isfinite(actual) or actual<=0:
+                raise RuntimeError("O vídeo recebido está incompleto.")
+            if not r.get("live_minutes"):
+                expected=min(end-start,max(0,duration-start)) if duration else end-start
+                if code!=0 or actual<max(.5,expected-min(5,expected*.1)) or actual>end-start+10:
+                    raise RuntimeError("O download não entregou o trecho completo. Tente um intervalo menor ou envie o arquivo original.")
             job["status"] = "processing"; job["message"] = "Preparando o vídeo…"; job["progress"] = 0
             vcodec, has_audio = ffprobe_codec(raw)
             out = d / "video.mp4"
@@ -537,6 +590,8 @@ def run_job(job: dict):
             job.update(status="error", error="A plataforma demorou demais para responder.", message="Erro")
         except Exception as e:  # noqa
             job.update(status="error", error=str(e)[:400], message="Erro")
+        finally:
+            if job["status"]=="error":shutil.rmtree(d,ignore_errors=True)
 
 
 def free_mb() -> float:

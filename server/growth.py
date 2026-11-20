@@ -234,6 +234,7 @@ def admin_funnel(req: Request, days: int = 30):
 
     steps_by_vid: dict[str, set] = defaultdict(set)
     errors, err_stage, proc_ms, export_fail = Counter(), Counter(), [], Counter()
+    stage_times=defaultdict(list)
     sessions = set()
     sources_utm = Counter()
     revenue, purchases = 0.0, 0
@@ -269,6 +270,11 @@ def admin_funnel(req: Request, days: int = 30):
             errors["js: " + (m.get("msg") or "?")] += 1
         if r["kind"] in ("generation_completed",) and isinstance(m.get("ms"), (int, float)):
             proc_ms.append(m["ms"])
+            if not m.get("demo"):
+                for key in ("download_ms","analysis_ms","preview_ms"):
+                    v=m.get(key)
+                    if isinstance(v,(int,float)) and 0<v<=86400000:
+                        stage_times[key].append(v)
 
     # quem fez cadastro/compra mas não tem eventos no período ainda conta (vem do banco)
     def count(step):
@@ -320,7 +326,8 @@ def admin_funnel(req: Request, days: int = 30):
         "generation": {"started": started, "completed": completed, "failed_users": failed_v,
                        "success_pct": round(100 * completed / started) if started else None,
                        "avg_ms": round(sum(proc_ms) / len(proc_ms)) if proc_ms else None,
-                       "median_ms": sorted(proc_ms)[len(proc_ms) // 2] if proc_ms else None},
+                       "median_ms": sorted(proc_ms)[len(proc_ms) // 2] if proc_ms else None,
+                       "stages":[{"key":k,"median_ms":sorted(v)[len(v)//2],"n":len(v)} for k,v in stage_times.items()]},
         "errors": [{"k": k, "n": n} for k, n in errors.most_common(12)],
         "error_stages": [{"k": k, "n": n} for k, n in err_stage.most_common()],
         "export_errors": [{"k": k, "n": n} for k, n in export_fail.most_common(8)],

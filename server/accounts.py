@@ -920,7 +920,7 @@ TRACK_KINDS = {"visit", "link", "clip_generated", "export", "upgrade_open", "sig
                "survey_shown", "inapp_open_browser", "js_error"}
 SAFE_META = {"n", "dur", "mode", "guest", "tpl", "why", "path", "login", "src", "kind", "code", "stage", "ms", "msg", "q",
              "demo", "first_free", "share", "focus", "quick", "size_mb", "cat", "plan", "utm_source", "utm_medium",
-             "utm_campaign", "utm_content", "utm_term", "gclid", "fbclid", "ttclid", "lp", "vw", "id"}
+             "utm_campaign", "utm_content", "utm_term", "gclid", "fbclid", "ttclid", "lp", "vw", "id","download_ms","analysis_ms","preview_ms"}
 
 
 def ua_info(ua: str) -> dict:

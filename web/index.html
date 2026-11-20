@@ -1034,6 +1034,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
               <label class="f">Começar em<input type="text" id="liStart" value="0:00" class="tpick" readonly inputmode="none"></label>
               <label class="f">Terminar em<input type="text" id="liEnd" class="tpick" readonly inputmode="none"></label>
             </div>
+            <div class="row" style="flex-wrap:wrap;margin-top:10px" id="rangePresets"><button type="button" class="btn ghost small" data-range-min="5">5 min · rápido</button><button type="button" class="btn ghost small" data-range-min="15">15 min</button><button type="button" class="btn ghost small" data-range-min="max">Máximo do plano</button></div>
             <p class="note" id="liHint" style="margin:8px 0 0"></p>
           </div>
           <div id="liLive" class="hidden">
@@ -1044,6 +1045,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
           </div>
         </div>
       </div>
+      <label class="f hidden" id="importQualityWrap" style="margin-top:12px">Qualidade de importação por link<select id="importQuality"><option value="720" selected>720p · qualidade padrão</option><option value="480">480p · download mais leve (menos detalhes)</option></select><small class="note">A qualidade de exportação é independente: 1080p continua disponível conforme seu plano, mas não recupera detalhes de uma fonte 480p.</small></label>
     </div>
     <div id="tabFile" class="hidden">
     <p id="ytFileRef" class="note hidden"></p>
@@ -1146,7 +1148,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
   <section class="panel hidden" id="proc">
     <h2>Cortando seu gameplay…</h2>
     <p class="sub">Deixe esta aba aberta. Na primeira vez, a IA de legendas é baixada e fica salva no navegador.</p>
-    <div class="steps" id="steps"></div>
+    <p class="note" id="procDetail" role="status">Preparando a análise…</p><div class="steps" id="steps"></div>
     <div class="bar"><i id="pbar"></i></div>
   </section>
 
@@ -1774,7 +1776,8 @@ async function visualFeatures(v, dur, onProg, file) {
     return { g, br: br / N };
   };
   const motion = (a, b) => { let diff = 0; for (let i = 0; i < N; i++) diff += Math.abs(b.g[i] - a.g[i]); return diff / N + 0.6 * Math.max(0, b.br - a.br); };
-  const sampleStep = dur <= 1200 ? 1.2 : dur <= 3600 ? 2 : 3;
+  const quick=$('#upload').classList.contains('quick');
+  const sampleStep = Math.max(dur <= 1200 ? 1.2 : dur <= 3600 ? 2 : 3,quick?dur/160:0);
   try { const kfr = await keyframeMotion(file, dur, onProg, sampleStep); if (kfr) return kfr; }
   catch (e) { console.warn('leitura de quadros-chave indisponível', e); }
   // amostragem por seek (reserva, e para tapar trechos que falharem)
@@ -1787,7 +1790,7 @@ async function visualFeatures(v, dur, onProg, file) {
   // CAMINHO RÁPIDO: o vídeo é dividido em trechos e cada trecho toca em 16x num player
   // próprio, AO MESMO TEMPO. Decodificar em sequência é muito mais rápido que dar centenas de
   // "seek", e vários players em paralelo usam todos os núcleos do processador.
-  if (v.requestVideoFrameCallback && dur > 0) {
+  if (v.requestVideoFrameCallback && dur > 0 && !(quick && dur>180)) {
     const cores = navigator.hardwareConcurrency || 4;
     const phone = matchMedia('(pointer:coarse)').matches;
     const K = dur < 40 ? 1 : Math.max(1, Math.min(phone ? 2 : 6, Math.max(phone ? 1 : 2, Math.floor(cores / 2)), Math.ceil(dur / 25)));
@@ -1834,7 +1837,7 @@ async function visualFeatures(v, dur, onProg, file) {
     }
   }
   // RESERVA: seek com teto de amostras, pra não travar em vídeos longos.
-  const MAX = 300, step = Math.max(sampleStep, dur / MAX);
+  const MAX = quick?120:300, step = Math.max(sampleStep, dur / MAX);
   return { step, vals: await seekRange(0, dur, step, onProg), K: 0 };
 }
 
@@ -2388,7 +2391,7 @@ document.querySelectorAll('.tab').forEach(b => b.onclick = (ev) => {
   if (ev && ev.isTrusted) track('source_selected', { src: S.mode });
   updateGo();
 });
-function updateGo() { $('#go').disabled = S.mode === 'link' ? !S.link : !S.file; }
+function updateGo() { $('#go').disabled = S.mode === 'link' ? !S.link : !S.file; $('#importQualityWrap').classList.toggle('hidden', S.mode!=='link'||!S.link); }
 if (IS_MOBILE) setTimeout(() => { const t = document.querySelector('.tab[data-tab="file"]'); if (t && S.mode === 'link' && !S.link) t.click(); }, 0);
 $('#url').addEventListener('input', e => {
   const v = e.target.value; document.querySelectorAll('#plats span').forEach(sp => sp.classList.toggle('on', PLAT_RE[sp.dataset.p].test(v)));
@@ -2413,10 +2416,8 @@ $('#fetchInfo').onclick = async () => {
     $('#liMeta').innerHTML = (info.is_live ? '<span class="live">AO VIVO</span>' : '') + `${PLAT_NAME[info.platform] || 'Link'} · ${esc(info.uploader || '')}${info.duration ? ' · ' + fmtH(info.duration) : ''}`;
     $('#liVod').classList.toggle('hidden', info.is_live); $('#liLive').classList.toggle('hidden', !info.is_live);
     const maxS = info.max_minutes * 60;
-    $('#liStart').value = '0:00'; $('#liEnd').value = fmtH(info.duration ? Math.min(info.duration, maxS) : maxS);
-    $('#liHint').textContent = info.duration > maxS
-      ? `Vídeo longo: escolha um trecho de até ${info.max_minutes} minutos onde rolou a ação. Dá para gerar outro trecho depois.`
-      : `Até ${info.max_minutes} minutos por vez.`;
+    $('#liStart').value = '0:00'; $('#liEnd').value = fmtH(Math.min(info.duration || maxS,maxS,300));
+    $('#liHint').textContent = `Comece com até 5 minutos para receber os primeiros cortes mais cedo. Você pode escolher outro trecho ou até ${info.max_minutes} minutos por vez.`;
     [...$('#liMin').options].forEach(o => o.disabled = +o.value > info.max_live_minutes);
     $('#linkInfo').classList.remove('hidden');
   } catch (e) { if($('#url').value.trim()===url){S.link = null; if(yid){showYoutubeImport(yid);}else showLinkErr(e.message);} }
@@ -2463,6 +2464,12 @@ $('#wheelOk').onclick = () => {
 };
 ['#liStart', '#liEnd'].forEach(id => { const el = $(id); el.addEventListener('click', () => openWheel(el)); el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openWheel(el); } }); el.addEventListener('focus', () => el.blur()); });
 
+$('#rangePresets').addEventListener('click',e=>{
+  const b=e.target.closest('[data-range-min]'),L=S.link;if(!b||!L||L.is_live)return;
+  const max=L.max_minutes*60,duration=L.duration||Infinity,start=Math.max(0,parseTime($('#liStart').value)||0);
+  const n=b.dataset.rangeMin==='max'?max:Math.min(max,Number(b.dataset.rangeMin)*60);
+  $('#liEnd').value=fmtH(Math.min(duration,start+n));showLinkErr('');
+});
 function linkRangeError() {
   const L = S.link; if (!L) return 'Busque um link primeiro.'; if (L.is_live) return null;
   const a = parseTime($('#liStart').value), b = parseTime($('#liEnd').value);
@@ -2475,6 +2482,7 @@ function linkRangeError() {
 async function fetchRemote() {
   const L = S.link;
   const body = L.is_live ? { url: L.url, live_minutes: +$('#liMin').value } : { url: L.url, start: parseTime($('#liStart').value), end: Math.min(parseTime($('#liEnd').value), L.duration || 1e9) };
+  body.quality=Number($('#importQuality').value)||720;
   return downloadJob(body, L.title, L.is_live);
 }
 async function downloadJob(body, title, isLive) {
@@ -2484,27 +2492,32 @@ async function downloadJob(body, title, isLive) {
     if (job.status === 'error') throw new Error(job.error || 'Falha no download');
     await sleep(1500); job = await api('/api/jobs/' + job.id);
     const el = fmt((Date.now() - t0) / 1000);
-    const lbl = job.status === 'processing' ? 'preparando' : job.status === 'queued' ? 'na fila' : (job.progress > 0 ? Math.round(job.progress * 100) + '%' : '');
+    const lbl = job.status === 'processing' ? 'preparando' : job.status === 'queued' ? 'na fila' : (job.progress > 0 ? Math.round(job.progress * 100) + '%' : 'conectando');
     step(0, 'active', `${lbl} · ${el}`);
+    $('#procDetail').textContent=job.message||'Conectando…';
   }
-  step(0, 'done'); step(1, 'active');
+  step(0, 'done'); step(1, 'active'); $('#procDetail').textContent='Transferindo o vídeo para seu aparelho…';
   const r = await fetch(API + '/api/jobs/' + job.id + '/file', { credentials: 'include' });
   if (!r.ok) throw new Error('Não consegui baixar o vídeo do servidor.');
   const total = +r.headers.get('Content-Length') || job.size || 0, rd = r.body.getReader(), parts = []; let got = 0;
   for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; step(1, 'active', total ? `${(got / 1e6).toFixed(0)}/${(total / 1e6).toFixed(0)} MB` : `${(got / 1e6).toFixed(0)} MB`); }
-  step(1, 'done');
+  step(1, 'done'); $('#procDetail').textContent='Vídeo recebido. Analisando os melhores momentos…';
   return new File(parts, slug(title || 'video') + '.mp4', { type: 'video/mp4' });
 }
 
 const STEP_NAMES = ['Baixando o vídeo da plataforma', 'Trazendo o vídeo para o navegador', 'Lendo o áudio do vídeo', 'Analisando som (gritos, tiros, explosões)', 'Analisando a imagem', 'Escolhendo os momentos virais', 'Baixando a IA de legendas', 'Legendando as falas', 'Montando as prévias'];
-function stepsUI(skip) { $('#steps').innerHTML = STEP_NAMES.map((n, i) => `<div class="step ${skip.includes(i) ? 'hidden' : ''}" id="st${i}"><span class="dot"></span>${n}<span class="pct"></span></div>`).join(''); }
+function stepsUI(skip) { $('#procDetail').textContent='Preparando a análise…';$('#pbar').style.width='0%';$('#steps').innerHTML = STEP_NAMES.map((n, i) => `<div class="step ${skip.includes(i) ? 'hidden' : ''}" id="st${i}" data-progress="0"><span class="dot"></span>${n}<span class="pct"></span></div>`).join(''); }
 function step(i, state, pct) {
   const el = $('#st' + i); if (!el) return;
   el.classList.toggle('active', state === 'active'); el.classList.toggle('done', state === 'done');
   el.querySelector('.pct').textContent = state === 'done' ? '✓' : pct != null ? pct : '';
-  const vis = [...document.querySelectorAll('.step:not(.hidden)')], idx = vis.indexOf(el);
-  const frac = state === 'done' ? 1 : (parseFloat(pct) || 0) / 100;
-  $('#pbar').style.width = (100 * (idx + frac) / vis.length) + '%';
+  const match=String(pct||'').match(/^(\d+(?:\.\d+)?)%/);
+  const frac=state==='done'?1:match?Math.min(1,Number(match[1])/100):0;
+  el.dataset.progress=String(Math.max(Number(el.dataset.progress)||0,frac));
+  const vis=[...document.querySelectorAll('#steps .step:not(.hidden)')];
+  // Background ASR can finish early; average actual stage completion rather than jumping over pending stages.
+  const overall=vis.length?100*vis.reduce((sum,e)=>sum+(Number(e.dataset.progress)||0),0)/vis.length:0;
+  $('#pbar').style.width=Math.min(100,Math.max(parseFloat($('#pbar').style.width)||0,overall))+'%';
 }
 function loadMeta(v, url) { return new Promise((res, rej) => { v.src = url; v.dataset.ncsrc = url; v.onloadedmetadata = () => res(); v.onerror = () => rej(new Error('Não consegui abrir este vídeo no navegador. Tente MP4 (H.264).')); }); }
 function ensureSrc(v, src) { if (!src || v.dataset.ncsrc === src) return Promise.resolve(); return loadMeta(v, src); }
@@ -2578,11 +2591,12 @@ async function pipelineRun(skip) {
   S.capRunning = capsNow;
   if (capsNow) S.clips.forEach(c => { c._capDone = false; c._capP = new Promise(r => c._capR = r); });
   step(8, 'active');
-  await document.fonts.ready; await Promise.all(['Anton', 'Bebas Neue', 'Bangers'].map(f => document.fonts.load(`40px "${f}"`))).catch(() => { });
-  await document.fonts.load('900 40px Montserrat').catch(() => { }); await document.fonts.load('700 40px Inter').catch(() => { });
+  // Do not block first results on external fonts; render again as they become available.
+  const fontsReady=Promise.allSettled(['Anton','Bebas Neue','Bangers','Montserrat','Inter'].map(f=>document.fonts.load(`40px "${f}"`)));
+  await Promise.race([fontsReady,sleep(700)]);
   showResults(!S.pcm ? 'O vídeo não tem áudio, então os cortes saem sem legenda.' : null);
   step(8, 'done'); mark('cortes_na_tela');
-  if (!S.demo) { track('generation_completed', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file', guest: S.user ? 0 : 1, demo: S.project && S.project.sample ? 1 : 0, ms: Math.round(performance.now() - (S._genT0 || T0)) }); afterClipGenerated(); }
+  if (!S.demo) { track('generation_completed', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file', guest: S.user ? 0 : 1, demo: S.project && S.project.sample ? 1 : 0, ms: Math.round(performance.now() - (S._genT0 || T0)),download_ms:lap.download||0,analysis_ms:Math.max(0,(lap.momentos||0)-(lap.download||0)),preview_ms:Math.max(0,(lap.cortes_na_tela||0)-(lap.momentos||0)) }); afterClipGenerated(); }
   if (S.project && S.project.guest) guestDone();
   saveProject();
   if (S.project && S.project.id && S.file) VDB.put(S.project.id, S.file); // guarda o vídeo no aparelho: reabrir o projeto depois não pede o arquivo de novo
@@ -4713,6 +4727,8 @@ async function renderFunnel2() {
     <div class="mgrid">
       <section class="panel"><h4 class="h4">Qualidade técnica</h4>
         <p class="note">Começaram a gerar: <b>${fmtN(g.started)}</b> · receberam cortes: <b>${fmtN(g.completed)}</b> · ficaram sem cortes: <b>${fmtN(g.failed_users)}</b></p>
+        <b style="font-size:13px">Tempo mediano por etapa (sem demos)</b>
+        ${(g.stages||[]).length?'<table class="mtab">'+g.stages.map(x=>'<tr><td>'+esc(({download_ms:'Importação',analysis_ms:'Análise',preview_ms:'Montagem das prévias'})[x.key]||x.key)+'</td><td>'+ (x.median_ms/1000).toFixed(1).replace('.',',')+' s <small class="note">('+x.n+' amostras)</small></td></tr>').join('')+'</table>':'<p class="note">Aguardando novas gerações.</p>'}
         <b style="font-size:13px">Erros mais frequentes</b>${list(f.errors)}
         <b style="font-size:13px">Etapa em que o erro aconteceu</b>${list(f.error_stages)}
         <b style="font-size:13px">Falhas ao baixar/exportar</b>${list(f.export_errors)}</section>
