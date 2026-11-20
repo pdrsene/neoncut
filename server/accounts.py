@@ -58,6 +58,7 @@ OPTIONS = {
 HD_USES = {"free": 0, "pro": HD_FREE_USES}  # exportações 1080p por mês (Pro+ é ilimitado)
 
 MP_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "").strip()
+MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "").strip()
 MP_API = os.environ.get("MP_API_BASE", "https://api.mercadopago.com").rstrip("/")
 GOOGLE_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 GOOGLE_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
@@ -698,7 +699,7 @@ def apply_payment(payment_id: str) -> str:
 def billing_return(payment_id: str = "", collection_id: str = "", status: str = ""):
     st = "pending"
     try:
-        st = apply_payment(payment_id or collection_id) if (payment_id or collection_id) else (status or "failure")
+        st = apply_payment(payment_id or collection_id) if (payment_id or collection_id) else ("failure" if status == "failure" else "pending")
     except HTTPException:
         st = "pending"
     return RedirectResponse(f"/?pagamento={urllib.parse.quote(st)}#conta")
@@ -728,14 +729,35 @@ def conversion_ack(body: ConversionAck, req: Request):
     return {"ok": True}
 
 
+def valid_mp_signature(secret, signature, request_id, data_id):
+    try:
+        fields = dict(x.strip().split("=", 1) for x in signature.split(","))
+        ts, digest = fields["ts"], fields["v1"]
+        if not ts.isdigit() or not re.fullmatch(r"[0-9a-fA-F]{64}",digest) or not data_id or not request_id:
+            return False
+        manifest = f"id:{str(data_id).lower()};request-id:{request_id};ts:{ts};"
+        expected = hmac.new(secret.encode(), manifest.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, digest.lower())
+    except (ValueError, KeyError, AttributeError):
+        return False
+
+
 @router.post("/api/billing/webhook")
 async def billing_webhook(req: Request):
-    pid = req.query_params.get("data.id") or req.query_params.get("id")
+    signed_id = req.query_params.get("data.id")
+    if MP_WEBHOOK_SECRET and not valid_mp_signature(MP_WEBHOOK_SECRET, req.headers.get("x-signature",""),req.headers.get("x-request-id",""),signed_id):
+        raise HTTPException(401,"Assinatura inválida.")
+    pid = signed_id or req.query_params.get("id")
     try:
         body = await req.json()
-        pid = (body.get("data") or {}).get("id") or pid
+        body_id = (body.get("data") or {}).get("id")
+        if MP_WEBHOOK_SECRET and body_id is not None and str(body_id) != str(signed_id):
+            raise HTTPException(401,"Identificador divergente.")
+        pid = signed_id or body_id or pid
         if body.get("type") not in (None, "payment") and not req.query_params.get("data.id"):
             return {"ok": True}
+    except HTTPException:
+        raise
     except Exception:
         pass
     if pid:
