@@ -4500,14 +4500,21 @@ function loadGtag(a) {
   GA.on = true; GA.a = a; flushConversions();
 }
 async function flushConversions() {
-  if (!GA.on || !S.user) return;
+  if (!GA.on || !S.user || S.conversionBusy || !window.gtag) return;
+  const uid=S.user.id; S.conversionBusy=true;
   try {
     const r = await api('/api/billing/conversions');
     for (const p of r.purchases || []) {
-      gtagEv('purchase', { transaction_id: p.transaction_id, value: p.value, currency: 'BRL', items: [{ item_id: p.plan, item_name: p.plan === 'pro' ? 'Pro' : 'Pro+', price: p.value, quantity: 1 }] });
-      gadsConv('gads_purchase', { value: p.value, currency: 'BRL', transaction_id: p.transaction_id });
+      if(S.user?.id!==uid || lsGet('nc_consent')!=='yes')break;
+      const events=[];
+      if(GA.a.ga4)events.push(['purchase',{send_to:GA.a.ga4,transaction_id:p.transaction_id,value:p.value,currency:'BRL',items:[{item_id:p.plan,item_name:p.plan==='pro'?'Pro':'Pro+',price:p.value,quantity:1}]}]);
+      if(GA.a.gads&&GA.a.gads_purchase)events.push(['conversion',{send_to:GA.a.gads+'/'+GA.a.gads_purchase,value:p.value,currency:'BRL',transaction_id:p.transaction_id}]);
+      if(!events.length)break;
+      const results=await Promise.all(events.map(([name,params])=>new Promise(resolve=>{const timer=setTimeout(()=>resolve(false),5000);window.gtag('event',name,{...params,event_callback:()=>{clearTimeout(timer);resolve(true);}});})));
+      // Callback is not proof of Google attribution; keep the ID stable for destination deduplication.
+      if(results.every(Boolean)&&S.user?.id===uid)await api('/api/billing/conversions/ack',{transaction_id:p.transaction_id});
     }
-  } catch (e) { }
+  } catch (e) { } finally {S.conversionBusy=false;}
 }
 function initAnalytics() {
   const a = S.cfg.analytics || {}; if (!a.ga4 && !a.gads) return;
