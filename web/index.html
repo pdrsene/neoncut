@@ -2908,7 +2908,7 @@ $('#retrans').onclick = async e => {
 // ============================================================
 const FREE_TPLS = FREE_TPLS_EARLY;
 const COLORS = ['#ffcf3c', '#ffe600', '#39ff14', '#29e0d0', '#ff3d8b', '#ff8a3c', '#ffffff'];
-S.cfg = { intro_months: 1, hd_free_uses: 10, prices: { pro: { intro: 12.9, regular: 19.9 }, proplus: { intro: 29.9, regular: 29.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: 10 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
+S.cfg = { intro_months: 1, hd_free_uses: 0, prices: { pro: { intro: 12.9, regular: 19.9 }, proplus: { intro: 29.9, regular: 29.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: null }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
 S.exportQ = 720;
 S.user = null;
 S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
@@ -2918,7 +2918,7 @@ const isPro = () => S.plan && S.plan.plan !== 'free';
 const PLAN_LABEL = { free: 'GRÁTIS', pro: 'PRO', proplus: 'PRO+' };
 function priceFor(plan) { const p = S.cfg.prices[plan]; if (S.user && S.plan.next_price) return S.plan.next_price[plan]; return p.intro; }
 function planCard(plan, opts = {}) {
-  const L = S.cfg.limits[plan], P = S.cfg.prices[plan], m = S.cfg.intro_months, hd = S.cfg.hd_free_uses;
+  const L = S.cfg.limits[plan], P = S.cfg.prices[plan], m = S.cfg.intro_months;
   const dur = d => d >= 120 ? '2 min' : d + 's';
   const clip = L.max_clips ? `Até ${L.max_clips} cortes por vídeo, de até ${dur(L.max_duration)}` : '';
   if (plan === 'free') return `<div class="price"><h3>Grátis</h3><div class="amt">R$ 0</div><ul>
@@ -2927,7 +2927,7 @@ function planCard(plan, opts = {}) {
     <button class="btn ghost" data-cta style="width:100%">Começar grátis</button></div>`;
   const now = priceFor(plan), promo = now < P.regular;
   const feats = plan === 'pro'
-    ? [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, clip, `Lives de até ${Math.round(L.live_minutes)} min`, `720p + ${L.hd ?? hd} exportações em 1080p/mês`, 'Todos os templates', "Sem marca d'água", 'Kit da sua marca']
+    ? [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, clip, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Todos os templates', "Sem marca d'água", 'Kit da sua marca']
     : [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, `<b>${clip}</b>`, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Legenda Precisa (IA maior)', 'Todos os templates', "Sem marca d'água", 'Kit da sua marca'];
   const cur = S.user && S.plan.plan === plan;
   return `<div class="price ${plan === 'pro' && !opts.compact ? 'hot' : ''}">${plan === 'pro' && !opts.compact ? '<div class="tag">RECOMENDADO</div>' : ''}
@@ -3077,7 +3077,7 @@ document.addEventListener('click', e => {
 function openUpgrade(msg, focus) {
   if (!S.demo) track('upgrade_open', { why: (msg || '').slice(0, 60) });
   renderPrices();
-  $('#upMsg').textContent = msg || "Sem marca d'água, todos os templates e mais vídeos. No Pro+ o 1080p é ilimitado.";
+  $('#upMsg').textContent = msg || "Sem marca d'água, todos os templates e mais vídeos. No Pro e Pro+ o 1080p é ilimitado.";
   $('#upModal').classList.remove('hidden');
 }
 async function buyPlan(plan, btn) {
@@ -3469,8 +3469,8 @@ document.addEventListener('click', e => {
   const b = e.target.closest('[data-q]'); if (!b) return;
   const q = +b.dataset.q;
   if (q === 1080 && S.cfg.first_free && !S.demo && !S.project?.sample && (!S.user || S.plan.first_free)) { toast('Seu primeiro corte será exportado automaticamente em 1080p, sem marca d’água.', 5000); return; }
-  if (q === 1080 && (S.plan.plan === 'free' || !S.user)) { openUpgrade('Exportar em 1080p é do Pro (5 por mês) e do Pro+ (ilimitado).'); return; }
-  if (q === 1080 && !S.plan.hd_unlimited && !(S.plan.hd_left > 0)) { openUpgrade('Você usou as exportações em 1080p deste mês. No Pro+ o 1080p é ilimitado.'); return; }
+  if (q === 1080 && (S.plan.plan === 'free' || !S.user)) { openUpgrade('Exportações em 1080p ilimitadas no Pro e no Pro+.'); return; }
+  if (q === 1080 && !S.plan.hd_unlimited && !(S.plan.hd_left > 0)) { openUpgrade('Exportações ilimitadas em 1080p estão disponíveis no Pro e no Pro+.'); return; }
   S.exportQ = q; renderQSel();
 });
 

@@ -41,7 +41,7 @@ PRICES = {
     "pro": (_f("PRO_INTRO_PRICE", "12.90"), _f("PRO_PRICE", "19.90")),
     "proplus": (_f("PROPLUS_INTRO_PRICE", "29.90"), _f("PROPLUS_PRICE", "29.90")),
 }
-HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "10"))         # exportações 1080p/mês no Grátis e no Pro
+HD_FREE_USES = 0  # campo legado de compatibilidade; planos pagos não têm cota Full HD
 # limites de cada plano: vídeos/mês, minutos por vídeo, minutos de live
 LIMITS = {
     "free": (int(os.environ.get("FREE_PROJECTS", "3")), _f("FREE_MAX_MINUTES", "30"), _f("FREE_LIVE_MINUTES", "10")),
@@ -55,7 +55,7 @@ OPTIONS = {
     "pro": {"max_clips": 12, "max_duration": 60, "models": ["none", "tiny", "base"]},
     "proplus": {"max_clips": 20, "max_duration": 120, "models": ["none", "tiny", "base", "small"]},
 }
-HD_USES = {"free": 0, "pro": HD_FREE_USES}  # exportações 1080p por mês (Pro+ é ilimitado)
+HD_USES = {"free": 0, "pro": None, "proplus": None}  # Full HD ilimitado nos planos pagos
 
 MP_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "").strip()
 MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "").strip()
@@ -253,9 +253,9 @@ def plan_info(u) -> dict:
         "max_minutes": max_min,
         "max_live_minutes": live_min,
         "watermark": plan == "free",
-        "hd_unlimited": plan == "proplus",
-        "hd_left": None if plan == "proplus" else max(0, HD_USES[plan] - hd_used(u["id"])),
-        "hd_total": None if plan == "proplus" else HD_USES[plan],
+        "hd_unlimited": plan != "free",
+        "hd_left": HD_USES[plan],
+        "hd_total": HD_USES[plan],
         "options": OPTIONS[plan],
         "all_templates": plan != "free",
         "next_price": {"pro": price_for(u["id"], "pro"), "proplus": price_for(u["id"], "proplus")},
@@ -350,7 +350,7 @@ def public_config():
             "hd_free_uses": HD_FREE_USES, "support_email": SUPPORT_EMAIL,
             "prices": {k: {"intro": v[0], "regular": v[1]} for k, v in PRICES.items()},
             "limits": {k: {"projects": v[0], "max_minutes": v[1], "live_minutes": v[2], **OPTIONS[k],
-                           "hd": None if k == "proplus" else HD_USES[k]} for k, v in LIMITS.items()}}
+                           "hd": HD_USES[k]} for k, v in LIMITS.items()}}
 
 
 # ---------------------------------------------------------------- auth
@@ -572,26 +572,11 @@ def delete_project(pid: int, req: Request):
 # ---------------------------------------------------------------- 1080p
 @router.post("/api/usage/hd")
 def use_hd(req: Request):
-    """Gasta 1 exportação em 1080p (ilimitado no Pro+)."""
+    """Autoriza exportação Full HD sem cota nos planos Pro e Pro+."""
     u = current_user(req)
-    p = plan_info(u)
-    if p["hd_unlimited"]:
+    if plan_of(u) in ("pro", "proplus"):
         return {"ok": True, "hd_left": None}
-    if p["plan"] == "free":
-        raise HTTPException(402, "Exportar em 1080p é do Pro e do Pro+. No Pro+ é ilimitado.")
-    c = db()
-    c.execute("BEGIN IMMEDIATE")
-    try:
-        used = hd_used(u["id"])
-        if used >= HD_USES["pro"]:
-            raise HTTPException(402, f"Você já usou as {HD_USES['pro']} exportações em 1080p deste mês. "
-                                     "No Pro+ o 1080p é ilimitado.")
-        c.execute("INSERT INTO hd_uses(user_id, created) VALUES(?,?)", (u["id"], time.time()))
-        c.execute("COMMIT")
-    except Exception:
-        c.execute("ROLLBACK")
-        raise
-    return {"ok": True, "hd_left": HD_USES["pro"] - used - 1}
+    raise HTTPException(402, "Exportações ilimitadas em 1080p são do Pro e do Pro+.")
 
 
 @router.post("/api/usage/first")

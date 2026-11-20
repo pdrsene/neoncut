@@ -18,6 +18,24 @@ class WorkspaceTests(unittest.TestCase):
         self.uid=user();self.req=SimpleNamespace(cookies={})
         self.u=lambda uid:A.db().execute("SELECT * FROM users WHERE id=?",(uid,)).fetchone()
         self.auth=patch.object(A,"current_user",side_effect=lambda *args,**kw:self.u(self.uid));self.auth.start();self.addCleanup(self.auth.stop)
+    def test_unlimited_full_hd_paid_plans(self):
+        for plan in ("pro","proplus"):
+            A.db().execute("UPDATE users SET plan=?,pro_until=? WHERE id=?",
+                           (plan,time.time()+86400,self.uid))
+            for _ in range(12):
+                A.db().execute("INSERT INTO hd_uses(user_id,created) VALUES(?,?)",(self.uid,time.time()))
+            info=A.plan_info(self.u(self.uid))
+            self.assertTrue(info["hd_unlimited"])
+            self.assertIsNone(info["hd_left"])
+            self.assertIsNone(info["hd_total"])
+            for _ in range(15):
+                self.assertEqual(A.use_hd(self.req),{"ok":True,"hd_left":None})
+        self.assertIsNone(A.public_config()["limits"]["pro"]["hd"])
+        self.assertIsNone(A.public_config()["limits"]["proplus"]["hd"])
+        A.db().execute("UPDATE users SET pro_until=0 WHERE id=?",(self.uid,))
+        self.assertFalse(A.plan_info(self.u(self.uid))["hd_unlimited"])
+        with self.assertRaises(HTTPException) as e:A.use_hd(self.req)
+        self.assertEqual(e.exception.status_code,402)
     def test_calendar_owner(self):
         item=W.CalendarItem(day="2026-11-20",platform="TikTok",title="Corte")
         i=W.calendar_add(item,self.req)["id"]
