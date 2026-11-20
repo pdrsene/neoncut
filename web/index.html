@@ -2215,6 +2215,7 @@ function toast(msg, ms = 2600) { const d = document.createElement('div'); d.clas
 
 
 function setFile(f, fromDemo) {
+  if(S.fullScanning){toast('Pare a indexação antes de trocar de arquivo.');return;}
   if (!f || !(f.type.startsWith('video') || /\.(mp4|mov|webm|mkv|m4v)$/i.test(f.name || ''))) { toast('Escolha um arquivo de vídeo'); return; }
   if (!fromDemo) S.sample = null; else clearYoutubeRef();
   if (typeof sampleUI === 'function') sampleUI();
@@ -2985,6 +2986,7 @@ function route() {
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
   if (v !== 'vLanding') $('#instantPreview')?.pause();
+  if(v!=='vApp')$('#fullPreview')?.pause();
   if (v === 'vProjects') renderProjects();
   const gb = $('#guestBar'); if (gb) gb.classList.toggle('hidden', !!S.user || v !== 'vApp');
   if (v === 'vApp' && !S.user && S.mode === 'link' && !S.guestTabSet) { S.guestTabSet = true; document.querySelector('.tab[data-tab="file"]').click(); }
