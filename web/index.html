@@ -1777,7 +1777,7 @@ async function visualFeatures(v, dur, onProg, file) {
   };
   const motion = (a, b) => { let diff = 0; for (let i = 0; i < N; i++) diff += Math.abs(b.g[i] - a.g[i]); return diff / N + 0.6 * Math.max(0, b.br - a.br); };
   const quick=$('#upload').classList.contains('quick');
-  const sampleStep = Math.max(dur <= 1200 ? 1.2 : dur <= 3600 ? 2 : 3,quick?dur/160:0);
+  const sampleStep = Math.max(dur <= 1200 ? 1.2 : dur <= 3600 ? 2 : 3,quick?dur/100:0);
   try { const kfr = await keyframeMotion(file, dur, onProg, sampleStep); if (kfr) return kfr; }
   catch (e) { console.warn('leitura de quadros-chave indisponível', e); }
   // amostragem por seek (reserva, e para tapar trechos que falharem)
@@ -1985,6 +1985,17 @@ self.onmessage = async (e) => {
   } catch (err) { post({ type: 'error', id: d.id, message: String(err && err.message || err) }); }
 };`;
 let worker = null, wid = 0; const pending = new Map(); let loadWaiter = null; let onDl = null;
+// Cache only the current audio buffer; never persist speech or send it off-device.
+let asrCachePCM = null; const asrCache = new Map();
+async function cachedASR(pcm, a, b, lang) {
+  if (asrCachePCM !== pcm) { asrCachePCM = pcm; asrCache.clear(); }
+  const key = [S.asrInfo?.size, lang, a, b].join(':');
+  if (asrCache.has(key)) return asrCache.get(key);
+  const promise = runASR(pcm.slice(a,b), lang);
+  asrCache.set(key,promise);
+  if(asrCache.size>96) asrCache.delete(asrCache.keys().next().value);
+  try { return await promise; } catch(e) { if(asrCache.get(key)===promise) asrCache.delete(key); throw e; }
+}
 function getWorker() {
   if (worker) return worker;
   worker = new Worker(URL.createObjectURL(new Blob([WORKER_SRC], { type: 'text/javascript' })), { type: 'module' });
@@ -2016,8 +2027,7 @@ async function transcribeClip(clip) {
   }
   let all = [];
   for (const [x0, x1] of pieces) {
-    const audio = S.pcm.slice(Math.floor(x0 * SR), Math.floor(x1 * SR));
-    const ws = await runASR(audio, S.settings.lang);
+    const ws = await cachedASR(S.pcm, Math.floor(x0 * SR), Math.floor(x1 * SR), S.settings.lang);
     all = all.concat(ws.map(w => ({ text: w.text, start: Math.min(w.start, x1 - x0) + x0, end: Math.min(w.end, x1 - x0) + x0 })));
   }
   clip.words = all.filter(w => !HALLUC.test(w.text));
@@ -2637,7 +2647,9 @@ async function pipelineRun(skip) {
   // momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
-  const spokenMode = wantCaps && !!S.pcm && !S.sample && S.settings.focus === 'viral';
+  // Quick mode displays audio/visual candidates immediately; advanced mode retains strict speech confirmation.
+  const quickMode = $('#upload').classList.contains('quick');
+  const spokenMode = !quickMode && wantCaps && !!S.pcm && !S.sample && S.settings.focus === 'viral';
   const pool = findMoments(S.feats,V,S.duration,D,spokenMode ? Math.min(S.settings.N+2,12) : S.settings.N,S.settings.focus,{sens:S.settings.sens,boostVoice:S.settings.boostVoice,snapSilence:S.settings.snapSilence});
   let selectionNote=null;
   if(spokenMode){
@@ -2661,7 +2673,8 @@ async function pipelineRun(skip) {
   // Do not block first results on external fonts; render again as they become available.
   const fontsReady=Promise.allSettled(['Anton','Bebas Neue','Bangers','Montserrat','Inter'].map(f=>document.fonts.load(`40px "${f}"`)));
   await Promise.race([fontsReady,sleep(700)]);
-  showResults(selectionNote || (!S.pcm ? 'O vídeo não tem áudio, então os cortes saem sem legenda.' : null));
+  showResults(!S.pcm ? 'O vídeo não tem áudio.' : null);
+  if(selectionNote) { $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = selectionNote; }
   step(8, 'done'); mark('cortes_na_tela');
   if (!S.demo) { track('generation_completed', { n: S.clips.length, dur: Math.round(S.duration), mode: S.mode || 'file', guest: S.user ? 0 : 1, demo: S.project && S.project.sample ? 1 : 0, ms: Math.round(performance.now() - (S._genT0 || T0)),download_ms:lap.download||0,analysis_ms:Math.max(0,(lap.momentos||0)-(lap.download||0)),preview_ms:Math.max(0,(lap.cortes_na_tela||0)-(lap.momentos||0)) }); afterClipGenerated(); }
   if (S.project && S.project.guest) guestDone();
@@ -2706,7 +2719,8 @@ async function captionInBackground(list, asrP) {
     for (let k = 0; k < list.length && isLive(); k++) {
       // prioridade: o corte que a pessoa abriu no editor/Estúdio
       const open = (S.cur && list.includes(S.cur) && !done.has(S.cur)) ? S.cur : (ADV.open && list.includes(ADV.clip) && !done.has(ADV.clip)) ? ADV.clip : null;
-      const c = open || list.find(x => !done.has(x)); if (!c) break;
+      const requested = S.capPriority && list.includes(S.capPriority) && !done.has(S.capPriority) ? S.capPriority : null;
+      const c = requested || open || list.find(x => !done.has(x)); if (!c) break;
       setCapStatus(`Legendando as falas ${k + 1}/${list.length}… você já pode editar e baixar`);
       try { if(!c.transcribed){await transcribeClip(c); c.wordsVer = (c.wordsVer || 0) + 1;} } catch (e) { console.warn('legenda falhou', e); }
       done.add(c); c._capDone = true; c._capR && c._capR();
@@ -2718,7 +2732,7 @@ async function captionInBackground(list, asrP) {
     $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = '⚠ Legendas indisponíveis: ' + err.message + ' Os cortes funcionam normalmente sem legenda.';
   }
   list.forEach(c => { if (!c._capDone) { c._capDone = true; c._capR && c._capR(); refreshCard(c); } });
-  if (isLive()) { S.capRunning = false; setCapStatus(''); saveProjectSoon(); }
+  if (isLive()) { S.capRunning = false; S.capPriority = null; $('#resSub').textContent = resSubText(); setCapStatus(''); saveProjectSoon(); }
 }
 function refreshCard(c) {
   const t = $('#ct' + c.idx), st = $('#cs' + c.idx), sc = $('#csc' + c.idx);
@@ -2751,7 +2765,8 @@ function showResults(capErr) {
 }
 function resSubText() {
   const asr = S.asrInfo ? ` · Legendas: ${S.asrInfo.device === 'webgpu' ? 'GPU' : 'CPU'}${S.asrInfo.wordMode ? ', palavra a palavra' : ''}` : '';
-  return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo, ordenados pela nota de viralização${asr}. Clique para ajustar.`;
+  const provisional = S.capRunning && $('#upload').classList.contains('quick');
+  return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo${provisional ? ' · sugestões iniciais por áudio/imagem; refinando falas' : ' · nota estimada de viralização'}${asr}. Clique para ajustar.`;
 }
 function renderGrid() {
   $('#grid').innerHTML = S.clips.map(c => `
@@ -2794,7 +2809,7 @@ async function exportWithUI(list, btn) {
         const noHd = tplById(c.tpl).layout === 'raw' && Math.min(S.vw, S.vh) <= 720; // vídeo original já é 720p: não gasta 1080p
         const paidHd = !free1 && !S.demo && (S.exportQ || 720) >= 1080 && !S.plan.hd_unlimited && !noHd;
         if (paidHd && !(S.plan.hd_left > 0)) { openUpgrade('Você usou a cota de exportações Full HD.', 'proplus'); S.exportQ=720; renderQSel(); break; }
-        if (c._capP && !c._capDone) { btn.textContent = '💬 legendando…'; toast('Terminando a legenda deste corte antes de exportar…', 3000); await c._capP; }
+        if (c._capP && !c._capDone) { S.capPriority = c; btn.textContent = '💬 legendando…'; toast('Priorizando a legenda deste corte…', 3000); try { await c._capP; } finally { if(S.capPriority===c) S.capPriority=null; } }
         if (!S.demo) track('export_started', { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0, demo: S.project && S.project.sample ? 1 : 0 });
         const blob = await exportClip(c, p => { btn.textContent = `${list.length > 1 ? (i + 1) + '/' + list.length + ' · ' : ''}${Math.round(clamp(p, 0, 1) * 100)}%`; if (S.cur === c) $('#expStatus').textContent = `Renderizando ${Math.round(clamp(p, 0, 1) * 100)}%`; });
         if (!blob || blob.size < 1000) throw Object.assign(new Error('O navegador não gerou o vídeo. Tente no Chrome ou no Safari atualizados.'), { code: 'empty' });
