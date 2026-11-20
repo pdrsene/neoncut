@@ -711,11 +711,21 @@ def billing_conversions(req: Request):
         return {"purchases": []}
     rows = db().execute("SELECT id, plan, amount FROM payments WHERE user_id=? AND status='approved' AND COALESCE(reported,0)=0",
                         (u["id"],)).fetchall()
-    out = []
-    for r in rows:
-        if db().execute("UPDATE payments SET reported=1 WHERE id=? AND COALESCE(reported,0)=0", (r["id"],)).rowcount == 1:
-            out.append({"transaction_id": r["id"], "value": round(r["amount"] or 0, 2), "currency": "BRL", "plan": r["plan"]})
-    return {"purchases": out}
+    return {"purchases": [{"transaction_id": r["id"], "value": round(r["amount"] or 0, 2), "currency": "BRL", "plan": r["plan"]} for r in rows]}
+
+
+class ConversionAck(BaseModel):
+    transaction_id: str
+
+
+@router.post("/api/billing/conversions/ack")
+def conversion_ack(body: ConversionAck, req: Request):
+    u = current_user(req)
+    if not body.transaction_id.isdigit() or len(body.transaction_id)>40:
+        raise HTTPException(400,"Transação inválida.")
+    db().execute("UPDATE payments SET reported=1 WHERE id=? AND user_id=? AND status='approved'",
+                 (body.transaction_id,u["id"]))
+    return {"ok": True}
 
 
 @router.post("/api/billing/webhook")
