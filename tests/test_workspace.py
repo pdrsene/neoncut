@@ -78,6 +78,17 @@ class WorkspaceTests(unittest.TestCase):
             self.assertTrue(B.youtube_reference(canonical)["import_required"])
         with patch.object(A,"YT_ENABLED",True):
             self.assertEqual(B.check_url(canonical),"youtube")
+    def test_youtube_import_failure_categories(self):
+        from server import app as B
+        for message, expected in (("Sign in to confirm you're not a bot","access"),("HTTP Error 403","access"),("private video","restricted"),("Requested format is not available","format"),("connection timed out","timeout"),("unknown","extractor")):
+            self.assertEqual(B.youtube_failure_kind(message),expected)
+        with patch.object(B,"urlopen",side_effect=OSError("unavailable")):
+            result=B.youtube_import_fallback("https://www.youtube.com/watch?v=jNQXAC9IVRw","access")
+            self.assertTrue(result["import_required"])
+            self.assertEqual(result["import_reason"],"access")
+        with patch.object(A,"YT_ENABLED",True),patch.object(B.subprocess,"run",return_value=SimpleNamespace(returncode=0,stdout="not json",stderr="")),patch.object(B,"urlopen",side_effect=OSError("unavailable")):
+            result=B.info(B.InfoReq(url="https://www.youtube.com/watch?v=jNQXAC9IVRw"),self.req)
+            self.assertEqual(result["import_reason"],"metadata")
     def test_real_builtin_demos(self):
         items=G.list_demos()["demos"]
         self.assertEqual({x["id"] for x in items},{"builtin-drive","builtin-robbery"})
