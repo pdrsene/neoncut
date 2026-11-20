@@ -907,7 +907,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <div class="home-pills"><span>TikTok</span><span>Instagram Reels</span><span>YouTube Shorts</span></div>
         <form class="hx-form" id="hxForm" novalidate>
           <label for="hxUrl" class="sr">Link da live ou do vídeo</label>
-          <input type="url" id="hxUrl" placeholder="Cole um link da Twitch, Kick ou YouTube" autocomplete="off" inputmode="url">
+          <input type="url" id="hxUrl" placeholder="Cole um link da Twitch ou Kick" autocomplete="off" inputmode="url">
           <p class="hx-err hidden" id="hxErr" role="alert"></p>
           <div class="row2">
             <button class="btn" type="submit" id="hxGo">Criar meu corte <span aria-hidden="true">→</span></button>
@@ -990,7 +990,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <details><summary>O primeiro corte é grátis mesmo?</summary><p>Sim. Na conta grátis, o primeiro corte que você baixar de um vídeo seu sai em 1080p e sem marca d'água. Depois, o plano Grátis exporta em 720p com marca d'água.</p></details>
         <details><summary>Funciona no celular?</summary><p>Funciona no Chrome (Android) e no Safari (iPhone). Se você abriu o site pelo Instagram ou pelo TikTok, abra no navegador do celular para conseguir baixar: o navegador interno desses apps bloqueia downloads. Vídeos curtos (até ~10 minutos) funcionam melhor no celular.</p></details>
         <details><summary>O que é o Gancho Turbo?</summary><p>A IA encontra o momento mais forte do corte e mostra ele nos 2 primeiros segundos, com um texto como "ESPERA O FINAL". Depois o vídeo volta para o começo. Você pode trocar o texto ou desligar no editor.</p></details>
-        <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Para YouTube, cole o link como referência e envie o arquivo original. Se o vídeo for seu, exporte pelo YouTube Studio. A importação direta é tentada quando disponível; se o YouTube recusar o acesso, envie seu arquivo original.</p></details>
+        <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Importação por link do YouTube: em breve. Por enquanto, você pode enviar um arquivo original ou autorizado.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>No editor padrão, corte, legenda e exportação acontecem no navegador. Arquivos importados por link ficam temporariamente no servidor. Se você usar a fila em nuvem (beta), os arquivos restantes expiram em até 24 horas.</p></details>
         <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
         <details><summary>Posso cortar live de outros streamers?</summary><p>Só com autorização do streamer. Combine com ele e mantenha os créditos (quando você corta por link, o NEONCUT coloca o crédito do canal na descrição). Você é responsável pelo que publica.</p></details>
@@ -1021,7 +1021,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
     <div id="tabLink">
       <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link do vídeo ou live" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
-      <div class="plats" id="plats"><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span><span data-p="youtube" class="ytchip">YouTube<em class="ytm">via arquivo</em></span></div>
+      <div class="plats" id="plats"><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span><span data-p="youtube" class="ytchip">YouTube<em class="ytm">Em breve</em></span></div>
       <p class="note err hidden" id="linkErr" style="margin:12px 0 0"></p>
       <div class="panel hidden" id="ytImport" style="margin-top:12px"><h3 id="ytImportTitle" style="margin:0 0 6px">YouTube · importar arquivo</h3><p class="note" style="margin:0 0 12px"><span id="ytImportMessage">Para gerar cortes, escolha o arquivo original ou uma cópia autorizada.</span></p><div class="row" style="flex-wrap:wrap"><button type="button" class="btn small" id="ytChoose">Escolher arquivo de vídeo</button><a id="ytWatch" class="btn ghost small" target="_blank" rel="noopener noreferrer">Abrir vídeo no YouTube</a><a class="btn ghost small" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube Studio (meus vídeos)</a></div></div>
       <div class="linkinfo hidden" id="linkInfo">
@@ -2447,7 +2447,7 @@ $('#fetchInfo').onclick = async () => {
   const url = $('#url').value.trim(); if (!url) return;
   const yid=youtubeVideoId(url);
   if(isYoutubeHost(url)&&!yid){showLinkErr('Cole o link de um vídeo, Short ou live específica do YouTube, não de canal ou playlist.');return;}
-  if(yid&&!S.cfg.youtube){showYoutubeImport(yid);track('source_selected',{src:'youtube_file'});return;}
+  if(yid&&!S.cfg.youtube){showLinkErr('YouTube: em breve. Use Twitch, Kick ou envie um arquivo de vídeo.');return;}
   if (!S.user) { toast('Para colar link, crie sua conta grátis. Sem cadastro, use "Enviar arquivo".', 5000); openAuth('signup', () => $('#fetchInfo').click()); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
@@ -4521,7 +4521,7 @@ function gotoCreate() { if (S.user || guestOk()) location.hash = '#criar'; else 
     if (!/^https?:\/\//i.test(v)) { err('Cole um link completo, começando com https://'); return; }
     const yid=youtubeVideoId(v);
     if(isYoutubeHost(v)&&!yid){err('Cole o link de um vídeo, Short ou live específica do YouTube.');return;}
-    if(yid&&!S.cfg.youtube){track('source_selected',{src:'youtube_file',lp:'hero'});const go=()=>{location.hash='#criar';setTimeout(()=>{document.querySelector('.tab[data-tab="link"]').click();$('#url').value=v;$('#url').dispatchEvent(new Event('input'));$('#fetchInfo').click();},120)};if(S.user||guestOk())go();else openAuth('signup',go);return;}
+    if(yid&&!S.cfg.youtube){err('YouTube: em breve. Use Twitch, Kick ou envie um arquivo de vídeo.');return;}
     if (!PLAT_RE.twitch.test(v) && !PLAT_RE.kick.test(v) && !PLAT_RE.youtube.test(v)) { err('Por enquanto aceitamos links da Twitch e da Kick. Você também pode enviar o arquivo do vídeo.'); return; }
     track('source_selected', { src: 'link', lp: 'hero' });
     const go = () => { location.hash = '#criar'; setTimeout(() => { document.querySelector('.tab[data-tab="link"]').click(); $('#url').value = v; $('#url').dispatchEvent(new Event('input')); $('#fetchInfo').click(); }, 120); };
