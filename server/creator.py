@@ -110,7 +110,11 @@ def clip_claim(body: ClipClaim, req: Request):
         if meta.get("hidden") or not 0<=body.index<min(len(clips),20):
             raise HTTPException(400,"Corte inválido.")
         clip=clips[body.index]
-        if not isinstance(clip,dict) or not 1<=float(clip.get("end",0))-float(clip.get("start",0))<=180:
+        try:
+            valid = isinstance(clip,dict) and 1<=float(clip.get("end",0))-float(clip.get("start",0))<=180
+        except (TypeError,ValueError):
+            valid = False
+        if not valid:
             raise HTTPException(400,"Trecho inválido.")
         key=f"{body.project_id}:{body.index}"
         n=c.execute("SELECT COUNT(*) FROM creator_xp WHERE uid=? AND kind='clip' AND created>=?",(uid,time.time()-86400)).fetchone()[0]
