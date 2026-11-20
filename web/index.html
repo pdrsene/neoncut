@@ -734,6 +734,10 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 .dcard video{width:100%;aspect-ratio:16/9;border-radius:10px;background:#000;object-fit:cover}
 .dcard b{font-size:18px}
 .dcard .note{margin:0}
+.instant-demo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px);align-items:center;gap:24px;padding:24px;margin:20px 0;background:var(--card);border:1px solid var(--line);border-radius:16px}
+.instant-demo h3{margin:12px 0 8px}.instant-demo .sub{margin:0 0 16px}.instant-demo .note{margin:12px 0 0}.instant-demo video{width:100%;max-width:220px;aspect-ratio:9/16;object-fit:contain;background:#09090b;border-radius:12px;justify-self:center}
+.hook-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}.hook-options button{white-space:normal;min-width:0;text-align:center}
+@media(max-width:600px){.instant-demo{grid-template-columns:1fr;padding:16px;gap:16px}.instant-demo .row{flex-wrap:wrap}.instant-demo video{max-width:180px}}
 .dbadge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#09090B;background:var(--accent);border-radius:6px;padding:3px 7px;margin-right:6px}
 .steps3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .steps3 div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}
@@ -822,7 +826,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
             <button class="btn ghost" type="button" id="hxFile">Enviar arquivo</button>
           </div>
           <input type="file" id="hxFileIn" accept="video/*" hidden>
-          <div class="hx-links"><button type="button" data-demo-open-list>Testar com vídeo de exemplo</button></div>
+          <div class="hx-links"><button type="button" data-demo-open-list>Ver exemplo de corte sem esperar</button></div>
           <div class="hx-trust"><span>Sem cadastro para testar com arquivo</span><span>Sem cartão</span><span>Sem instalação</span></div>
         </form>
       </div>
@@ -837,6 +841,10 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <section class="lp-sec" id="demos">
       <h2 class="lp-h">Demonstrações reais</h2>
       <p class="sub" style="text-align:center">Escolha um vídeo de exemplo e veja a NEONCUT cortar de verdade, aqui no navegador. Sem cadastro e sem gastar a sua cota.</p>
+      <div class="instant-demo">
+        <div><span class="dbadge">PRÉVIA INSTANTÂNEA</span><h3>Veja um exemplo antes de criar</h3><p class="sub">Assista a uma amostra visual do template, sem enviar arquivos, criar conta ou carregar a IA. Quando estiver pronto, teste a criação real com um vídeo de exemplo.</p><div class="row"><button type="button" class="btn" data-demo-try>Testar a criação real</button><button type="button" class="btn ghost" data-cta>Usar meu vídeo</button></div><p class="note">Amostra ilustrativa de template; não representa uma análise feita agora nem garante resultados de audiência.</p></div>
+        <video id="instantPreview" controls playsinline preload="none" aria-label="Amostra visual do template Stream"><source src="demo/t_stream.mp4" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
+      </div>
       <div class="dgrid" id="demoGrid"><p class="note">Carregando exemplos…</p></div>
       <h3 style="margin:36px 0 6px;text-align:center">Os visuais disponíveis</h3>
       <p class="sub" style="text-align:center">Templates prontos. Ou use "Só o corte" para receber o trecho no formato original.</p>
@@ -1201,6 +1209,9 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <h4>🔁 Gancho Turbo <span class="xbadge">EXCLUSIVO</span></h4>
         <div class="row"><label class="check"><input type="checkbox" id="inHook"> Mostrar o momento mais insano nos 2 primeiros segundos</label></div>
         <div class="row" style="margin-top:8px"><input type="text" id="inHookTxt" maxlength="40" style="flex:1;min-width:0" placeholder="ESPERA O FINAL 😱"><button class="btn ghost small" id="hookNext">🎲</button><button class="btn ghost small" id="hookPlay">▶ Ver gancho</button></div>
+        <div class="hook-options" aria-label="Escolha um estilo de gancho">
+          <button type="button" class="btn ghost small" data-hook-style="curiosidade">Curiosidade</button><button type="button" class="btn ghost small" data-hook-style="humor">Humor</button><button type="button" class="btn ghost small" data-hook-style="suspense">Suspense</button>
+        </div><p class="note">Sugestões de texto editáveis. Escolha a que combina com o trecho e confira em “Ver gancho”.</p>
         <p class="note" id="hookNote" style="margin:8px 0 0">Prende quem está rolando o feed: o corte abre com o pico e depois volta pro começo.</p>
       </div>
       <div class="sec">
@@ -2524,11 +2535,9 @@ async function exportWithUI(list, btn) {
   busy = true; const old = btn.textContent; btn.disabled = true;
   toast('Exportando em tempo real. Mantenha esta aba aberta e a tela ligada.', 4000);
   // 1º corte grátis: 1080p e sem marca d'água (uma vez por conta, controlado no servidor)
-  let ff = false;
-  if (!S.demo && S.user && S.plan.first_free && !(S.project && S.project.sample)) {
-    try { await api('/api/usage/first', {}); ff = true; } catch (e) { if (e.status !== 402) console.warn(e); }
-    S.plan.first_free = false; if (S.user) S.user.first_free = false; updateResultNotes();
-  }
+  // Reserve a gratuidade somente depois de renderizar um arquivo válido.
+  // O servidor continua a decidir atomicamente quem pode receber a oferta.
+  const ff = !!(!S.demo && S.user && S.plan.first_free && !(S.project && S.project.sample));
   let cur = null;
   try {
     for (let i = 0; i < list.length; i++) {
@@ -2545,8 +2554,21 @@ async function exportWithUI(list, btn) {
         if (!S.demo) track('export_started', { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0, demo: S.project && S.project.sample ? 1 : 0 });
         const blob = await exportClip(c, p => { btn.textContent = `${list.length > 1 ? (i + 1) + '/' + list.length + ' · ' : ''}${Math.round(clamp(p, 0, 1) * 100)}%`; if (S.cur === c) $('#expStatus').textContent = `Renderizando ${Math.round(clamp(p, 0, 1) * 100)}%`; });
         if (!blob || blob.size < 1000) throw Object.assign(new Error('O navegador não gerou o vídeo. Tente no Chrome ou no Safari atualizados.'), { code: 'empty' });
+        if (free1) {
+          try { await api('/api/usage/first', {}); }
+          catch (e) {
+            // Não entregue o arquivo premium se outra aba já usou a oferta.
+            if (e.status === 402 || e.status === 400) {
+              S.plan.first_free = false; if (S.user) S.user.first_free = false;
+              updateResultNotes(); renderQSel(); renderUsage();
+            }
+            throw new Error(e.message || 'Não foi possível confirmar o primeiro corte grátis. Tente novamente.');
+          }
+          S.plan.first_free = false; if (S.user) S.user.first_free = false;
+          updateResultNotes();
+        }
         deliverBlob(blob, fileName(c, blob), { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0 });
-      } finally { if (free1) { S.plan.watermark = keep.wm; S.exportQ = keep.q; } }
+      } finally { if (free1) { S.plan.watermark = keep.wm; S.exportQ = keep.q; renderQSel(); renderUsage(); } }
     }
     if (!IN_APP && !IS_MOBILE) toast('Pronto! Vídeo salvo nos downloads ✅');
   } catch (e) {
@@ -2634,6 +2656,13 @@ $('#inShowTitle').onchange = e => { S.cur.showTitle = e.target.checked; drawPrev
 function hookNoteUI() { const c = S.cur; if (!c) return; const ok = !c.hookOn || hookRange(c); $('#hookNote').textContent = !c.hookOn ? 'Desligado: o corte começa direto.' : ok ? 'O corte abre com o pico (2 s) e depois volta pro começo. Prende quem está rolando o feed.' : 'O pico já está no começo deste corte, então o gancho não é necessário.'; }
 $('#inHook').onchange = e => { S.cur.hookOn = e.target.checked; if (!S.cur.hookTxt) S.cur.hookTxt = HOOK_TXTS[0]; hookNoteUI(); drawPreview(); };
 $('#inHookTxt').oninput = e => { S.cur.hookTxt = e.target.value; drawPreview(); };
+const HOOK_STYLES = { curiosidade: 'OLHA ESSE MOMENTO', humor: 'EU NÃO TAVA PREPARADO 😂', suspense: 'PRESTA ATENÇÃO NO QUE VEM AÍ' };
+$('.hook-options').addEventListener('click', e => {
+  const b = e.target.closest('[data-hook-style]'), c = S.cur; if (!b || !c) return;
+  const value = HOOK_STYLES[b.dataset.hookStyle]; if (!value) return;
+  c.hookTxt = value; c.hookOn = true; $('#inHook').checked = true; $('#inHookTxt').value = value;
+  hookNoteUI(); drawPreview();
+});
 $('#hookNext').onclick = () => { const c = S.cur; const i = (HOOK_TXTS.indexOf(c.hookTxt) + 1) % HOOK_TXTS.length; c.hookTxt = HOOK_TXTS[i]; c.hookOn = true; $('#inHook').checked = true; $('#inHookTxt').value = c.hookTxt; hookNoteUI(); if (!S.hookPv) $('#hookPlay').click(); };
 $('#hookPlay').onclick = () => { const c = S.cur, pv = $('#pv'); if (!c.hookOn) { c.hookOn = true; $('#inHook').checked = true; hookNoteUI(); } const hk = hookRange(c); if (!hk) { toast('O pico já está no começo deste corte.'); return; } S.hookPv = true; pv.currentTime = hk[0]; pv.play(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); updatePlay(); };
 $('#inShowCaps').onchange = e => { S.cur.showCaps = e.target.checked; drawPreview(); };
@@ -2823,10 +2852,9 @@ function setUser(u) {
   const wasId = S.user && S.user.id;
   S.user = u;
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
-  if (u) S.plan = Object.assign({}, u);
+  S.plan = u ? Object.assign({}, u) : { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (u && S.project && S.project.guest) setTimeout(claimGuest, 0);
   const gs = document.getElementById('guestSave'); if (gs) gs.classList.toggle('hidden', !!u || !(S.project && S.project.guest));
-  else S.plan = { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
   renderNav(); renderUsage(); renderPrices(); renderQSel(); renderTplPick(); renderOpts(); if (typeof renderDurTabs === 'function') renderDurTabs();
 }
@@ -2865,6 +2893,7 @@ function route() {
     const target = { '#como': '#como', '#precos': '#precos-sec', '#faq': '#faq' }[h];
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
+  if (v !== 'vLanding') $('#instantPreview')?.pause();
   if (v === 'vProjects') renderProjects();
   const gb = $('#guestBar'); if (gb) gb.classList.toggle('hidden', !!S.user || v !== 'vApp');
   if (v === 'vApp' && !S.user && S.mode === 'link' && !S.guestTabSet) { S.guestTabSet = true; document.querySelector('.tab[data-tab="file"]').click(); }
@@ -3270,7 +3299,7 @@ function renderShowcase() {
   box.querySelectorAll('[data-sc]').forEach(c => paint(c, c.dataset.sc));
 }
 function renderQSel() {
-  const p = S.plan || {}, left = p.hd_unlimited ? 'ilimitado' : p.plan === 'free' || !S.user ? '🔒 Pro' : `${p.hd_left ?? 0} restantes`;
+  const p = S.plan || {}, first = !!(S.cfg.first_free && !S.demo && !S.project?.sample && (!S.user || p.first_free)), left = p.hd_unlimited ? 'ilimitado' : first ? '1º corte grátis' : p.plan === 'free' || !S.user ? '🔒 Pro' : `${p.hd_left ?? 0} restantes`;
   for (const id of ['#qsel', '#qsel2', '#qsel3']) {
     const box = $(id); if (!box) continue;
     box.innerHTML = `<span>Qualidade:</span><button type="button" data-q="720" class="${S.exportQ === 720 ? 'on' : ''}">720p</button><button type="button" data-q="1080" class="${S.exportQ === 1080 ? 'on' : ''}">1080p <span style="font-weight:500;color:var(--muted)">(${left})</span></button>`;
@@ -3279,6 +3308,7 @@ function renderQSel() {
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-q]'); if (!b) return;
   const q = +b.dataset.q;
+  if (q === 1080 && S.cfg.first_free && !S.demo && !S.project?.sample && (!S.user || S.plan.first_free)) { toast('Seu primeiro corte será exportado automaticamente em 1080p, sem marca d’água.', 5000); return; }
   if (q === 1080 && (S.plan.plan === 'free' || !S.user)) { openUpgrade('Exportar em 1080p é do Pro (5 por mês) e do Pro+ (ilimitado).'); return; }
   if (q === 1080 && !S.plan.hd_unlimited && !(S.plan.hd_left > 0)) { openUpgrade('Você usou as exportações em 1080p deste mês. No Pro+ o 1080p é ilimitado.'); return; }
   S.exportQ = q; renderQSel();
@@ -4196,7 +4226,7 @@ if ('IntersectionObserver' in window && $('.hx-vis')) {
 
 // ---------- demonstrações ----------
 let DEMOS = null;
-async function loadDemos() { if (DEMOS) return DEMOS; try { DEMOS = (await api('/api/demos')).demos || []; } catch (e) { DEMOS = []; } return DEMOS; }
+async function loadDemos() { if (DEMOS) return DEMOS; try { DEMOS = (await api('/api/demos')).demos || []; return DEMOS; } catch (e) { return []; } }
 async function renderDemos() {
   const box = $('#demoGrid'); if (!box) return;
   const list = await loadDemos();
@@ -4244,7 +4274,8 @@ function updateResultNotes() {
   $('#ffreeNote')?.classList.toggle('hidden', !ff);
 }
 document.addEventListener('click', e => {
-  const r = e.target.closest('[data-demo-run]'); if (r) { e.preventDefault(); runDemo(r.dataset.demoRun); return; }
+  const quick = e.target.closest('[data-demo-try]'); if (quick) { e.preventDefault(); $('#instantPreview')?.pause(); openDemoPicker(); return; }
+  const r = e.target.closest('[data-demo-run]'); if (r) { e.preventDefault(); $('#instantPreview')?.pause(); runDemo(r.dataset.demoRun); return; }
   const l = e.target.closest('[data-demo-open-list]');
   if (l) { e.preventDefault(); const sec = $('#demos'); if (sec && !$('#vLanding').classList.contains('hidden')) sec.scrollIntoView({ behavior: 'smooth' }); else openDemoPicker(); return; }
   if (e.target.id === 'sampleOwn') { S.sample = null; location.hash = '#criar'; location.reload(); return; }
