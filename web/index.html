@@ -2874,7 +2874,7 @@ async function loadMe() {
 function setUser(u) {
   const wasId = S.user && S.user.id;
   S.user = u;
-  if (!u || u.id !== wasId) { S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; }
+  if (!u || u.id !== wasId) { S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
   S.plan = u ? Object.assign({}, u) : { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (u && S.project && S.project.guest) setTimeout(claimGuest, 0);
@@ -4544,7 +4544,8 @@ function momentMatch(c,q) {
   if(!terms.length)return true;
   const actual=momentNorm((c.words||[]).map(w=>Array.isArray(w)?w[0]:w.text).join(' '));
   const keys=momentNorm([c.cat,CAT_LABEL[c.cat],c.title,c.quote].join(' '));
-  return terms.some(t=>actual.includes(t)||keys.includes(t)||MOMENT_GROUPS.some(g=>g.includes(t)&&g.some(x=>keys.includes(x)||actual.includes(x))));
+  const hit=(hay,word)=>(' '+hay+' ').includes(' '+word+' ');
+  return terms.some(t=>hit(actual,t)||hit(keys,t)||MOMENT_GROUPS.some(g=>g.includes(t)&&g.some(x=>hit(keys,x)||hit(actual,x))));
 }
 function filterMoments() {
   const q=$('#momentQuery')?.value||''; if(!$('#momentCount'))return;
