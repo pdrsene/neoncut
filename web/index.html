@@ -2293,7 +2293,87 @@ function drawHook(ctx, w, h, p, txt) {
   ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillRect(0, h - h * .006, w * p, h * .006);
   ctx.restore();
 }
-async function exportClip(clip, onProg) {
+// Offline local export. No source video leaves the device; unsupported cases use the existing recorder.
+let fastMediaPromise;
+function loadFastMedia() {
+  return fastMediaPromise ||= import('/vendor/mediabunny.min.mjs').catch(e=>{fastMediaPromise=null;throw e;});
+}
+async function fastExportClip(clip, onProg) {
+  if (!window.VideoEncoder || !window.VideoDecoder || !S.file || clipSrc(clip)!==S.url || hookRange(clip) || IS_MOBILE) return null;
+  const start=Number(clip.start), end=Number(clip.end);
+  if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end-start<1||end-start>180) return null;
+  const M=await loadFastMedia();
+  const input=new M.Input({source:new M.BlobSource(S.file),formats:M.ALL_FORMATS});
+  let converted, validation;
+  try {
+    const vt=await input.getPrimaryVideoTrack(), at=await input.getPrimaryAudioTrack();
+    if(!vt || (await input.getVideoTracks()).length!==1 || (await input.getAudioTracks()).length>1) return null;
+    const raw=tplById(clip.tpl).layout==='raw', q=S.exportQ||720;
+    const vw=S.vw, vh=S.vh;
+    if(!vw||!vh) return null;
+    const k=Math.min(q,vw,vh)/Math.min(vw,vh);
+    const canvas=document.createElement('canvas');
+    canvas.width=raw?Math.round(vw*k/2)*2:q;
+    canvas.height=raw?Math.round(vh*k/2)*2:Math.round(H*q/W);
+    const ctx=canvas.getContext('2d');
+    if(!ctx) return null;
+    const support=await VideoEncoder.isConfigSupported({codec:'avc1.420034',width:canvas.width,height:canvas.height,bitrate:q>=1080?9000000:5000000,framerate:30}).catch(()=>null);
+    if(!support?.supported) return null;
+    const target=new M.BufferTarget(), output=new M.Output({target,format:new M.Mp4OutputFormat()});
+    // Freeze edit state during conversion; do not change the source clip when drawing frames.
+    const frozen=JSON.parse(JSON.stringify(clip, (key,val)=>key.startsWith('_')||key==='lineCache'?undefined:val));
+    converted=await M.Conversion.init({
+      input, output, trim:{start,end},
+      video:{codec:'avc',bitrate:q>=1080?9000000:5000000,frameRate:30,forceTranscode:true,
+        processedWidth:canvas.width,processedHeight:canvas.height,
+        process:sample=>{
+          const fr=sample.toVideoFrame();
+          try {
+            const t=start+sample.timestamp;
+            if(raw){
+              ctx.setTransform(1,0,0,1,0,0);
+              ctx.drawImage(fr,0,0,canvas.width,canvas.height);
+              if(S.plan?.watermark){
+                const fs=Math.round(canvas.height*.035);
+                ctx.font='800 '+fs+'px Inter, sans-serif';ctx.textAlign='right';ctx.lineWidth=fs/6;
+                ctx.strokeStyle='rgba(0,0,0,.6)';ctx.strokeText('✂ NEONCUT',canvas.width-fs,canvas.height-fs);
+                ctx.fillStyle='rgba(255,255,255,.85)';ctx.fillText('✂ NEONCUT',canvas.width-fs,canvas.height-fs);
+              }
+            }else{
+              ctx.setTransform(q/W,0,0,q/W,0,0);
+              renderFrame(ctx,fr,frozen,t,frozen.tpl);
+            }
+            return canvas;
+          } finally {fr.close();}
+        }},
+      audio:{codec:'aac',bitrate:160000}
+    });
+    if(!converted.isValid || converted.discardedTracks.length) return null;
+    converted.onProgress=p=>onProg?.(Math.min(.99,p));
+    await converted.execute();
+    if(!target.buffer || target.buffer.byteLength<1024) throw Error('MP4 vazio');
+    const blob=new Blob([target.buffer],{type:'video/mp4'});
+    validation=new M.Input({source:new M.BlobSource(blob),formats:M.ALL_FORMATS});
+    const outVideo=await validation.getPrimaryVideoTrack(), outAudio=await validation.getPrimaryAudioTrack();
+    const duration=await validation.computeDuration();
+    if(!outVideo || (!!at!==!!outAudio) || !Number.isFinite(duration) || Math.abs(duration-(end-start))>.5) throw Error('MP4 fora da duração ou sem áudio');
+    onProg?.(1);
+    return blob;
+  } finally {
+    if(converted && converted.state!=='done') await converted.cancel().catch(()=>{});
+    validation?.dispose();input.dispose();
+  }
+}
+async function exportClip(clip,onProg) {
+  const started=performance.now();
+  try {
+    const accelerated=await fastExportClip(clip,onProg);
+    if(accelerated) { console.info('NEONCUT export WebCodecs (ms)',Math.round(performance.now()-started));return accelerated; }
+  } catch(e) { console.warn('Exportação acelerada indisponível; usando gravador',e); }
+  onProg?.(0);
+  return exportClipRealtime(clip,onProg);
+}
+async function exportClipRealtime(clip, onProg) {
   const ev = $('#ev');
   if (!actx) { actx = new AudioContext(); evSrc = actx.createMediaElementSource(ev); evDest = actx.createMediaStreamDestination(); evSrc.connect(evDest); }
   if (actx.state === 'suspended') await actx.resume();
@@ -2794,7 +2874,7 @@ async function exportWithUI(list, btn) {
   if (!S.user && !S.demo) { track('signup_started', { why: 'download' }); toast('Crie sua conta grátis para baixar seus cortes 🎬', 4000); openAuth('signup', async () => { await claimGuest(); exportWithUI(list, btn); }); return; }
   if (busy) { toast('Já estou exportando um corte, aguarde…'); return; }
   busy = true; const old = btn.textContent; btn.disabled = true;
-  toast('Exportando em tempo real. Mantenha esta aba aberta e a tela ligada.', 4000);
+  toast('Preparando exportação. Mantenha esta aba aberta e a tela ligada.', 4000);
   // 1º corte grátis: 1080p e sem marca d'água (uma vez por conta, controlado no servidor)
   // Reserve a gratuidade somente depois de renderizar um arquivo válido.
   // O servidor continua a decidir atomicamente quem pode receber a oferta.
@@ -2811,6 +2891,7 @@ async function exportWithUI(list, btn) {
         if (paidHd && !(S.plan.hd_left > 0)) { openUpgrade('Você usou a cota de exportações Full HD.', 'proplus'); S.exportQ=720; renderQSel(); break; }
         if (c._capP && !c._capDone) { S.capPriority = c; btn.textContent = '💬 legendando…'; toast('Priorizando a legenda deste corte…', 3000); try { await c._capP; } finally { if(S.capPriority===c) S.capPriority=null; } }
         if (!S.demo) track('export_started', { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0, demo: S.project && S.project.sample ? 1 : 0 });
+        const exportStarted=performance.now();
         const blob = await exportClip(c, p => { btn.textContent = `${list.length > 1 ? (i + 1) + '/' + list.length + ' · ' : ''}${Math.round(clamp(p, 0, 1) * 100)}%`; if (S.cur === c) $('#expStatus').textContent = `Renderizando ${Math.round(clamp(p, 0, 1) * 100)}%`; });
         if (!blob || blob.size < 1000) throw Object.assign(new Error('O navegador não gerou o vídeo. Tente no Chrome ou no Safari atualizados.'), { code: 'empty' });
         if (paidHd) {
@@ -2830,7 +2911,7 @@ async function exportWithUI(list, btn) {
           S.plan.first_free = false; if (S.user) S.user.first_free = false;
           updateResultNotes();
         }
-        deliverBlob(blob, fileName(c, blob), { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0 });
+        deliverBlob(blob, fileName(c, blob), { tpl: c.tpl, q: S.exportQ || 720, first_free: free1 ? 1 : 0, ms:Math.round(performance.now()-exportStarted) });
         if (!S.demo && S.user && S.project?.id && !S.project.sample) awardCreator(c);
       } finally { if (free1) { S.plan.watermark = keep.wm; S.exportQ = keep.q; renderQSel(); renderUsage(); } }
     }
