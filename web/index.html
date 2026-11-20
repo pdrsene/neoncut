@@ -883,12 +883,12 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       <p class="sub" style="text-align:center">Escolha um vídeo de exemplo e veja a NEONCUT cortar de verdade, aqui no navegador. Sem cadastro e sem gastar a sua cota.</p>
       <div class="instant-demo">
         <div><span class="dbadge">PRÉVIA INSTANTÂNEA</span><h3>Veja um exemplo antes de criar</h3><p class="sub">Assista a uma amostra visual do template, sem enviar arquivos, criar conta ou carregar a IA. Quando estiver pronto, teste a criação real com um vídeo de exemplo.</p><div class="row"><button type="button" class="btn" data-demo-try>Testar a criação real</button><button type="button" class="btn ghost" data-cta>Usar meu vídeo</button></div><p class="note">Amostra ilustrativa de template; não representa uma análise feita agora nem garante resultados de audiência.</p></div>
-        <video id="instantPreview" controls playsinline preload="none" aria-label="Amostra visual do template Stream"><source src="demo/t_stream.mp4" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
+        <video id="instantPreview" controls playsinline preload="none" aria-label="Gameplay real com webcam, exemplo de enquadramento"><source src="demo/stream-web.mp4" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
       </div>
       <div class="dgrid" id="demoGrid"><p class="note">Carregando exemplos…</p></div>
       <h3 style="margin:36px 0 6px;text-align:center">Os visuais disponíveis</h3>
       <p class="sub" style="text-align:center">Templates prontos. Ou use "Só o corte" para receber o trecho no formato original.</p>
-      <div class="showcase" id="showcase"></div>
+      <p class="note">Prévias de gameplay real · legendas ilustrativas.</p><div class="showcase" id="showcase"></div>
     </section>
 
     <section class="lp-sec" id="como">
@@ -1054,7 +1054,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     </div>
 
     <div class="stylehead adv-only"><i>🎨</i> Estilo da legenda e visual<span class="all" id="moreTplToggle"></span></div>
-    <div class="tplpick adv-only" id="tplPick"></div>
+    <p class="note adv-only">Prévias com gameplay real · texto de legenda ilustrativo.</p><div class="tplpick adv-only" id="tplPick"></div>
     <input type="hidden" id="optTpl" value="stream">
     <p class="note adv-only" style="margin:8px 0 0">Dá para trocar e ajustar cada corte depois, no editor.</p>
 
@@ -3383,36 +3383,64 @@ function sampleClip() {
   const w = 'olha a polícia vindo corre'.split(' ');
   return { idx: 0, start: 0, end: 30, peakT: 99, title: 'FUGA DA POLÍCIA 🚔', words: w.map((t, i) => ({ text: t, start: .2 + i * .3, end: .45 + i * .3 })), wordsVer: 1, emojis: true, corner: 'br', camSize: 25, pan: 0, handle: '', capColor: '', capY: null, showTitle: true, showCaps: true };
 }
-// clipe de exemplo com fala mais longa, para a legenda "andar" na animação
-const PV_WORDS = 'olha só o que aconteceu agora a polícia chegou e todo mundo correu não acredito'.split(' ');
-function sampleClipAnim() { return { idx: 0, start: 0, end: 6, peakT: 1.4, title: 'EXEMPLO DE TÍTULO DO CORTE', words: PV_WORDS.map((t, i) => ({ text: t, start: .25 + i * .34, end: .5 + i * .34 })), wordsVer: 1, emojis: true, corner: 'br', camSize: 25, pan: 0, handle: '@seucanal', capColor: '', capY: null, showTitle: true, showCaps: true }; }
-const _animClip = sampleClipAnim();
-let _animList = [], _animRAF = 0, _animLast = 0;
-function paint(canvas, id) { canvas._tplId = id; if (!_animList.includes(canvas)) _animList.push(canvas); drawPreviewFrame(canvas, id, 0); startPreviewLoop(); }
-function drawPreviewFrame(canvas, id, t) {
-  const ctx = canvas.getContext('2d'), sc = canvas.width / W, tt = t % _animClip.end;
-  _scene = _scene || sampleScene();
-  // movimento de "vídeo": leve pan lateral + zoom pulsando a cada ~2,2s
-  _animClip.pan = Math.round(Math.sin(tt * 0.9) * 42);
-  _animClip.peakT = Math.floor(tt / 2.2) * 2.2 + 0.35;
-  S._preview = true;
-  try { ctx.setTransform(sc, 0, 0, sc, 0, 0); renderFrame(ctx, _scene, _animClip, tt, id); ctx.setTransform(1, 0, 0, 1, 0, 0); } finally { S._preview = false; }
+// Real gameplay sources shared across every template gallery; no audio or user uploads are fetched here.
+const REAL_SAMPLE={drive:{src:'demo/drive-web.mp4',title:'ELE ESTAVA NO CELULAR?'},robbery:{src:'demo/robbery-web.mp4',title:'PEDIU PIX NO ASSALTO?'}};
+const REAL_TPL_SOURCE={neon:'drive',fuga:'drive',stream:'robbery',stream_nt:'robbery',cinema:'drive',meme:'robbery',raw:'drive'};
+const REAL_SAMPLE_WORDS='exemplo de legenda animada'.split(' ');
+const REAL_SAMPLE_CLIPS=Object.fromEntries(Object.entries(REAL_SAMPLE).map(([key,v])=>[key,{idx:0,start:0,end:4,peakT:1.4,title:v.title,words:REAL_SAMPLE_WORDS.map((text,i)=>({text,start:.25+i*.65,end:.85+i*.65})),wordsVer:1,emojis:false,corner:'br',camSize:25,camRect:{x:.773,y:.448,w:.225,h:.288},pan:0,handle:'',capColor:'',capY:null,showTitle:true,showCaps:true}]));
+const realPreviewMedia=new Map(), previewReduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+let _animList=[],_animRAF=0,_animLast=0;
+function getRealPreview(key){
+  if(realPreviewMedia.has(key))return realPreviewMedia.get(key);
+  const v=document.createElement('video');
+  v.muted=true;v.defaultMuted=true;v.loop=true;v.playsInline=true;v.preload='auto';
+  v.setAttribute('muted','');v.setAttribute('playsinline','');v.setAttribute('aria-hidden','true');v.tabIndex=-1;
+  v.style.cssText='position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:0;top:0';
+  v.src=REAL_SAMPLE[key].src;
+  document.body.appendChild(v);realPreviewMedia.set(key,v);
+  v.addEventListener('loadeddata',startPreviewLoop);v.addEventListener('error',startPreviewLoop);
+  return v;
 }
-function startPreviewLoop() { if (_animRAF) return; _animRAF = requestAnimationFrame(previewLoop); }
-function previewLoop(ts) {
-  _animRAF = 0;
-  if (ts - _animLast > 45) {  // ~22 fps, movimento de vídeo
-    _animLast = ts;
-    if (document.hidden || !$('#proc').classList.contains('hidden') || busy) { _animRAF=requestAnimationFrame(previewLoop); return; }
-    const t = (ts / 1000) % _animClip.end;
-    _animList = _animList.filter(c => c.isConnected);
-    let any = false;
-    for (const c of _animList) { const r = c.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight && r.width) { drawPreviewFrame(c, c._tplId, t); any = true; } }
-    if (!any && !_animList.length) return;  // ninguém visível e lista vazia: para
+function previewPlaceholder(canvas,error=false){
+  const x=canvas.getContext('2d');x.setTransform(1,0,0,1,0,0);x.fillStyle='#111113';x.fillRect(0,0,canvas.width,canvas.height);x.fillStyle='#a1a1aa';x.textAlign='center';x.font='600 '+Math.max(9,Math.round(canvas.width*.064))+'px Inter, sans-serif';
+  x.fillText(error?'Prévia indisponível':'Carregando gameplay…',canvas.width/2,canvas.height/2);
+}
+function paint(canvas,id){
+  canvas._tplId=id;canvas.setAttribute('role','img');canvas.setAttribute('aria-label','Gameplay real · exemplo visual de '+tplById(id).name);
+  if(!_animList.includes(canvas))_animList.push(canvas);
+  previewPlaceholder(canvas);startPreviewLoop();
+}
+function drawPreviewFrame(canvas,id,video){
+  if(video.readyState<2){if(video.error)previewPlaceholder(canvas,true);return;}
+  const key=REAL_TPL_SOURCE[id]||'drive',clip=REAL_SAMPLE_CLIPS[key],ctx=canvas.getContext('2d'),sc=canvas.width/W,t=video.currentTime%4;
+  const was=S._preview;S._preview=true;
+  try{ctx.setTransform(sc,0,0,sc,0,0);renderFrame(ctx,video,clip,t,id);}
+  finally{ctx.setTransform(1,0,0,1,0,0);S._preview=was;}
+}
+function startPreviewLoop(){if(!_animRAF&&!document.hidden)_animRAF=requestAnimationFrame(previewLoop);}
+function pauseRealPreviews(){for(const v of realPreviewMedia.values())v.pause();}
+function previewLoop(ts){
+  _animRAF=0;
+  _animList=_animList.filter(c=>c.isConnected);
+  if(document.hidden||!_animList.length){pauseRealPreviews();return;}
+  if(ts-_animLast>=110){
+    _animLast=ts;
+    const visible=[];
+    if($('#proc').classList.contains('hidden')&&!busy&&!S.fullScanning){
+      for(const canvas of _animList){const r=canvas.getBoundingClientRect();if(r.width&&r.height&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth)visible.push(canvas);}
+    }
+    const active=new Set(visible.map(c=>REAL_TPL_SOURCE[c._tplId]||'drive'));
+    for(const key of active){
+      const v=getRealPreview(key);
+      if(!previewReduceMotion.matches&&v.paused&&!v.error&&!v._ncPlaying&&!v._ncBlocked){v._ncPlaying=true;v.play().catch(()=>{v._ncBlocked=true;}).finally(()=>{v._ncPlaying=false;});}
+    }
+    for(const [key,v] of realPreviewMedia)if(!active.has(key)||previewReduceMotion.matches)v.pause();
+    for(const canvas of visible){const v=realPreviewMedia.get(REAL_TPL_SOURCE[canvas._tplId]||'drive');try{drawPreviewFrame(canvas,canvas._tplId,v);}catch(e){previewPlaceholder(canvas,true);}}
   }
-  _animRAF = requestAnimationFrame(previewLoop);
+  startPreviewLoop();
 }
-document.addEventListener('visibilitychange', () => { if (!document.hidden) startPreviewLoop(); });
+document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnimationFrame(_animRAF);_animRAF=0;pauseRealPreviews();}else startPreviewLoop();});
+document.addEventListener('pointerdown',()=>{for(const v of realPreviewMedia.values())if(v._ncBlocked){v._ncBlocked=false;}startPreviewLoop();},{passive:true});
 function renderTplPick() {
   const box = $('#tplPick'); if (!box) return;
   const cur = $('#optTpl').value;
