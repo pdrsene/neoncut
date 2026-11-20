@@ -757,9 +757,14 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 #upload.quick .adv-only{display:none!important}
 #upload:not(.quick) .quick-only{display:none!important}
 .autobox{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:16px}
-.autobox div{background:#111113;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.autobox span{display:block;color:var(--muted);font-size:12px}
-.autobox b{font-size:15px}
+.autobox label{display:flex;flex-direction:column;min-width:0;gap:4px;background:#111113;border:1px solid var(--line);border-radius:12px;padding:8px 10px;cursor:pointer}
+.autobox label:hover,.autobox label:focus-within{border-color:var(--accent)}
+.autobox span{color:var(--muted);font-size:12px}
+.autobox select{width:100%;min-width:0;min-height:30px;padding:2px 4px;border:0;background:#111113;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;appearance:auto}
+.autobox select option{background:#18181b;color:#fafafa}
+.autobox select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.autobox select:disabled{cursor:not-allowed;opacity:.65}
+@media(max-width:760px){.autobox{grid-template-columns:repeat(2,minmax(0,1fr))}.autobox select{min-height:35px;font-size:16px}.autobox label:last-child{grid-column:1/-1}}
 /* navegador interno (Instagram/TikTok) */
 .inapp{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#18181B;border:1px solid rgba(250,204,21,.4);border-radius:12px;padding:12px 14px;margin:10px 0;font-size:14px;line-height:1.45}
 .inapp b{color:#facc15}
@@ -967,6 +972,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     </div>
     <div class="fhint adv-only" id="focusHint">Ganchos curtos e virais — picos de emoção, reações e viradas.</div>
 
+    <p class="note quick-only" style="margin:16px 0 -8px">Personalize seus cortes: toque em qualquer configuração abaixo.</p>
     <div class="autobox quick-only" id="autoBox"></div>
     <div class="secq adv-only"><i>⏱️</i> Duração de cada corte<span class="cnt" id="durEst"></span></div>
     <div class="durtabs adv-only" id="durTabs">
@@ -3208,6 +3214,7 @@ function renderOpts() {
     if (PLAN_RANK[needPlan(kind, sel.value)] > mine) { const best = [...sel.options].filter(o => PLAN_RANK[o.dataset.need] <= mine).pop(); if (best) sel.value = best.value; }
     sel.dataset.prev = sel.value;
   }
+  if ($('#autoBox')?.dataset.ready) { syncQuickDuration(); renderAutoBox(); }
 }
 for (const id of ['#optDur', '#optN', '#optModel']) $(id).addEventListener('change', e => {
   const sel = e.target, need = sel.selectedOptions[0].dataset.need;
@@ -3287,6 +3294,7 @@ function renderTplPick() {
   const cur = $('#optTpl').value;
   box.innerHTML = TEMPLATES.map(t => `<button type="button" data-pt="${t.id}" class="${t.id === cur ? 'on' : ''}"><canvas width="270" height="480"></canvas>${!isPro() && !FREE_TPLS.includes(t.id) ? '<span class="badge">🔒 PRO</span>' : ''}<span>${t.name}</span><small>${TPL_DESC[t.id] || ''}</small></button>`).join('');
   box.querySelectorAll('[data-pt]').forEach(b => paint(b.querySelector('canvas'), b.dataset.pt));
+  if ($('#autoBox')?.dataset.ready) renderAutoBox();
 }
 $('#tplPick').addEventListener('click', e => {
   const b = e.target.closest('[data-pt]'); if (!b) return;
@@ -3768,8 +3776,9 @@ $('#durTabs').addEventListener('click', e => {
   const need = typeof needPlan === 'function' ? needPlan('dur', v) : 'free';
   const rank = { free: 0, pro: 1, proplus: 2 };
   if (rank[need] > rank[S.plan.plan || 'free']) { openUpgrade(`Cortes de até ${+v >= 120 ? '2 min' : v + 's'} são do plano ${need === 'pro' ? 'Pro' : 'Pro+'}.`); return; }
-  S.durTab = v; $('#optDur').value = v; $('#durCustomWrap').style.display = 'none';
+  S.durTab = v; $('#optDur').value = v; $('#optDur').dataset.prev = v; $('#durCustomWrap').style.display = 'none';
   document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x === b));
+  renderAutoBox();
 });
 function renderDurTabs() {
   const rank = { free: 0, pro: 1, proplus: 2 }, mine = rank[S.plan.plan || 'free'];
@@ -4284,16 +4293,49 @@ document.addEventListener('click', e => {
 
 // ---------- modo rápido / avançado ----------
 S.defModel = $('#optModel').value;
+function syncQuickDuration() {
+  const v = $('#optDur').value, tabs = ['30','60','90','120'];
+  S.durTab = tabs.includes(v) ? v : 'custom';
+  $('#durCustomWrap').style.display = S.durTab === 'custom' ? '' : 'none';
+  document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x.dataset.dur === S.durTab));
+}
 function renderAutoBox() {
   const box = $('#autoBox'); if (!box) return;
-  const D = +$('#optDur').value, m = $('#optModel').value, t = tplById($('#optTpl').value);
-  box.innerHTML = `<div><span>Quantidade</span><b>${$('#optN').value} cortes</b></div><div><span>Duração</span><b>até ${D >= 60 ? (D / 60 > 1 ? String(D / 60).replace('.', ',') + ' min' : '1 min') : D + ' s'}</b></div><div><span>Formato</span><b>Vertical 9:16</b></div><div><span>Legendas</span><b>${m === 'none' ? 'Sem legendas' : 'Automáticas'}</b></div><div><span>Visual</span><b>${esc(t.name)}</b></div>`;
+  box.dataset.ready = '1';
+  const tpl = $('#optTpl').value, raw = tpl === 'raw', active = document.activeElement?.dataset.quick;
+  if (!raw) S.quickVerticalTpl = tpl;
+  const opts = (id, label) => [...$(id).options].map(o => [o.value, label(o)]);
+  const item = (key, label, value, choices, disabled = false) => `<label><span>${label}</span><select data-quick="${key}" aria-label="${label}" ${disabled ? 'disabled' : ''}>${choices.map(([v, t]) => `<option value="${esc(v)}" ${v === value ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
+  const suffix = o => PLAN_RANK[o.dataset.need] > PLAN_RANK[S.plan.plan || 'free'] ? (o.dataset.need === 'pro' ? ' · Pro' : ' · Pro+') : '';
+  box.innerHTML = item('n','Quantidade',$('#optN').value,opts('#optN',o=>o.value+' cortes'+suffix(o)))
+    + item('dur','Duração',$('#optDur').value,opts('#optDur',o=>'até '+(+o.value>=60 ? (+o.value/60).toLocaleString('pt-BR')+' min' : o.value+' s')+suffix(o)))
+    + item('format','Formato',raw?'raw':'vertical',[['vertical','Vertical 9:16'],['raw','Formato original']])
+    + item('model','Legendas',raw?'none':$('#optModel').value,raw?[['none','Sem legendas']]:opts('#optModel',o=>({none:'Sem legendas',tiny:'Rápidas',base:'Equilibradas',small:'Precisas'}[o.value]||o.textContent)+suffix(o)),raw)
+    + item('tpl','Visual',tpl,TEMPLATES.map(t=>[t.id,t.name+(!isPro()&&!FREE_TPLS.includes(t.id)?' · Pro':'')]));
+  if (raw) box.querySelector('[data-quick="model"]').title = 'O formato original não aplica legendas ao vídeo. Escolha formato vertical para usar legendas.';
+  if (active) box.querySelector('[data-quick="'+active+'"]')?.focus({preventScroll:true});
 }
+$('#autoBox').addEventListener('change', e => {
+  const sel=e.target.closest('select[data-quick]'); if(!sel) return;
+  const key=sel.dataset.quick, value=sel.value;
+  if (['n','dur','model'].includes(key)) {
+    const target=$({n:'#optN',dur:'#optDur',model:'#optModel'}[key]);
+    target.value=value; target.dispatchEvent(new Event('change',{bubbles:true}));
+    if(key==='dur') syncQuickDuration();
+  } else {
+    let tpl=key==='format'?(value==='raw'?'raw':(S.quickVerticalTpl||'stream')):value;
+    if(key==='format'&&value==='vertical'&&!isPro()&&!FREE_TPLS.includes(tpl)) tpl='stream';
+    if(!TEMPLATES.some(t=>t.id===tpl)) {renderAutoBox();return;}
+    if(!isPro()&&!FREE_TPLS.includes(tpl)) {openUpgrade('O template '+tplById(tpl).name+' faz parte do Pro e do Pro+.');renderAutoBox();return;}
+    $('#optTpl').value=tpl;renderTplPick();
+  }
+  renderAutoBox();
+});
 function setMode(m, save) {
   const q = m !== 'adv', up = $('#upload'); if (!up) return;
   up.classList.toggle('quick', q);
   document.querySelectorAll('.modesw [data-mode]').forEach(b => { const on = (b.dataset.mode === 'quick') === q; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
-  if (q) {
+  if (q && !save && !$('#autoBox').dataset.ready) {
     $('#optN').value = '3'; S.durTab = '60'; $('#optDur').value = '60'; $('#durCustomWrap').style.display = 'none';
     document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x.dataset.dur === '60'));
     if (S.defModel && [...$('#optModel').options].some(o => o.value === S.defModel)) $('#optModel').value = S.defModel;
@@ -4301,11 +4343,12 @@ function setMode(m, save) {
     $('#optVisual').checked = FOCUS_VISUAL[S.focus || 'viral'] !== false;
     renderOpts();
   }
+  syncQuickDuration();
   if (save) { lsSet('nc_mode', q ? 'quick' : 'adv'); track('source_selected', { src: 'mode_' + (q ? 'rapido' : 'avancado') }); }
   renderAutoBox();
 }
 $('.modesw')?.addEventListener('click', e => { const b = e.target.closest('[data-mode]'); if (b) setMode(b.dataset.mode, true); });
-['#optN', '#optDur', '#optModel', '#optTpl'].forEach(id => $(id)?.addEventListener('change', renderAutoBox));
+['#optN', '#optDur', '#optModel', '#optTpl'].forEach(id => $(id)?.addEventListener('change', () => { syncQuickDuration(); renderAutoBox(); }));
 setMode(lsGet('nc_mode') || 'quick');
 
 // ---------- pesquisa opcional de abandono ----------
