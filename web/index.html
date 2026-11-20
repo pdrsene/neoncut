@@ -1078,6 +1078,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <div class="guestsave hidden" id="guestSave"><div><b>🎉 Seus cortes estão prontos!</b><div class="note" style="margin-top:4px">Crie sua conta grátis para baixar e salvar. Leva 10 segundos e os cortes continuam aqui.</div></div><div class="spacer"></div><button class="btn" id="guestSaveBtn">Criar conta e baixar</button></div>
     <div class="warn hidden" id="capWarn"></div>
     <div class="momentsearch"><label for="momentQuery"><b>Buscador de momentos</b></label><div class="row"><input type="search" maxlength="160" id="momentQuery" placeholder="Ex.: perseguições policiais, rage, uma frase engraçada" style="flex:1;min-width:0"><button type="button" class="btn ghost small" id="momentClear">Limpar</button></div><p id="momentCount" class="note" role="status">Busca nas falas transcritas e categorias dos cortes detectados, não no vídeo inteiro.</p></div>
+    <div class="panel" style="margin-top:12px" id="fullSearchPanel"><h3>Buscar em toda a gravação</h3><p class="note">Transcreve o vídeo inteiro no aparelho, em blocos, e encontra falas e termos relacionados. Não interpreta cenas sem fala. Pode demorar em vídeos longos.</p><div class="row" style="flex-wrap:wrap"><button class="btn small" id="fullSearch">Indexar gravação e buscar</button><button class="btn ghost small hidden" id="fullCancel">Parar</button></div><p class="note" id="fullState" role="status"></p><div id="fullHits"></div><video id="fullPreview" controls playsinline class="hidden" style="width:100%;max-height:260px;margin-top:10px"></video></div>
     <div class="grid" id="grid" style="margin-top:14px"></div>
     <div class="dl" id="dlList" style="margin-top:16px"></div>
   </section>
@@ -1093,12 +1094,15 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 
   <main id="vCreator" class="view hidden">
     <div class="apphead"><div><h2>Creator Hub</h2><p class="sub">Evolua com seus cortes, indique amigos e mostre seu trabalho.</p></div><a class="btn small" href="#criar">Criar cortes</a></div>
-    <div id="creatorStats" class="panel"><p class="note">Carregando…</p></div>
+    <div id="creatorStats" class="panel"><p class="note">Carregando…</p></div><div class="row" style="flex-wrap:wrap;margin:14px 0"><a class="btn ghost small" href="#calendario">Calendário</a><a class="btn ghost small" href="#oportunidades">Oportunidades</a><a class="btn ghost small" href="#nuvem">Fila em nuvem</a></div><div class="panel"><h3>Missões e conquistas</h3><p class="note">Bônus de XP cosmético, semana de segunda a domingo (UTC). Os mesmos cortes não pontuam duas vezes.</p><div id="missionList"></div></div>
     <div class="panel" style="margin-top:16px"><h3>Indique e evolua</h3><p class="note">Ganhe 100 XP por amigo que fizer sua primeira compra aprovada e completar 7 dias. Até 20 indicações premiadas. Não vale autoindicação; XP não é dinheiro, desconto ou crédito de processamento.</p><div class="row"><input id="creatorInvite" readonly aria-label="Link de indicação" style="flex:1;min-width:0"><button class="btn small" id="copyInvite">Copiar link</button></div><p class="note" id="creatorRefStats"></p></div>
     <div class="panel" style="margin-top:16px"><h3>Seu portfólio</h3><p class="note">Mostre somente trabalhos próprios ou autorizados. Seu perfil começa privado; seu e-mail, vídeos e projetos não serão publicados.</p>
       <form id="portfolioForm" class="creatorform"><label class="f">Nome público<input id="portfolioName" maxlength="60" required></label><label class="f">Sobre seu trabalho<textarea id="portfolioBio" maxlength="280" rows="3"></textarea></label><label class="f">Tema<select id="portfolioTheme"></select></label><div id="portfolioLinks"></div><button class="btn ghost small" id="portfolioAdd" type="button">+ Adicionar trabalho</button><label class="check"><input type="checkbox" id="portfolioPublic"> Tornar meu portfólio público</label><button type="submit" class="btn">Salvar portfólio</button></form><div id="portfolioShare" class="row hidden" style="margin-top:12px"><a id="portfolioOpen" class="btn ghost small" target="_blank" rel="noopener">Ver perfil público</a><button class="btn ghost small" id="portfolioCopy">Copiar link</button></div><p id="portfolioMsg" class="note" role="status"></p></div>
   </main>
   <main id="vPortfolio" class="view hidden"><div id="publicPortfolio" class="panel"><p class="note">Carregando portfólio…</p></div><a class="btn ghost" href="#inicio" style="margin-top:16px">Conheça a NEONCUT</a></main>
+  <main id="vCalendar" class="view hidden"><div class="apphead"><div><h2>Calendário de publicações</h2><p class="sub">Organize seus cortes. O agendamento é interno, não publica automaticamente nas redes.</p></div><a class="btn ghost small" href="#creator">Creator Hub</a></div><div class="panel"><form id="calendarForm" class="creatorform"><input type="hidden" id="calId"><label class="f">Data<input type="date" id="calDate" required></label><label class="f">Rede<select id="calPlatform"><option>TikTok</option><option>Instagram Reels</option><option>YouTube Shorts</option></select></label><label class="f">Título<input id="calTitle" maxlength="120" required></label><label class="f">Descrição<textarea id="calDesc" maxlength="2000" rows="3"></textarea></label><label class="f">Hashtags<input id="calTags" maxlength="500"></label><button class="btn ghost small" type="button" id="calSuggest">Sugerir hashtags para a rede</button><label class="f">Status<select id="calStatus"><option value="planejado">Planejado</option><option value="publicado">Publicado</option></select></label><div class="row"><button class="btn" type="submit">Salvar publicação</button><button class="btn ghost" type="button" id="calReset">Limpar</button></div></form><p class="note" id="calMsg" role="status"></p></div><div id="calendarList" style="margin-top:14px"></div></main>
+  <main id="vOpportunity" class="view hidden"><div class="apphead"><div><h2>Central de oportunidades</h2><p class="sub">Vagas reais verificadas manualmente. A candidatura acontece no link do responsável.</p></div><a class="btn ghost small" href="#creator">Creator Hub</a></div><div class="panel hidden" id="oppAdmin"><h3>Publicar oportunidade (admin)</h3><form id="oppForm" class="creatorform"><label class="f">Título<input id="oppTitle" maxlength="120" required></label><label class="f">Streamer / responsável<input id="oppCreator" maxlength="80" required></label><label class="f">Plataforma<input id="oppPlatform" maxlength="50" required></label><label class="f">Requisitos<textarea id="oppReq" maxlength="1500" required></textarea></label><label class="f">Orçamento informado<input id="oppBudget" maxlength="100"></label><label class="f">Link de candidatura<input id="oppUrl" type="url" required></label><label class="check"><input id="oppVerified" type="checkbox" required> Confirmei a existência da vaga e a autorização para divulgar.</label><button class="btn" type="submit">Publicar vaga</button></form><p id="oppMsg" class="note" role="status"></p></div><input id="oppSearch" type="search" placeholder="Buscar oportunidade" aria-label="Buscar oportunidade" style="width:100%;margin:14px 0"><div id="oppList"></div></main>
+  <main id="vCloud" class="view hidden"><div class="apphead"><div><h2>Exportação em nuvem · beta</h2><p class="sub">Recorte manual de até 45 segundos, MP4/MOV de até 50 MB, 720p. Após enviar, você pode fechar a aba. Ainda não gera legendas, templates ou seleção de momentos por IA na nuvem.</p></div><a class="btn ghost small" href="#creator">Creator Hub</a></div><div class="panel"><form id="cloudForm" class="creatorform"><label class="f">Arquivo próprio ou autorizado<input id="cloudFile" type="file" accept="video/mp4,video/quicktime,.mp4,.mov" required></label><label class="f">Começar em (segundos)<input id="cloudStart" type="number" min="0" max="600" step="0.1" value="0" required></label><label class="f">Duração (segundos)<input id="cloudLength" type="number" min="1" max="45" step="0.1" value="30" required></label><label class="f">Formato<select id="cloudLayout"><option value="vertical">Vertical 9:16</option><option value="original">Original</option></select></label><label class="check"><input id="cloudConsent" type="checkbox" required> Autorizo enviar este arquivo ao servidor; o original é apagado após processamento e os arquivos restantes expiram em até 24 horas.</label><button class="btn" type="submit">Enviar para fila</button></form><p class="note" id="cloudMsg" role="status"></p></div><div class="row" style="margin:14px 0"><b>Minhas tarefas</b><div class="spacer"></div><button class="btn ghost small" id="cloudRefresh">Atualizar fila</button></div><p class="note" id="cloudLimit"></p><div id="cloudList"></div></main>
   <!-- ===================== MÉTRICAS (só admin) ===================== -->
   <main id="vMetrics" class="view hidden">
     <div class="apphead"><div><h2>📊 Métricas</h2><p class="sub" style="margin:4px 0 0">Visitas, cliques no seu link, cadastros, compras e o que o pessoal está achando. Só você vê esta tela.</p></div><div class="spacer"></div>
@@ -2211,6 +2215,7 @@ function toast(msg, ms = 2600) { const d = document.createElement('div'); d.clas
 
 
 function setFile(f, fromDemo) {
+  if(S.fullScanning){toast('Pare a indexação antes de trocar de arquivo.');return;}
   if (!f || !(f.type.startsWith('video') || /\.(mp4|mov|webm|mkv|m4v)$/i.test(f.name || ''))) { toast('Escolha um arquivo de vídeo'); return; }
   if (!fromDemo) S.sample = null; else clearYoutubeRef();
   if (typeof sampleUI === 'function') sampleUI();
@@ -2413,6 +2418,7 @@ function ensureSrc(v, src) { if (!src || v.dataset.ncsrc === src) return Promise
 const clipSrc = c => (c && c.src) || S.url;
 
 $('#go').onclick = async () => {
+  if(S.fullScanning){toast('Finalize ou pare a indexação antes de gerar outro vídeo.');return;}
   const sample = !!(S.sample && S.mode !== 'link');
   if (!sample && !S.user && (S.mode === 'link' || !guestOk())) { if (S.mode !== 'link') toast('Você já fez o seu corte de teste. Crie a conta grátis para continuar (3 vídeos por mês).', 5000); openAuth('signup', () => $('#go').click()); return; }
   if (S.mode === 'link') { const e = linkRangeError(); if (e) { showLinkErr(e); return; } }
@@ -2439,10 +2445,11 @@ $('#go').onclick = async () => {
 
 async function pipelineRun(skip) {
   const T0 = performance.now(), lap = {}; const mark = k => lap[k] = Math.round(performance.now() - T0);
-  const wantCaps = !skip.includes(6);
+  const wantCaps = !skip.includes(6), lowMemory=IS_MOBILE || (navigator.deviceMemory && navigator.deviceMemory<=4);
+  S.fullIndex=null;$('#fullHits').textContent='';$('#fullState').textContent='';$('#fullPreview').pause();$('#fullPreview').removeAttribute('src');$('#fullPreview').classList.add('hidden');
   // a IA de legendas começa a baixar/carregar JÁ, enquanto o vídeo baixa e é analisado
   let asrP = null;
-  if (wantCaps) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
+  if (wantCaps && !lowMemory) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
   const st7 = $('#st7'); if (st7) st7.classList.add('hidden'); // legendar agora acontece depois, com os cortes já na tela
   if (S.mode === 'link') { const f = await fetchRemote(); S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
   const pv = $('#pv'), ev = $('#ev'), av = $('#av');
@@ -2456,9 +2463,11 @@ async function pipelineRun(skip) {
     S.feats = audio ? await audioFeatures(audio, p => step(3, 'active', Math.round(p * 100) + '%')) : null;
     step(3, 'done'); mark('som');
   })();
+  if(lowMemory) await audioJob; // avoid simultaneous decoder allocations on mobile
   const visJob = skip.includes(4) ? Promise.resolve(null)
     : visualFeatures(av, S.duration, p => step(4, 'active', Math.round(p * 100) + '%'), S.file).then(v => { step(4, 'done'); mark('imagem'); lap.players = v && v.K; return v; });
   const [, V] = await Promise.all([audioJob, visJob]);
+  if(wantCaps && lowMemory){onDl=capDlProgress;asrP=S.asrInfo&&S.asrInfo.size===S.settings.model?Promise.resolve(S.asrInfo):loadASR(S.settings.model);asrP.then(()=>step(6,'done'),()=>step(6,'done'));}
   // momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
@@ -2558,6 +2567,7 @@ function showResults(capErr) {
   $('#proc').classList.add('hidden'); $('#results').classList.remove('hidden');
   if (capErr) { $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = '⚠ Legendas indisponíveis: ' + capErr + ' Os cortes funcionam normalmente sem legenda.'; }
   $('#resSub').textContent = resSubText();
+  if(S.fullIndex?.file!==S.file){S.fullIndex=null;$('#fullHits').textContent='';$('#fullState').textContent='';$('#fullPreview').pause();$('#fullPreview').removeAttribute('src');$('#fullPreview').classList.add('hidden');}
   updateResultNotes();
   renderGrid();
   // leva a pessoa ao topo dos cortes (no celular a página ficava parada lá embaixo, no rodapé)
@@ -2589,6 +2599,7 @@ $('#restart').onclick = () => { location.hash = '#criar'; location.reload(); };
 
 let busy = false;
 async function exportWithUI(list, btn) {
+  if(S.fullScanning){toast('Aguarde a busca na gravação ou clique em Parar.');return;}
   if (!S.user && !S.demo) { track('signup_started', { why: 'download' }); toast('Crie sua conta grátis para baixar seus cortes 🎬', 4000); openAuth('signup', async () => { await claimGuest(); exportWithUI(list, btn); }); return; }
   if (busy) { toast('Já estou exportando um corte, aguarde…'); return; }
   busy = true; const old = btn.textContent; btn.disabled = true;
@@ -2854,6 +2865,7 @@ $('#caps').addEventListener('change', e => {
   const i0 = c.words.indexOf(l.words[0]); c.words.splice(i0, l.words.length, ...nw); c.wordsVer++; renderCaps(); drawPreview();
 });
 $('#retrans').onclick = async e => {
+  if(S.fullScanning){toast('Aguarde a indexação.');return;}
   if (S.capRunning) { toast('As legendas ainda estão sendo geradas, um instante…'); return; }
   const btn = e.target, c = S.cur; btn.disabled = true; btn.textContent = '🎙 Legendando…';
   try { if (!S.asrInfo) await loadASR(S.settings.model === 'none' ? 'base' : S.settings.model); await transcribeClip(c); c.wordsVer++; renderCaps(); drawPreview(); toast('Legendas atualizadas'); }
@@ -2866,7 +2878,7 @@ $('#retrans').onclick = async e => {
 // ============================================================
 const FREE_TPLS = FREE_TPLS_EARLY;
 const COLORS = ['#ffcf3c', '#ffe600', '#39ff14', '#29e0d0', '#ff3d8b', '#ff8a3c', '#ffffff'];
-S.cfg = { intro_months: 1, hd_free_uses: 5, prices: { pro: { intro: 12.9, regular: 19.9 }, proplus: { intro: 29.9, regular: 29.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: 5 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
+S.cfg = { intro_months: 1, hd_free_uses: 10, prices: { pro: { intro: 12.9, regular: 19.9 }, proplus: { intro: 29.9, regular: 29.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: 10 }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
 S.exportQ = 720;
 S.user = null;
 S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
@@ -2881,7 +2893,7 @@ function planCard(plan, opts = {}) {
   const clip = L.max_clips ? `Até ${L.max_clips} cortes por vídeo, de até ${dur(L.max_duration)}` : '';
   if (plan === 'free') return `<div class="price"><h3>Grátis</h3><div class="amt">R$ 0</div><ul>
     ${S.cfg.first_free ? '<li><b>1º corte em 1080p e sem marca d’água</b></li>' : ''}<li>${L.projects} vídeos por mês</li><li>Até ${Math.round(L.max_minutes)} min por vídeo</li>${clip ? `<li>${clip}</li>` : ''}<li>Lives de até ${Math.round(L.live_minutes)} min</li>
-    <li>Só o corte + Webcam do Streamer</li><li class="off">Depois: 720p com marca d’água</li></ul>
+    <li>Só o corte + Webcam do Streamer</li><li>1 teste de exportação em nuvem/24h (beta)</li><li class="off">Depois: 720p com marca d’água</li></ul>
     <button class="btn ghost" data-cta style="width:100%">Começar grátis</button></div>`;
   const now = priceFor(plan), promo = now < P.regular;
   const feats = plan === 'pro'
@@ -2892,7 +2904,7 @@ function planCard(plan, opts = {}) {
     <h3>${plan === 'pro' ? 'Pro' : 'Pro+'}</h3>
     <div class="amt">R$ ${money(now)}<small>/mês</small></div>
     <div class="old">${promo ? `${(n => n > 1 ? `nos ${n} primeiros meses` : 'no 1º mês')(S.user ? (S.plan.intro_left ? S.plan.intro_left[plan] : m) : m)}, depois R$ ${money(P.regular)}/mês` : 'por 30 dias'}</div>
-    <ul>${feats.filter(Boolean).map(f => `<li>${f}</li>`).join('')}</ul>
+    <ul>${feats.filter(Boolean).map(f => `<li>${f}</li>`).join('')}<li>${plan==='pro'?3:5} exportações em nuvem/24h (beta, 720p)</li></ul>
     <button class="btn ${plan === 'pro' ? '' : 'teal'}" data-buy="${plan}" style="width:100%">${cur ? 'Renovar +30 dias' : 'Assinar ' + (plan === 'pro' ? 'Pro' : 'Pro+')}</button></div>`;
 }
 function renderPrices() {
@@ -2913,7 +2925,7 @@ async function loadMe() {
 function setUser(u) {
   const wasId = S.user && S.user.id;
   S.user = u;
-  if (!u || u.id !== wasId) { S.creatorLevel = null; S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
+  if (!u || u.id !== wasId) { clearWorkspace(); S.creatorLevel = null; S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
   S.plan = u ? Object.assign({}, u) : { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
   if (u && S.project && S.project.guest) setTimeout(claimGuest, 0);
@@ -2926,7 +2938,7 @@ function renderNav() {
   const u = S.user, h = location.hash || '';
   const L = (href, txt) => `<a href="${href}" class="${h === href ? 'on' : ''}">${txt}</a>`;
   $('#navLinks').innerHTML = u
-    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#creator', 'Creator Hub') + L('#estudio', '🎬 Estúdio') + L('#precos', 'Planos') + `<a href="#" data-tutorial>📘 Tutorial</a>` + (u.admin ? L('#metricas', '📊 Métricas') : '')
+    ? L('#criar', 'Criar cortes') + L('#projetos', 'Meus projetos') + L('#creator', 'Creator Hub') + L('#calendario', 'Calendário') + L('#estudio', '🎬 Estúdio') + L('#precos', 'Planos') + `<a href="#" data-tutorial>📘 Tutorial</a>` + (u.admin ? L('#metricas', '📊 Métricas') : '')
     : L('#como', 'Como funciona') + L('#precos', 'Preços') + L('#faq', 'Dúvidas') + `<a href="#" data-tutorial>📘 Tutorial</a>`;
   document.body.classList.toggle('authed', !!u);
   const T = (href, ic, txt, extra) => `<a href="${href}" ${extra || ''} class="${h === href ? 'on' : ''}"><i>${ic}</i><span>${txt}</span></a>`;
@@ -2959,8 +2971,8 @@ function renderUsage() {
 }
 
 // ---------- rotas ----------
-const VIEWS = { '': 'vLanding', '#inicio': 'vLanding', '#como': 'vLanding', '#precos': 'vLanding', '#faq': 'vLanding', '#criar': 'vApp', '#projetos': 'vProjects', '#conta': 'vAccount', '#creator': 'vCreator', '#portfolio': 'vPortfolio', '#metricas': 'vMetrics', '#termos': 'vTerms', '#privacidade': 'vPrivacy', '#entrar': 'vLanding' };
-const NEEDS_LOGIN = ['#criar', '#projetos', '#conta', '#metricas', '#creator'];
+const VIEWS = { '': 'vLanding', '#inicio': 'vLanding', '#como': 'vLanding', '#precos': 'vLanding', '#faq': 'vLanding', '#criar': 'vApp', '#projetos': 'vProjects', '#conta': 'vAccount', '#creator': 'vCreator', '#calendario':'vCalendar', '#oportunidades':'vOpportunity', '#nuvem':'vCloud', '#portfolio': 'vPortfolio', '#metricas': 'vMetrics', '#termos': 'vTerms', '#privacidade': 'vPrivacy', '#entrar': 'vLanding' };
+const NEEDS_LOGIN = ['#criar', '#projetos', '#conta', '#metricas', '#creator', '#calendario', '#oportunidades', '#nuvem'];
 function route() {
   let h = location.hash || '';
   if ((!h || h === '#inicio') && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
@@ -2974,13 +2986,17 @@ function route() {
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
   if (v !== 'vLanding') $('#instantPreview')?.pause();
+  if(v!=='vApp')$('#fullPreview')?.pause();
   if (v === 'vProjects') renderProjects();
   const gb = $('#guestBar'); if (gb) gb.classList.toggle('hidden', !!S.user || v !== 'vApp');
   if (v === 'vApp' && !S.user && S.mode === 'link' && !S.guestTabSet) { S.guestTabSet = true; document.querySelector('.tab[data-tab="file"]').click(); }
   if (v === 'vApp' && typeof loadStreams === 'function' && !$('#upload').classList.contains('hidden')) { loadStreams(); renderYT(); updateBackBar(); }
   if (v === 'vLanding') { renderViral(); renderProof(); }
   if (v === 'vAccount') renderAccount();
-  if (v === 'vCreator') loadCreator();
+  if (v === 'vCreator') {loadCreator().then(loadMissions);}
+  if(v==='vCalendar') loadCalendar();
+  if(v==='vOpportunity') loadOpportunities();
+  if(v==='vCloud') loadCloud();
   if (v === 'vPortfolio') loadPublicPortfolio();
   if (v === 'vMetrics') { if (!S.user || !S.user.admin) { history.replaceState(null, '', '#criar'); route(); return; } loadMetrics(); }
   renderNav();
@@ -3158,6 +3174,7 @@ function pickFile() {
 }
 // abre um projeto salvo com os cortes como estavam (sem gastar cota)
 async function openProject(p, action) {
+  if(S.fullScanning){toast('Pare a indexação antes de abrir outro projeto.');return;}
   if (!p || !(p.clips || []).length) return;
   const av = projAvail(p); if (!av.ok) { toast(av.why, 5000); return; }
   let file = await VDB.get(p.id);
@@ -3745,7 +3762,7 @@ $('#advPb').addEventListener('click', async e => {
   const dl = t.closest('[data-dl]'); if (dl && ADV._lines) { advPush(); const l = ADV._lines[+dl.dataset.dl]; c.words = c.words.filter(w => !l.words.includes(w)); advWordsChanged(); advRenderAll(); return; }
   const tp = t.closest('[data-tp]'); if (tp) { if (!isPro() && !FREE_TPLS.includes(tp.dataset.tp)) return; advPush(); c.tpl = tp.dataset.tp; advPanel('templates'); advDraw(); return; }
   if (t.id === 'advNewTitle') { advPush(); c.title = suggestTitle(c, Math.floor(Math.random() * 9) + 1); advRenderAll(); return; }
-  if (t.id === 'advTrans' && S.capRunning) { toast('As legendas deste corte já estão sendo geradas…'); return; }
+  if (t.id === 'advTrans' && (S.capRunning || S.fullScanning)) { toast('As legendas deste corte já estão sendo geradas…'); return; }
   if (t.id === 'advTrans') { t.disabled = true; t.textContent = '🎙 Legendando…'; try { if (!S.asrInfo) await loadASR(S.settings.model && S.settings.model !== 'none' ? S.settings.model : 'base'); advPush(); await transcribeClip(c); advWordsChanged(); advRenderAll(); } catch (err) { toast('Não consegui legendar: ' + err.message, 5000); t.disabled = false; t.textContent = '🎙 Gerar legendas'; } }
 });
 $('#advPb').addEventListener('dblclick', e => {
@@ -4485,14 +4502,21 @@ function loadGtag(a) {
   GA.on = true; GA.a = a; flushConversions();
 }
 async function flushConversions() {
-  if (!GA.on || !S.user) return;
+  if (!GA.on || !S.user || S.conversionBusy || !window.gtag) return;
+  const uid=S.user.id; S.conversionBusy=true;
   try {
     const r = await api('/api/billing/conversions');
     for (const p of r.purchases || []) {
-      gtagEv('purchase', { transaction_id: p.transaction_id, value: p.value, currency: 'BRL', items: [{ item_id: p.plan, item_name: p.plan === 'pro' ? 'Pro' : 'Pro+', price: p.value, quantity: 1 }] });
-      gadsConv('gads_purchase', { value: p.value, currency: 'BRL', transaction_id: p.transaction_id });
+      if(S.user?.id!==uid || lsGet('nc_consent')!=='yes')break;
+      const events=[];
+      if(GA.a.ga4)events.push(['purchase',{send_to:GA.a.ga4,transaction_id:p.transaction_id,value:p.value,currency:'BRL',items:[{item_id:p.plan,item_name:p.plan==='pro'?'Pro':'Pro+',price:p.value,quantity:1}]}]);
+      if(GA.a.gads&&GA.a.gads_purchase)events.push(['conversion',{send_to:GA.a.gads+'/'+GA.a.gads_purchase,value:p.value,currency:'BRL',transaction_id:p.transaction_id}]);
+      if(!events.length)break;
+      const results=await Promise.all(events.map(([name,params])=>new Promise(resolve=>{const timer=setTimeout(()=>resolve(false),5000);window.gtag('event',name,{...params,event_callback:()=>{clearTimeout(timer);resolve(true);}});})));
+      // Callback is not proof of Google attribution; keep the ID stable for destination deduplication.
+      if(results.every(Boolean)&&S.user?.id===uid)await api('/api/billing/conversions/ack',{transaction_id:p.transaction_id});
     }
-  } catch (e) { }
+  } catch (e) { } finally {S.conversionBusy=false;}
 }
 function initAnalytics() {
   const a = S.cfg.analytics || {}; if (!a.ga4 && !a.gads) return;
@@ -4655,7 +4679,7 @@ async function awardCreator(c) {
    if(S.user?.id!==uid||S.project?.id!==pid)return;
    const d=await api('/api/creator/clip',{project_id:pid,index:idx});
    if(S.user?.id!==uid)return;updateNavLevel(d);
-   if(d.added)toast('+'+d.added+' XP · Nível '+d.level+' '+d.title,3500);
+   if(d.added){toast('+'+d.added+' XP · Nível '+d.level+' '+d.title,3500);loadMissions();}
  }catch(e){console.warn('XP não registrado',e);}
 }
 $('#copyInvite').onclick=()=>creatorCopy($('#creatorInvite').value);
@@ -4677,6 +4701,56 @@ async function loadPublicPortfolio(){
    box.innerHTML='<p class="note">NEONCUT · Portfólio</p><h1>'+esc(d.name)+'</h1><p class="note">Nível '+d.level+' · '+esc(d.title)+'</p><p style="white-space:pre-wrap">'+esc(d.bio)+'</p><div class="portworks">'+(d.links.length?d.links.map(l=>'<a href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer">'+esc(l.title)+' ↗</a>').join(''):'<p class="note">Nenhum trabalho publicado ainda.</p>')+'</div>';
  }catch(e){box.textContent='Portfólio privado ou indisponível.';}
 }
+
+
+function clearWorkspace(){
+ for(const id of ['calendarList','oppList','cloudList','missionList','calMsg','oppMsg','cloudMsg','cloudLimit']){const e=$('#'+id);if(e)e.textContent='';}
+ for(const id of ['calendarForm','oppForm','cloudForm'])$('#'+id)?.reset();
+ $('#calId').value='';S.calendarItems=[];S.opportunities=[];$('#oppAdmin').classList.add('hidden');
+}
+function workspaceCard(title,meta,desc,actions=''){return '<article class="panel" style="margin:10px 0"><h3>'+esc(title)+'</h3><p class="note">'+esc(meta)+'</p><p style="white-space:pre-wrap;overflow-wrap:anywhere">'+esc(desc||'')+'</p><div class="row" style="flex-wrap:wrap">'+actions+'</div></article>'}
+async function loadMissions(){
+ const uid=S.user?.id;if(!uid||S.demo)return;
+ try{const d=await api('/api/workspace/missions');if(S.user?.id!==uid)return;updateNavLevel(d);
+ if(S.creator){Object.assign(S.creator,{xp:d.xp,level:d.level,title:d.title,next:d.next,floor:d.floor,reward:d.reward,levels:d.levels});if(location.hash==='#creator')drawCreator(S.creator);}
+ $('#missionList').innerHTML='<div class="creatorlevels">'+d.missions.map(m=>'<div class="creatorlevel '+(m.earned?'unlocked':'')+'"><b>'+esc(m.title)+'</b><small>'+m.progress+'/'+m.target+' cortes · '+(m.weekly?'Semanal':'Conquista')+'</small><div class="bar"><i style="width:'+Math.min(100,100*m.progress/m.target)+'%"></i></div><small>'+(m.earned?'Conquistado · ':'Recompensa · ')+'+'+m.bonus+' XP</small></div>').join('')+'</div>';
+ }catch(e){$('#missionList').textContent='Missões temporariamente indisponíveis.';}
+}
+$('#calReset').onclick=()=>{$('#calendarForm').reset();$('#calId').value='';};
+$('#calSuggest').onclick=()=>{$('#calTags').value=({'TikTok':'#cortes #gameplay #tiktok','Instagram Reels':'#reels #gameplay #cortes','YouTube Shorts':'#shorts #gameplay #cortes'})[$('#calPlatform').value]||'#cortes';};
+async function loadCalendar(){
+ const uid=S.user?.id;if(!uid||S.demo)return;
+ try{const items=await api('/api/workspace/calendar');if(S.user?.id!==uid)return;S.calendarItems=items;$('#calendarList').innerHTML=items.map(v=>workspaceCard(v.title,v.day+' · '+v.platform+' · '+v.status,v.description+'\n'+v.tags,'<button class="btn ghost small" data-cal-edit="'+v.id+'">Editar</button><button class="btn ghost small" data-cal-publish="'+v.id+'">'+(v.status==='publicado'?'Voltar a planejado':'Marcar publicado')+'</button><button class="btn ghost small" data-cal-delete="'+v.id+'">Excluir</button>')).join('')||'<p class="note">Nenhuma publicação planejada.</p>';}catch(e){$('#calendarList').textContent=e.message;}
+}
+$('#calendarForm').onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;try{const id=$('#calId').value;await api('/api/workspace/calendar'+(id?'/'+Number(id):''),{day:$('#calDate').value,platform:$('#calPlatform').value,title:$('#calTitle').value,description:$('#calDesc').value,tags:$('#calTags').value,status:$('#calStatus').value},id?'PUT':'POST');$('#calReset').click();$('#calMsg').textContent='Publicação salva.';await loadCalendar();}catch(err){$('#calMsg').textContent=err.message;}finally{b.disabled=false;}};
+$('#calendarList').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const id=+(b.dataset.calEdit||b.dataset.calPublish||b.dataset.calDelete),v=(S.calendarItems||[]).find(x=>x.id===id);if(!v)return;
+ if(b.dataset.calEdit){for(const [key,field] of Object.entries({id:'calId',day:'calDate',platform:'calPlatform',title:'calTitle',description:'calDesc',tags:'calTags',status:'calStatus'}))$('#'+field).value=v[key];$('#calendarForm').scrollIntoView({behavior:'smooth'});return;}
+ try{if(b.dataset.calDelete){if(!confirm('Excluir esta publicação?'))return;await api('/api/workspace/calendar/'+id,null,'DELETE');}else if(b.dataset.calPublish){await api('/api/workspace/calendar/'+id,{...v,status:v.status==='publicado'?'planejado':'publicado'},'PUT');}await loadCalendar();}catch(err){toast(err.message);}};
+function drawOpportunities(){const q=momentNorm($('#oppSearch').value);$('#oppList').innerHTML=(S.opportunities||[]).filter(v=>momentNorm([v.title,v.creator,v.platform,v.requirements].join(' ')).includes(q)).map(v=>workspaceCard(v.title,v.creator+' · '+v.platform+' · '+(v.budget||'Orçamento não divulgado'),v.requirements,'<a class="btn small" rel="noopener noreferrer" target="_blank" href="'+esc(v.url)+'">Candidatar-se</a>'+(S.user?.admin?'<button class="btn ghost small" data-opp-delete="'+v.id+'">Arquivar</button>':''))).join('')||'<p class="note">Nenhuma vaga publicada corresponde à busca.</p>'}
+async function loadOpportunities(){const uid=S.user?.id;if(!uid||S.demo)return;$('#oppAdmin').classList.toggle('hidden',!S.user.admin);try{const d=await api('/api/workspace/opportunities');if(S.user?.id!==uid)return;S.opportunities=d;drawOpportunities();}catch(e){$('#oppList').textContent=e.message;}}
+$('#oppSearch').oninput=drawOpportunities;
+$('#oppForm').onsubmit=async e=>{e.preventDefault();if(!S.user?.admin||!$('#oppVerified').checked)return;const b=e.submitter;b.disabled=true;try{await api('/api/admin/opportunities',{title:$('#oppTitle').value,creator:$('#oppCreator').value,platform:$('#oppPlatform').value,requirements:$('#oppReq').value,budget:$('#oppBudget').value,url:$('#oppUrl').value});e.target.reset();$('#oppMsg').textContent='Vaga publicada.';await loadOpportunities();}catch(err){$('#oppMsg').textContent=err.message;}finally{b.disabled=false;}};
+$('#oppList').onclick=async e=>{const b=e.target.closest('[data-opp-delete]');if(!b||!S.user?.admin||!confirm('Arquivar vaga?'))return;try{await api('/api/admin/opportunities/'+Number(b.dataset.oppDelete),null,'DELETE');await loadOpportunities();}catch(err){toast(err.message);}};
+async function loadCloud(){const uid=S.user?.id;if(!uid||S.demo||S.cloudLoading)return;S.cloudLoading=true;try{const d=await api('/api/workspace/cloud');if(S.user?.id!==uid)return;$('#cloudLimit').textContent='Limite beta: '+d.daily_limit+' tarefas a cada 24h. A fila tem capacidade limitada; arquivos expiram após 24h.';const statuses={uploading:'Recebendo',queued:'Na fila',running:'Processando',done:'Pronto',error:'Falhou'};$('#cloudList').innerHTML=d.jobs.map(j=>workspaceCard('Tarefa '+j.id.slice(0,8),new Date(j.created*1000).toLocaleString('pt-BR')+' · '+(statuses[j.status]||j.status),j.error||j.length+' s · '+j.layout,(j.status==='done'?'<a class="btn small" href="/api/workspace/cloud/'+encodeURIComponent(j.id)+'/file">Baixar MP4</a>':''))).join('')||'<p class="note">Nenhuma tarefa recente.</p>';}catch(e){$('#cloudList').textContent=e.message;}finally{S.cloudLoading=false;}}
+$('#cloudRefresh').onclick=loadCloud;setInterval(()=>{if(location.hash==='#nuvem'&&!document.hidden)loadCloud();},5000);
+$('#cloudForm').onsubmit=async e=>{e.preventDefault();const f=$('#cloudFile').files[0],b=e.submitter;if(!f||!$('#cloudConsent').checked)return;if(f.size>50000000){$('#cloudMsg').textContent='Escolha um arquivo de até 50 MB.';return;}b.disabled=true;$('#cloudMsg').textContent='Enviando… mantenha a aba aberta até concluir o envio.';try{const url=API+'/api/workspace/cloud?start='+encodeURIComponent($('#cloudStart').value)+'&length='+encodeURIComponent($('#cloudLength').value)+'&layout='+encodeURIComponent($('#cloudLayout').value);const r=await fetch(url,{method:'POST',credentials:'include',headers:{'Content-Type':'application/octet-stream','X-Neoncut-Upload':'1'},body:f});const j=await r.json();if(!r.ok)throw Error(typeof j.detail==='string'?j.detail:'Falha no envio.');$('#cloudMsg').textContent='Tarefa na fila. Você pode fechar a aba e voltar depois.';e.target.reset();await loadCloud();}catch(err){$('#cloudMsg').textContent=err.message;}finally{b.disabled=false;}};
+function fullFind(words,query){const terms=momentNorm(query).split(/\s+/).filter(x=>x.length>1&&!MOMENT_STOP.has(x));if(!terms.length)return [];
+ const expand=new Set(terms);for(const group of MOMENT_GROUPS)if(group.some(x=>expand.has(x)))group.forEach(x=>expand.add(x));
+ const hits=[];for(let i=0;i<words.length;i++){const w=words[i],tok=momentNorm(w.text).trim();if(![...expand].some(t=>(' '+tok+' ').includes(' '+t+' ')))continue;if(hits.length&&w.start-hits[hits.length-1].start<12)continue;hits.push({start:w.start,text:words.slice(Math.max(0,i-4),i+9).map(x=>x.text).join(' ')});if(hits.length>=50)break;}return hits;}
+function drawFullHits(){const q=$('#momentQuery').value.trim(),idx=S.fullIndex;if(!idx||idx.file!==S.file)return;
+ const hits=fullFind(idx.words,q);S.fullHits=hits;$('#fullHits').innerHTML=hits.map((h,i)=>workspaceCard(fmtH(h.start), 'Fala encontrada',h.text,'<button class="btn ghost small" data-full-preview="'+i+'">Assistir trecho</button><button class="btn small" data-full-add="'+i+'">Adicionar corte</button>')).join('')||'<p class="note">'+(q?'Nenhuma fala correspondente encontrada.':'Digite o que deseja encontrar no campo de busca.')+'</p>';}
+$('#momentQuery').addEventListener('input',()=>{if(S.fullIndex?.file===S.file)drawFullHits();});
+$('#fullCancel').onclick=()=>{S.fullStop=true;$('#fullState').textContent='Parando após o bloco atual…';};
+$('#fullSearch').onclick=async()=>{if(!S.file||!S.pcm){toast('O vídeo precisa ter áudio acessível.');return;}if(S.capRunning||busy||S.fullScanning||S.cur||ADV.open||pending.size||loadWaiter){toast('Aguarde as legendas ou exportação atuais.');return;}if(S.fullIndex?.file===S.file){drawFullHits();return;}const file=S.file,pcm=S.pcm,dur=S.duration,lang=S.settings.lang,btn=$('#fullSearch');S.fullScanning=true;S.fullStop=false;btn.disabled=true;$('#fullCancel').classList.remove('hidden');$('#fullState').textContent='Preparando o modelo de voz…';let words=[];
+ try{const model=IS_MOBILE?'tiny':(S.settings.model==='none'?'base':S.settings.model);if(!S.asrInfo||S.asrInfo.size!==model)await loadASR(model);
+ for(let a=0;a<dur-.2;a+=27){if(S.fullStop||S.file!==file)break;const end=Math.min(dur,a+27),ws=await runASR(pcm.slice(Math.floor(a*SR),Math.floor(end*SR)),lang);for(const w of ws)if(w.text&&!HALLUC.test(w.text)&&Number.isFinite(w.start)&&Number.isFinite(w.end))words.push({text:w.text,start:a+Math.max(0,Math.min(end-a,w.start)),end:a+Math.max(0,Math.min(end-a,w.end))});$('#fullState').textContent='Indexando falas: '+Math.round(100*end/dur)+'%';await sleep(10);}
+ if(S.fullStop||S.file!==file){$('#fullState').textContent='Indexação interrompida.';return;}S.fullIndex={file,words};$('#fullState').textContent='Indexação completa: '+words.length+' palavras detectadas. Busca local, sem análise visual de cenas.';drawFullHits();
+ }catch(err){$('#fullState').textContent='Não foi possível indexar: '+err.message;}finally{S.fullScanning=false;btn.disabled=false;$('#fullCancel').classList.add('hidden');}};
+$('#fullHits').onclick=async e=>{const b=e.target.closest('[data-full-preview],[data-full-add]');if(!b||S.fullScanning||S.fullIndex?.file!==S.file)return;const h=(S.fullHits||[])[+(b.dataset.fullPreview??b.dataset.fullAdd)];if(!h)return;
+ if(b.dataset.fullPreview!==undefined){const v=$('#fullPreview');v.classList.remove('hidden');if(v.src!==S.url){v.src=S.url;v.onloadedmetadata=()=>{v.currentTime=Math.max(0,h.start-2);v.play().catch(()=>{});};}else{v.currentTime=Math.max(0,h.start-2);v.play().catch(()=>{});}return;}
+ const max=S.plan.options?.max_clips||S.cfg.limits[S.plan.plan||'free'].max_clips||5;if(S.clips.length>=max){toast('Limite de cortes deste vídeo atingido. Você ainda pode assistir ao trecho.');return;}if(busy||S.capRunning)return;
+ const start=Math.max(0,h.start-3),end=Math.min(S.duration,start+Math.min(S.plan.options?.max_duration||45,S.settings.D||30));if(end-start<1)return;
+ const c=unpackClip({start,end,peakT:h.start,title:h.text.slice(0,80),score:0,cat:'epico',words:S.fullIndex.words.filter(w=>w.start>=start&&w.end<=end),transcribed:true},S.clips.length);S.clips.push(c);$('#momentQuery').value='';$('#resSub').textContent=resSubText();renderGrid();saveProjectSoon();openEditor(c);};
 
 </script>
 </body>

@@ -10,6 +10,7 @@ import base64
 import hashlib
 import hmac
 import json
+import math
 import os
 import re
 import secrets
@@ -40,7 +41,7 @@ PRICES = {
     "pro": (_f("PRO_INTRO_PRICE", "12.90"), _f("PRO_PRICE", "19.90")),
     "proplus": (_f("PROPLUS_INTRO_PRICE", "29.90"), _f("PROPLUS_PRICE", "29.90")),
 }
-HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "5"))         # exportações 1080p/mês no Grátis e no Pro
+HD_FREE_USES = int(os.environ.get("HD_FREE_USES", "10"))         # exportações 1080p/mês no Grátis e no Pro
 # limites de cada plano: vídeos/mês, minutos por vídeo, minutos de live
 LIMITS = {
     "free": (int(os.environ.get("FREE_PROJECTS", "3")), _f("FREE_MAX_MINUTES", "30"), _f("FREE_LIVE_MINUTES", "10")),
@@ -57,6 +58,7 @@ OPTIONS = {
 HD_USES = {"free": 0, "pro": HD_FREE_USES}  # exportações 1080p por mês (Pro+ é ilimitado)
 
 MP_TOKEN = os.environ.get("MP_ACCESS_TOKEN", "").strip()
+MP_WEBHOOK_SECRET = os.environ.get("MP_WEBHOOK_SECRET", "").strip()
 MP_API = os.environ.get("MP_API_BASE", "https://api.mercadopago.com").rstrip("/")
 GOOGLE_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
 GOOGLE_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
@@ -656,7 +658,14 @@ def apply_payment(payment_id: str) -> str:
         plan = "pro"
     if plan not in PRICES:
         return "invalid"
-    amount = float(p.get("transaction_amount") or 0)
+    try:
+        amount = float(p.get("transaction_amount") or 0)
+    except (TypeError, ValueError):
+        return "invalid"
+    if not math.isfinite(amount) or amount <= 0 or str(p.get("id")) != str(payment_id) or p.get("currency_id") != "BRL":
+        return "invalid"
+    if not db().execute("SELECT 1 FROM users WHERE id=?", (uid,)).fetchone():
+        return "invalid"
     c = db()
     with _PAY_LOCK:  # retorno do checkout e webhook podem chegar juntos: só um libera os 30 dias
         c.execute("BEGIN IMMEDIATE")
@@ -667,7 +676,7 @@ def apply_payment(payment_id: str) -> str:
                 return "approved"
             if status == "approved":
                 floor = expected if expected is not None else min(PRICES[plan])
-                if amount + 0.01 < min(floor, max(PRICES[plan])):
+                if not math.isfinite(floor) or floor <= 0 or amount + 0.01 < floor:
                     status = "amount_mismatch"   # não conta como venda nem libera o plano
             c.execute("INSERT OR REPLACE INTO payments(id,user_id,plan,amount,status,created,reported) VALUES(?,?,?,?,?,?,0)",
                       (str(payment_id), uid, plan, amount, status, time.time()))
@@ -690,7 +699,7 @@ def apply_payment(payment_id: str) -> str:
 def billing_return(payment_id: str = "", collection_id: str = "", status: str = ""):
     st = "pending"
     try:
-        st = apply_payment(payment_id or collection_id) if (payment_id or collection_id) else (status or "failure")
+        st = apply_payment(payment_id or collection_id) if (payment_id or collection_id) else ("failure" if status == "failure" else "pending")
     except HTTPException:
         st = "pending"
     return RedirectResponse(f"/?pagamento={urllib.parse.quote(st)}#conta")
@@ -703,28 +712,60 @@ def billing_conversions(req: Request):
         return {"purchases": []}
     rows = db().execute("SELECT id, plan, amount FROM payments WHERE user_id=? AND status='approved' AND COALESCE(reported,0)=0",
                         (u["id"],)).fetchall()
-    out = []
-    for r in rows:
-        if db().execute("UPDATE payments SET reported=1 WHERE id=? AND COALESCE(reported,0)=0", (r["id"],)).rowcount == 1:
-            out.append({"transaction_id": r["id"], "value": round(r["amount"] or 0, 2), "currency": "BRL", "plan": r["plan"]})
-    return {"purchases": out}
+    return {"purchases": [{"transaction_id": r["id"], "value": round(r["amount"] or 0, 2), "currency": "BRL", "plan": r["plan"]} for r in rows]}
+
+
+class ConversionAck(BaseModel):
+    transaction_id: str
+
+
+@router.post("/api/billing/conversions/ack")
+def conversion_ack(body: ConversionAck, req: Request):
+    u = current_user(req)
+    if not body.transaction_id.isdigit() or len(body.transaction_id)>40:
+        raise HTTPException(400,"Transação inválida.")
+    db().execute("UPDATE payments SET reported=1 WHERE id=? AND user_id=? AND status='approved'",
+                 (body.transaction_id,u["id"]))
+    return {"ok": True}
+
+
+def valid_mp_signature(secret, signature, request_id, data_id):
+    try:
+        fields = dict(x.strip().split("=", 1) for x in signature.split(","))
+        ts, digest = fields["ts"], fields["v1"]
+        if not ts.isdigit() or not re.fullmatch(r"[0-9a-fA-F]{64}",digest) or not data_id or not request_id:
+            return False
+        manifest = f"id:{str(data_id).lower()};request-id:{request_id};ts:{ts};"
+        expected = hmac.new(secret.encode(), manifest.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, digest.lower())
+    except (ValueError, KeyError, AttributeError):
+        return False
 
 
 @router.post("/api/billing/webhook")
 async def billing_webhook(req: Request):
-    pid = req.query_params.get("data.id") or req.query_params.get("id")
+    signed_id = req.query_params.get("data.id")
+    if MP_WEBHOOK_SECRET and not valid_mp_signature(MP_WEBHOOK_SECRET, req.headers.get("x-signature",""),req.headers.get("x-request-id",""),signed_id):
+        raise HTTPException(401,"Assinatura inválida.")
+    pid = signed_id or req.query_params.get("id")
     try:
         body = await req.json()
-        pid = (body.get("data") or {}).get("id") or pid
+        body_id = (body.get("data") or {}).get("id")
+        if MP_WEBHOOK_SECRET and body_id is not None and str(body_id) != str(signed_id):
+            raise HTTPException(401,"Identificador divergente.")
+        pid = signed_id or body_id or pid
         if body.get("type") not in (None, "payment") and not req.query_params.get("data.id"):
             return {"ok": True}
+    except HTTPException:
+        raise
     except Exception:
         pass
     if pid:
         try:
             apply_payment(str(pid))
         except HTTPException:
-            pass
+            # Return retryable status instead of acknowledging a failed upstream lookup.
+            raise HTTPException(503, "Confirmação temporariamente indisponível.")
     return {"ok": True}
 
 

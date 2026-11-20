@@ -11,7 +11,7 @@ RUN (npx -y html-minifier-terser@7 --collapse-whitespace --remove-comments --min
 FROM python:3.12-slim
 
 # ffmpeg corta e converte os vídeos
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates curl unzip \
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates curl unzip fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -32,7 +32,8 @@ RUN mkdir -p /app/yt-plugins \
 
 COPY server server
 COPY tests/test_creator.py tests/test_creator.py
-RUN PYTHONPATH=/app python tests/test_creator.py && python -m compileall -q server
+COPY tests/test_workspace.py tests/test_workspace.py
+RUN PYTHONPATH=/app python tests/test_creator.py && PYTHONPATH=/app python tests/test_workspace.py && python -m compileall -q server
 COPY --from=webmin /w/web web
 
 ENV DATA_DIR=/tmp/neoncut PORT=8000
