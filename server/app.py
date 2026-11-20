@@ -400,7 +400,12 @@ def create_job(body: JobReq, req: Request):
 
 
 def public(job: dict) -> dict:
-    return {k: job[k] for k in ("id", "status", "progress", "message", "error", "size", "platform")}
+    result={k: job[k] for k in ("id", "status", "progress", "message", "error", "size", "platform")}
+    if job["status"]=="downloading" and job.get("dir"):
+        try:
+            result["received_bytes"]=sum(p.stat().st_size for p in Path(job["dir"]).glob("raw.*") if p.is_file())
+        except OSError:pass
+    return result
 
 
 @app.get("/api/jobs/{jid}")
@@ -482,6 +487,50 @@ def ffprobe_codec(path: Path) -> tuple[str, bool]:
     v = next((s["codec_name"] for s in streams if s.get("codec_type") == "video"), "")
     a = any(s.get("codec_type") == "audio" for s in streams)
     return v, a
+
+
+def faststart_mp4(path: Path) -> bool:
+    """Conservative check for an already streamable, non-fragmented MP4."""
+    try:
+        size=path.stat().st_size
+        if path.suffix.lower()!=".mp4":return False
+        found_ftyp=found_moov=found_mdat=False
+        with path.open("rb") as f:
+            pos=0
+            for _ in range(256):
+                if pos==size:return found_ftyp and found_moov and found_mdat
+                if pos+8>size:return False
+                f.seek(pos)
+                header=f.read(8)
+                n=int.from_bytes(header[:4],"big"); tag=header[4:]
+                head=8
+                if n==1:
+                    n=int.from_bytes(f.read(8),"big");head=16
+                elif n==0:n=size-pos
+                if n<head or pos+n>size:return False
+                if tag==b"ftyp":found_ftyp=True
+                elif tag==b"moov":
+                    if found_mdat:return False
+                    found_moov=True
+                elif tag==b"mdat":
+                    if not found_moov:return False
+                    found_mdat=True
+                elif tag in (b"moof",b"mfra"):return False
+                pos+=n
+        return False
+    except OSError:return False
+
+
+def browser_ready_mp4(path: Path) -> bool:
+    if not faststart_mp4(path):return False
+    try:
+        r=subprocess.run(["ffprobe","-v","error","-show_entries","stream=codec_type,codec_name,pix_fmt","-of","json",str(path)],capture_output=True,text=True,timeout=15)
+        if r.returncode:return False
+        streams=json.loads(r.stdout).get("streams",[])
+        video=[s for s in streams if s.get("codec_type")=="video"]
+        audio=[s for s in streams if s.get("codec_type")=="audio"]
+        return len(video)==1 and video[0].get("codec_name")=="h264" and video[0].get("pix_fmt") in ("yuv420p","yuvj420p") and all(s.get("codec_name")=="aac" for s in audio)
+    except (OSError,ValueError,subprocess.TimeoutExpired):return False
 
 
 def probe_duration(path: Path) -> float | None:
@@ -573,8 +622,12 @@ def run_job(job: dict):
                 if code!=0 or actual<max(.5,expected-min(5,expected*.1)) or actual>end-start+10:
                     raise RuntimeError("O download não entregou o trecho completo. Tente um intervalo menor ou envie o arquivo original.")
             job["status"] = "processing"; job["message"] = "Preparando o vídeo…"; job["progress"] = 0
-            vcodec, has_audio = ffprobe_codec(raw)
             out = d / "video.mp4"
+            if browser_ready_mp4(raw):
+                raw.replace(out)
+                job.update(status="done",progress=1.0,message="Pronto",file=str(out),size=out.stat().st_size)
+                return
+            vcodec, has_audio = ffprobe_codec(raw)
             if vcodec in ("h264", "vp9", "av1") and raw.suffix == ".mp4":
                 cmd = ["ffmpeg", "-hide_banner", "-y", "-i", str(raw), "-c", "copy", "-movflags", "+faststart", str(out)]
             else:  # codecs que o navegador não abre (ex.: HEVC) → converte

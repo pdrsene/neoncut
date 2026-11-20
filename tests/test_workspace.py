@@ -36,6 +36,19 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(A.plan_info(self.u(self.uid))["hd_unlimited"])
         with self.assertRaises(HTTPException) as e:A.use_hd(self.req)
         self.assertEqual(e.exception.status_code,402)
+    def test_ready_mp4_skips_redundant_remux(self):
+        from pathlib import Path
+        from server import app as B
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            for name,flags in (("ready.mp4",["+faststart"]),("slow.mp4",[])):
+                cmd=["ffmpeg","-v","error","-y","-f","lavfi","-i","color=c=blue:s=160x90:r=10","-t","1","-c:v","libx264","-pix_fmt","yuv420p"]
+                if flags:cmd+=["-movflags",flags[0]]
+                subprocess.run(cmd+[str(root/name)],check=True,timeout=15)
+            self.assertTrue(B.browser_ready_mp4(root/"ready.mp4"))
+            self.assertFalse(B.faststart_mp4(root/"slow.mp4"))
+            (root/"broken.mp4").write_bytes(b"broken")
+            self.assertFalse(B.faststart_mp4(root/"broken.mp4"))
     def test_import_fast_path_and_timeout(self):
         import sys
         from server import app as B
