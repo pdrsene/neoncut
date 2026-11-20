@@ -2053,9 +2053,10 @@ function rankSpokenMoment(c) {
   score += hook ? 19 : 0;
   score += density >= .8 ? 8 : -12;
   if (filler.test(low)) score -= 9;
-  if (banned.test(low)) score -= 30;
+  if (banned.test(low)) return {score:Math.min(45,Math.round(score)),quote:null};
   if (/[.!?…]$/.test(text)) score += 5;
-  const quote = hook ? hook.words.map(w=>w.text).join(' ').replace(/[.,!?…]+$/,'').slice(0,45).replace(/\s+\S*$/,'') : null;
+  const fullQuote = hook ? hook.words.map(w=>w.text).join(' ').replace(/[.,!?…]+$/,'') : '';
+  const quote = fullQuote.length > 45 ? fullQuote.slice(0,45).replace(/\s+\S*$/,'') : fullQuote;
   return {score:Math.round(clamp(score,0,99)),quote:quote || null};
 }
 
