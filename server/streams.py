@@ -31,6 +31,8 @@ _lock = threading.Lock()
 _token = {"value": "", "exp": 0.0}
 _cache: dict[str, tuple[float, dict]] = {}
 _game_ids: dict[str, str | None] = {}
+_history: dict[str, list[tuple[float, int, str]]] = {}
+PARTNER_CHANNELS = {x.strip().lower() for x in os.environ.get("AUTHORIZED_TWITCH_CHANNELS", "").split(",") if x.strip()}
 
 
 def _req(url: str, method: str = "GET", headers: dict | None = None, data: bytes | None = None):
@@ -112,5 +114,21 @@ def recommended(cat: str = "gta"):
             return hit[1]
         return {"enabled": True, "streams": [], "error": "Não consegui carregar as lives agora."}
     with _lock:
-        _cache[cat] = (time.time(), data)
+        now = time.time()
+        for login in list(_history):
+            _history[login] = [x for x in _history[login] if now-x[0] <= 1800]
+            if not _history[login]:
+                del _history[login]
+        for stream in data["streams"]:
+            login, viewers = stream["login"], int(stream["viewers"])
+            started = stream["started_at"]
+            samples = [x for x in _history.get(login, []) if x[2] == started]
+            prior = next((x for x in samples if now-x[0]>=120), None)
+            stream["growth"] = viewers-prior[1] if prior else None
+            stream["growth_minutes"] = round((now-prior[0])/60) if prior else None
+            stream["authorized_partner"] = login.lower() in PARTNER_CHANNELS
+            if not samples or now-samples[-1][0]>=120:
+                samples.append((now,viewers,started))
+            _history[login] = samples[-15:]
+        _cache[cat] = (now, data)
     return data
