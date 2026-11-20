@@ -99,6 +99,14 @@ input[type=range]{accent-color:var(--pink)}
 .clip:hover{transform:translateY(-3px);border-color:var(--pink)}
 .clip .thumb{position:relative;aspect-ratio:9/16;background:#000}
 .clip canvas{width:100%;height:100%;display:block}
+.clip .thumb-play{position:absolute;inset:0;background:transparent;border:0;display:grid;place-items:center;color:#fff;cursor:pointer;padding:0}
+.clip .thumb-play span{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid #ffffff70;font-size:23px}
+.clip .thumb-play:hover span,.clip .thumb-play:focus-visible span{background:#a3e635;color:#09090b}
+.clip .thumb-play:focus-visible{outline:3px solid #a3e635;outline-offset:-4px}
+.clip .thumb-play.playing{place-items:end center;padding-bottom:12px}
+.clip .thumb-play.playing span{width:40px;height:40px;font-size:16px}
+.clip .thumb-progress{position:absolute;bottom:0;left:0;height:4px;background:#a3e635;width:0;pointer-events:none}
+.clip .score,.clip .cat,.clip .hookchip{pointer-events:none}
 .score{position:absolute;top:10px;left:10px;font-weight:900;font-size:13px;padding:6px 10px;border-radius:10px;background:rgba(9,9,11,.85);border:1px solid var(--yellow);color:var(--yellow)}
 .cat{position:absolute;top:10px;right:10px;font-size:11px;font-weight:800;padding:5px 9px;border-radius:8px;background:rgba(9,9,11,.85);color:var(--teal);text-transform:uppercase}
 .clip .meta{padding:12px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
@@ -1169,9 +1177,10 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <div class="ffree hidden" id="ffreeNote">🎁 O seu 1º corte baixado sai em <b>1080p e sem marca d'água</b>, por nossa conta.</div>
     <div class="guestsave hidden" id="guestSave"><div><b>🎉 Seus cortes estão prontos!</b><div class="note" style="margin-top:4px">Crie sua conta grátis para baixar e salvar. Leva 10 segundos e os cortes continuam aqui.</div></div><div class="spacer"></div><button class="btn" id="guestSaveBtn">Criar conta e baixar</button></div>
     <div class="warn hidden" id="capWarn"></div>
-    <div class="momentsearch"><label for="momentQuery"><b>Buscador de momentos</b></label><div class="row"><input type="search" maxlength="160" id="momentQuery" placeholder="Ex.: perseguições policiais, rage, uma frase engraçada" style="flex:1;min-width:0"><button type="button" class="btn ghost small" id="momentClear">Limpar</button></div><p id="momentCount" class="note" role="status">Busca nas falas transcritas e categorias dos cortes detectados, não no vídeo inteiro.</p></div>
-    <div class="panel" style="margin-top:12px" id="fullSearchPanel"><h3>Buscar em toda a gravação</h3><p class="note">Transcreve o vídeo inteiro no aparelho, em blocos, e encontra falas e termos relacionados. Não interpreta cenas sem fala. Pode demorar em vídeos longos.</p><div class="row" style="flex-wrap:wrap"><button class="btn small" id="fullSearch">Indexar gravação e buscar</button><button class="btn ghost small hidden" id="fullCancel">Parar</button></div><p class="note" id="fullState" role="status"></p><div id="fullHits"></div><video id="fullPreview" controls playsinline class="hidden" style="width:100%;max-height:260px;margin-top:10px"></video></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn ghost small" id="toggleFullSearch" aria-expanded="false">Buscar na gravação inteira ▾</button></div><div class="momentsearch"><label for="momentQuery"><b>Buscador de momentos</b></label><div class="row"><input type="search" maxlength="160" id="momentQuery" placeholder="Ex.: perseguições policiais, rage, uma frase engraçada" style="flex:1;min-width:0"><button type="button" class="btn ghost small" id="momentClear">Limpar</button></div><p id="momentCount" class="note" role="status">Busca nas falas transcritas e categorias dos cortes detectados, não no vídeo inteiro.</p></div>
+    <div class="panel hidden" style="margin-top:12px" id="fullSearchPanel"><h3>Buscar em toda a gravação</h3><p class="note">Transcreve o vídeo inteiro no aparelho, em blocos, e encontra falas e termos relacionados. Não interpreta cenas sem fala. Pode demorar em vídeos longos.</p><div class="row" style="flex-wrap:wrap"><button class="btn small" id="fullSearch">Indexar gravação e buscar</button><button class="btn ghost small hidden" id="fullCancel">Parar</button></div><p class="note" id="fullState" role="status"></p><div id="fullHits"></div><video id="fullPreview" controls playsinline class="hidden" style="width:100%;max-height:260px;margin-top:10px"></video></div>
     <div class="grid" id="grid" style="margin-top:14px"></div>
+    <div class="row" style="margin-top:18px"><span class="note">Os cortes ficaram bons? Ajude a melhorar a NEONCUT.</span><button type="button" class="btn ghost small" id="resultFeedback">Avaliar meus cortes</button></div>
     <div class="dl" id="dlList" style="margin-top:16px"></div>
   </section>
 
@@ -1874,8 +1883,9 @@ function movAvg(x, w) {
 function findMoments(F, V, dur, D, N, focus, opts) {
   opts = opts || {}; const sens = clamp(opts.sens || 3, 1, 5), sf = .6 + sens * .16;  // 0.76..1.4
   const n = F ? F.loud.length : Math.floor(dur / HOP);
+  if(n<2)return [];
   const Z = {};
-  if (F) for (const k of ['loud', 'voice', 'low', 'flux']) Z[k] = robustZ(F[k]);
+  if (F) for (const k of (opts.turbo?['loud','voice','flux']:['loud','voice','low','flux'])) Z[k] = robustZ(F[k]);
   if (V && V.vals.length > 2) {
     const m = new Float32Array(n), vv = V.vals; let k = 0;
     for (let i = 0; i < n; i++) { const t = i * HOP; while (k < vv.length - 1 && vv[k + 1].t <= t) k++; m[i] = vv[k].m; }
@@ -1919,7 +1929,10 @@ function findMoments(F, V, dur, D, N, focus, opts) {
   const snap = opts.snapSilence !== false;
   return chosen.map((c, k) => {
     let a = snap ? quiet(c.st, r) : c.st, b = snap ? quiet(Math.min(n - 1, c.en), r) : Math.min(n - 1, c.en);
-    if (b - a < Dw * .75) b = Math.min(n, a + Dw);
+    // Prefer quiet boundaries without exceeding the requested duration or losing the peak.
+    if(b-a<Dw*.75||c.peak<a||c.peak>=b){a=c.st;b=c.en;}
+    if(b-a>Dw)b=a+Dw;
+    if(c.peak>=b){b=c.en;a=Math.max(0,b-Dw);}
     const mean = key => { if (!Z[key]) return 0; let s = 0; for (let j = a; j < b; j++) s += Z[key][j]; return s / Math.max(1, b - a); };
     const mv = mean('voice'), mf = mean('flux') + .5 * mean('low'), mm = mean('motion');
     let cat = 'epico';
@@ -2712,7 +2725,8 @@ async function pipelineRun(skip) {
   const st7 = $('#st7'); if (st7) st7.classList.add('hidden'); // legendar agora acontece depois, com os cortes já na tela
   if (S.mode === 'link') { let f;try{f=await fetchRemote();}catch(e){e.ncRemoteFailure=true;throw e;} S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
   const pv = $('#pv'), ev = $('#ev'), av = $('#av');
-  await Promise.all([loadMeta(pv, S.url), loadMeta(ev, S.url), loadMeta(av, S.url)]);
+  await loadMeta(pv, S.url); // load other players only on demand, reducing initial decoder contention
+  if(!skip.includes(4))await loadMeta(av,S.url);
   S.duration = pv.duration; S.vw = pv.videoWidth; S.vh = pv.videoHeight;
   // som e imagem são analisados AO MESMO TEMPO
   step(2, 'active'); step(3, 'active', 'na fila'); if (!skip.includes(4)) step(4, 'active');
@@ -2726,7 +2740,7 @@ async function pipelineRun(skip) {
   const visJob = skip.includes(4) ? Promise.resolve(null)
     : visualFeatures(av, S.duration, p => step(4, 'active', Math.round(p * 100) + '%'), S.file).then(v => { step(4, 'done'); mark('imagem'); lap.players = v && v.K; return v; });
   let [, V] = await Promise.all([audioJob, visJob]);
-  if(S.settings.turbo && !S.pcm) { $('#st4')?.classList.remove('hidden'); step(4,'active'); V=await visualFeatures(av,S.duration,p=>step(4,'active',Math.round(p*100)+'%'),S.file); step(4,'done'); }
+  if(S.settings.turbo && !S.pcm) { await ensureSrc(av,S.url); $('#st4')?.classList.remove('hidden'); step(4,'active'); V=await visualFeatures(av,S.duration,p=>step(4,'active',Math.round(p*100)+'%'),S.file); step(4,'done'); }
   if(wantCaps && (lowMemory || S.settings.turbo)){onDl=capDlProgress;asrP=S.asrInfo&&S.asrInfo.size===S.settings.model?Promise.resolve(S.asrInfo):loadASR(S.settings.model);asrP.then(()=>step(6,'done'),()=>step(6,'done'));}
   // momentos
   step(5, 'active');
@@ -2756,7 +2770,7 @@ async function pipelineRun(skip) {
   step(8, 'active');
   // Do not block first results on external fonts; render again as they become available.
   const fontsReady=Promise.allSettled(['Anton','Bebas Neue','Bangers','Montserrat','Inter'].map(f=>document.fonts.load(`40px "${f}"`)));
-  await Promise.race([fontsReady,sleep(700)]);
+  if(!S.settings.turbo)await Promise.race([fontsReady,sleep(700)]);
   showResults(!S.pcm ? 'O vídeo não tem áudio.' : null);
   if(selectionNote) { $('#capWarn').classList.remove('hidden'); $('#capWarn').textContent = selectionNote; }
   step(8, 'done'); mark('cortes_na_tela');
@@ -2835,7 +2849,7 @@ async function drawThumb(clip) {
   const av = $('#av'); await ensureSrc(av, clipSrc(clip)); const t = clamp(clip.peakT, clip.start, clip.end - .1);
   await seek(av, t);
   const tx=thumbBig.getContext('2d'); tx.setTransform(thumbBig.width/W,0,0,thumbBig.height/H,0,0); renderFrame(tx, av, clip, t, clip.tpl);
-  const c = document.querySelector(`#th${clip.idx}`); if (c) c.getContext('2d').drawImage(thumbBig, 0, 0, c.width, c.height);
+  const c = document.querySelector(`#th${clip.idx}`); if (c && cardPlayback?.clip!==clip && S.clips.includes(clip)) c.getContext('2d').drawImage(thumbBig, 0, 0, c.width, c.height);
 }
 function showResults(capErr) {
   $('#proc').classList.add('hidden'); $('#results').classList.remove('hidden');
@@ -2852,10 +2866,56 @@ function resSubText() {
   const provisional = S.capRunning && S.settings?.turbo;
   return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo${provisional ? ' · sugestões por intensidade; legendando falas' : ' · nota estimada de viralização'}${asr}. Clique para ajustar.`;
 }
+// A single lazy preview player; the editor and export keep their own players.
+let cardPlayback=null, cardPlaybackId=0;
+function stopCardPlayback(restore=true){
+  ++cardPlaybackId;
+  const p=cardPlayback;cardPlayback=null;
+  if(!p)return;
+  cancelAnimationFrame(p.raf);p.video.pause();p.video.removeAttribute('src');p.video.load();
+  p.button.classList.remove('playing');p.button.setAttribute('aria-label','Reproduzir corte');p.button.querySelector('span').textContent='▶';
+  p.progress.style.width='0%';
+  if(restore&&S.clips.includes(p.clip))queueThumb(p.clip);
+}
+async function playCardClip(c,button){
+  if(cardPlayback?.clip===c){stopCardPlayback();return;}
+  stopCardPlayback();
+  const id=cardPlaybackId,video=document.createElement('video'),canvas=$('#th'+c.idx),progress=button.parentElement.querySelector('.thumb-progress');
+  if(!canvas||!progress||!clipSrc(c))return;
+  video.playsInline=true;video.preload='auto';
+  const p={clip:c,button,video,progress,raf:0};cardPlayback=p;
+  button.classList.add('playing');button.setAttribute('aria-label','Pausar corte');button.querySelector('span').textContent='…';
+  if(c._capP&&!c._capDone)S.capPriority=c;
+  try{
+    await loadMeta(video,clipSrc(c));
+    if(id!==cardPlaybackId)return;
+    const hook=hookRange(c);let pre=!!hook;
+    await seek(video,pre?hook[0]:c.start);
+    if(id!==cardPlaybackId)return;
+    const ctx=canvas.getContext('2d');
+    await video.play();
+    if(id!==cardPlaybackId){video.pause();return;}
+    button.querySelector('span').textContent='❚❚';
+    const draw=()=>{
+      if(cardPlayback!==p)return;
+      if(!button.isConnected||button.closest('.clip').classList.contains('hidden')||$('#results').classList.contains('hidden')||$('#vApp').classList.contains('hidden')){stopCardPlayback();return;}
+      if(pre&&video.currentTime>=hook[1]){pre=false;video.currentTime=c.start;}
+      else if(!pre&&(video.currentTime>=c.end||video.ended)){stopCardPlayback(false);return;}
+      ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
+      renderFrame(ctx,video,pre?Object.assign(Object.create(c),{showTitle:false}):c,video.currentTime,c.tpl);
+      if(pre)drawHook(ctx,W,H,clamp((video.currentTime-hook[0])/(hook[1]-hook[0]),0,1),c.hookTxt);
+      progress.style.width=(100*clamp((video.currentTime-c.start)/Math.max(.1,c.end-c.start),0,1))+'%';
+      p.raf=requestAnimationFrame(draw);
+    };draw();
+  }catch(e){if(cardPlayback===p){stopCardPlayback();toast('Não consegui reproduzir a prévia. Toque novamente.',4000);}}
+}
+$('#toggleFullSearch').onclick=()=>{const el=$('#fullSearchPanel'),b=$('#toggleFullSearch');const open=el.classList.toggle('hidden')===false;b.setAttribute('aria-expanded',String(open));b.textContent=open?'Ocultar busca na gravação ▴':'Buscar na gravação inteira ▾';};
+$('#resultFeedback').onclick=()=>showFeedbackBalloon(0,true);
 function renderGrid() {
+  stopCardPlayback(false);
   $('#grid').innerHTML = S.clips.map(c => `
     <div class="clip" data-moment-index="${c.idx}">
-      <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><span class="score" id="csc${c.idx}">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span>${hookRange(c) ? '<span class="hookchip">🔁 Gancho</span>' : ''}</div>
+      <div class="thumb"><canvas id="th${c.idx}" width="270" height="480"></canvas><button type="button" class="thumb-play" data-play-clip="${c.idx}" aria-label="Reproduzir corte"><span>▶</span></button><i class="thumb-progress"></i><span class="score" id="csc${c.idx}">🔥 ${c.score}</span><span class="cat">${CAT_LABEL[c.cat]}</span>${hookRange(c) ? '<span class="hookchip">🔁 Gancho</span>' : ''}</div>
       <div class="meta"><div class="t" id="ct${c.idx}">${esc(c.title)}</div><div class="s" id="cs${c.idx}">${cardStatus(c)}</div>
       <div class="row" style="margin-bottom:8px"><button class="btn ghost small" data-ed="${c.idx}" style="flex:1">✏️ Editar</button><button class="btn ghost small" data-adv="${c.idx}" style="flex:1" title="Editor avançado com linha do tempo">🎬 Estúdio${isPro() ? '' : ' 🔒'}</button></div>
       <button class="btn small" data-dl="${c.idx}" style="width:100%">⬇ Baixar corte</button></div>
@@ -2865,6 +2925,7 @@ function renderGrid() {
 }
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
 $('#grid').addEventListener('click', e => {
+  const play=e.target.closest('[data-play-clip]');if(play){const c=S.clips[+play.dataset.playClip];if(c)playCardClip(c,play);return;}
   const ed = e.target.closest('[data-ed]'), dl = e.target.closest('[data-dl]');
   if (ed) openEditor(S.clips[+ed.dataset.ed]);
   if (dl) exportWithUI([S.clips[+dl.dataset.dl]], dl);
@@ -2874,6 +2935,7 @@ $('#restart').onclick = () => { location.hash = '#criar'; location.reload(); };
 
 let busy = false;
 async function exportWithUI(list, btn) {
+  stopCardPlayback();
   if(S.fullScanning){toast('Aguarde a busca na gravação ou clique em Parar.');return;}
   if (!S.user && !S.demo) { track('signup_started', { why: 'download' }); toast('Crie sua conta grátis para baixar seus cortes 🎬', 4000); openAuth('signup', async () => { await claimGuest(); exportWithUI(list, btn); }); return; }
   if (busy) { toast('Já estou exportando um corte, aguarde…'); return; }
@@ -2930,6 +2992,7 @@ async function exportWithUI(list, btn) {
 // ---------------- Editor ----------------
 let raf = 0;
 function openEditor(clip) {
+  stopCardPlayback();
   S.cur = clip; $('#modal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
   $('#edScore').textContent = '🔥 ' + clip.score;
   $('#inTitle').value = clip.title; $('#inShowTitle').checked = clip.showTitle !== false; $('#inShowCaps').checked = clip.showCaps !== false;
@@ -3281,7 +3344,7 @@ function route() {
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
   if (v !== 'vLanding') {$('#instantPreview')?.pause();document.querySelectorAll('#demoGrid video').forEach(video=>video.pause());}
-  if(v!=='vApp')$('#fullPreview')?.pause();
+  if(v!=='vApp'){$('#fullPreview')?.pause();stopCardPlayback();}
   if (v === 'vProjects') renderProjects();
   const gb = $('#guestBar'); if (gb) gb.classList.toggle('hidden', !!S.user || v !== 'vApp');
   if (v === 'vApp' && !S.user && S.mode === 'link' && !S.guestTabSet) { S.guestTabSet = true; document.querySelector('.tab[data-tab="file"]').click(); }
@@ -3926,6 +3989,7 @@ const advT = () => advPV().currentTime;
 function advWordsChanged() { const c = ADV.clip; c.words.sort((a, b) => a.start - b.start); c.wordsVer = (c.wordsVer || 0) + 1; c.lineCache = null; }
 
 function openAdvanced(clip) {
+  stopCardPlayback();
   if (!isPro()) { openUpgrade('O editor avançado com linha do tempo é do Pro e do Pro+.'); return; }
   if (S.cur) closeEditor();
   ADV.open = true; ADV.clip = clip; ADV.hist = []; ADV.fut = []; ADV.sel = -1; ADV.q = '';
@@ -4426,11 +4490,11 @@ function afterClipGenerated() {
   setTimeout(() => showFeedbackBalloon(), 9000);
 }
 function busyUI() { return !!document.querySelector('#modal:not(.hidden), #adv:not(.hidden), #upModal:not(.hidden), #authModal:not(.hidden), #ticketModal:not(.hidden), #tutModal:not(.hidden), #proc:not(.hidden)'); }
-function showFeedbackBalloon(tries = 0) {
+function showFeedbackBalloon(tries = 0, force = false) {
   if ($('#fbBalloon') || S.demo) return;
-  if (busyUI()) { if (tries < 40) setTimeout(() => showFeedbackBalloon(tries + 1), 6000); return; } // espera sair do editor/Estúdio
+  if (busyUI()) { if (tries < 40) setTimeout(() => showFeedbackBalloon(tries + 1,force), 6000); return; } // espera sair do editor/Estúdio
   const st = lsGet(NCK.fb) || '';
-  if (st === 'done' || st === 'no') return;
+  if (!force && (st === 'done' || st === 'no')) return;
   track('feedback_shown');
   const el = document.createElement('div'); el.id = 'fbBalloon'; el.className = 'fbb'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Avaliar o NEONCUT');
   el.innerHTML = `<button class="fbx" aria-label="Fechar">✕</button>
@@ -4442,8 +4506,9 @@ function showFeedbackBalloon(tries = 0) {
   let rating = 0;
   const close = (state) => { if (state) lsSet(NCK.fb, state); el.classList.remove('in'); setTimeout(() => el.remove(), 300); };
   const send = async (withText) => {
+    const sendBtn=$('#fbSend'),skipBtn=$('#fbSkip');if(sendBtn.disabled)return;sendBtn.disabled=skipBtn.disabled=true;
+    try { await api('/api/feedback', { rating, comment: withText ? $('#fbText').value : '', ref: lsGet(NCK.fref) || '' }); } catch (e) {sendBtn.disabled=skipBtn.disabled=false;toast('Não consegui enviar a avaliação. Tente novamente.',4000);return;}
     lsSet(NCK.fb, 'done');
-    try { await api('/api/feedback', { rating, comment: withText ? $('#fbText').value : '', ref: lsGet(NCK.fref) || '' }); } catch (e) { }
     el.querySelector('.fbmore').innerHTML = `<p class="fbthanks">${rating >= 4 ? 'Valeu demais! 💜 Bons cortes!' : 'Obrigado! Vamos usar isso pra melhorar. 🙏'}</p>`;
     setTimeout(() => close(), 1800);
   };
@@ -4451,7 +4516,7 @@ function showFeedbackBalloon(tries = 0) {
   el.querySelectorAll('.fbfaces button').forEach(b => b.onclick = () => {
     rating = +b.dataset.r; el.querySelectorAll('.fbfaces button').forEach(x => x.classList.toggle('on', x === b));
     const m = el.querySelector('.fbmore'); m.classList.remove('hidden');
-    $('#fbText').placeholder = rating >= 4 ? 'O que você mais curtiu? (opcional)' : 'O que podemos melhorar? (opcional)';
+    $('#fbText').placeholder = 'Os cortes foram úteis? A velocidade foi suficiente? O que faria você usar ou pagar pela NEONCUT? (opcional)';
     setTimeout(() => $('#fbText').focus({ preventScroll: true }), 50);
   });
   el.addEventListener('click', e => { if (e.target.id === 'fbSend') send(true); if (e.target.id === 'fbSkip') send(false); });
