@@ -333,7 +333,7 @@ router = APIRouter()
 # ---------------------------------------------------------------- config pública
 # YouTube em manutenção: o IP do servidor é bloqueado pelo YouTube. Volta sozinho se configurar
 # cookies (YTDLP_COOKIES / YTDLP_COOKIES_TEXT) ou proxy (YTDLP_PROXY), ou com YT_ENABLED=1.
-YT_ENABLED = os.environ.get("YT_ENABLED", "") == "1" or bool(os.environ.get("YTDLP_COOKIES") or os.environ.get("YTDLP_COOKIES_TEXT") or os.environ.get("YTDLP_PROXY"))
+YT_ENABLED = os.environ.get("YT_ENABLED", "1").strip().lower() not in ("0", "false", "off")  # explicit opt-out remains available
 GA4_ID = os.environ.get("GA4_ID", "").strip()                  # ex.: G-XXXXXXX
 GADS_ID = os.environ.get("GADS_ID", "").strip()                # ex.: AW-123456789
 GADS_PURCHASE_LABEL = os.environ.get("GADS_PURCHASE_LABEL", "").strip()

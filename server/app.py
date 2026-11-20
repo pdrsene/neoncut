@@ -21,7 +21,8 @@ import threading
 import time
 import uuid
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs, urlencode
+from urllib.request import urlopen
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -85,6 +86,41 @@ def platform_of(url: str) -> str | None:
     return None
 
 
+def youtube_canonical(url: str) -> str | None:
+    try:
+        u=urlparse(url.strip())
+        if u.scheme not in ("http","https") or u.username or u.password or u.port:
+            return None
+        host=(u.hostname or "").lower()
+        parts=[p for p in u.path.split("/") if p]
+        vid=None
+        if host=="youtu.be" and len(parts)==1:
+            vid=parts[0]
+        elif host in ("youtube.com","www.youtube.com","m.youtube.com","music.youtube.com","youtube-nocookie.com","www.youtube-nocookie.com"):
+            if u.path=="/watch":
+                vid=parse_qs(u.query).get("v",[None])[0]
+            elif len(parts)==2 and parts[0] in ("shorts","live","embed","v"):
+                vid=parts[1]
+        return "https://www.youtube.com/watch?v="+vid if vid and re.fullmatch(r"[A-Za-z0-9_-]{11}",vid) else None
+    except (ValueError,AttributeError):
+        return None
+
+
+def youtube_reference(url: str) -> dict:
+    # Official public metadata only; this does not grant access to media bytes.
+    result={"platform":"youtube","url":url,"title":"Vídeo do YouTube","import_required":True,
+            "import_message":"A importação direta não está disponível para este vídeo. Envie o arquivo original de um vídeo próprio ou autorizado."}
+    try:
+        endpoint="https://www.youtube.com/oembed?"+urlencode({"url":url,"format":"json"})
+        with urlopen(endpoint,timeout=5) as response:
+            data=json.loads(response.read(65536))
+        result["title"]=str(data.get("title") or result["title"])[:200]
+        result["uploader"]=str(data.get("author_name") or "")[:120]
+    except Exception:
+        pass
+    return result
+
+
 def check_url(url: str) -> str:
     url = (url or "").strip()
     if not re.match(r"^https?://", url):
@@ -92,8 +128,11 @@ def check_url(url: str) -> str:
     p = platform_of(url)
     if not p and not ALLOW_ANY_URL:
         raise HTTPException(400, "Por enquanto aceitamos links da Twitch e da Kick.")
-    if p == "youtube" and not accounts.YT_ENABLED:
-        raise HTTPException(400, accounts.YT_MAINT_MSG)
+    if p == "youtube":
+        if not youtube_canonical(url):
+            raise HTTPException(400,"Cole um link de vídeo, Short ou live específica do YouTube.")
+        if not accounts.YT_ENABLED:
+            raise HTTPException(400, accounts.YT_MAINT_MSG)
     return p or "outro"
 
 
@@ -228,6 +267,10 @@ def info(body: InfoReq, req: Request):
     u = accounts.current_user(req)
     plan = accounts.plan_info(u)
     plat = check_url(body.url)
+    if plat=="youtube":
+        body.url=youtube_canonical(body.url)
+        with LOCK:
+            rate_limit("info-yt-"+str(u["id"]))
     global _yt_alt_until
     try:
         r = subprocess.run(ytdlp_base(body.url) + ["-J", "--skip-download", body.url],
@@ -240,8 +283,10 @@ def info(body: InfoReq, req: Request):
                 _yt_alt_until = time.time() + 1800
             r = r2
     except subprocess.TimeoutExpired:
+        if plat=="youtube":return youtube_reference(body.url)
         raise HTTPException(504, "A plataforma demorou demais para responder.")
     if r.returncode != 0:
+        if plat=="youtube":return youtube_reference(body.url)
         raise HTTPException(400, friendly_error(r.stderr or r.stdout))
     j = json.loads(r.stdout)
     if j.get("_type") == "playlist" and j.get("entries"):
@@ -299,6 +344,7 @@ def create_job(body: JobReq, req: Request):
     plan = accounts.plan_info(u)
     max_min, max_live = min(MAX_MINUTES, plan["max_minutes"]), min(MAX_LIVE_MINUTES, plan["max_live_minutes"])
     plat = check_url(body.url)
+    if plat=="youtube":body.url=youtube_canonical(body.url)
     if body.live_minutes is not None:
         if not (0.5 <= body.live_minutes <= max_live):
             raise HTTPException(400, f"No seu plano, grave entre 1 e {int(max_live)} minutos da live.")

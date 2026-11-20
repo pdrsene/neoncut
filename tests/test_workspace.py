@@ -36,6 +36,17 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(A.plan_info(self.u(self.uid))["hd_unlimited"])
         with self.assertRaises(HTTPException) as e:A.use_hd(self.req)
         self.assertEqual(e.exception.status_code,402)
+    def test_youtube_canonical_and_reference(self):
+        from server import app as B
+        canonical="https://www.youtube.com/watch?v=jNQXAC9IVRw"
+        for url in (canonical,"https://youtu.be/jNQXAC9IVRw?si=x","https://www.youtube.com/shorts/jNQXAC9IVRw","https://www.youtube.com/live/jNQXAC9IVRw"):
+            self.assertEqual(B.youtube_canonical(url),canonical)
+        for url in ("https://youtube.com.evil.invalid/watch?v=jNQXAC9IVRw","https://www.youtube.com/@channel","https://www.youtube.com/playlist?list=123","https://user@youtube.com/watch?v=jNQXAC9IVRw"):
+            self.assertIsNone(B.youtube_canonical(url))
+        with patch.object(B,"urlopen",side_effect=OSError("unavailable")):
+            self.assertTrue(B.youtube_reference(canonical)["import_required"])
+        with patch.object(A,"YT_ENABLED",True):
+            self.assertEqual(B.check_url(canonical),"youtube")
     def test_real_builtin_demos(self):
         items=G.list_demos()["demos"]
         self.assertEqual({x["id"] for x in items},{"builtin-drive","builtin-robbery"})

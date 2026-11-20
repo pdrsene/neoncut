@@ -990,7 +990,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <details><summary>O primeiro corte é grátis mesmo?</summary><p>Sim. Na conta grátis, o primeiro corte que você baixar de um vídeo seu sai em 1080p e sem marca d'água. Depois, o plano Grátis exporta em 720p com marca d'água.</p></details>
         <details><summary>Funciona no celular?</summary><p>Funciona no Chrome (Android) e no Safari (iPhone). Se você abriu o site pelo Instagram ou pelo TikTok, abra no navegador do celular para conseguir baixar: o navegador interno desses apps bloqueia downloads. Vídeos curtos (até ~10 minutos) funcionam melhor no celular.</p></details>
         <details><summary>O que é o Gancho Turbo?</summary><p>A IA encontra o momento mais forte do corte e mostra ele nos 2 primeiros segundos, com um texto como "ESPERA O FINAL". Depois o vídeo volta para o começo. Você pode trocar o texto ou desligar no editor.</p></details>
-        <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Para YouTube, cole o link como referência e envie o arquivo original. Se o vídeo for seu, exporte pelo YouTube Studio. O download automático do YouTube não está disponível.</p></details>
+        <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Para YouTube, cole o link como referência e envie o arquivo original. Se o vídeo for seu, exporte pelo YouTube Studio. A importação direta é tentada quando disponível; se o YouTube recusar o acesso, envie seu arquivo original.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>No editor padrão, corte, legenda e exportação acontecem no navegador. Arquivos importados por link ficam temporariamente no servidor. Se você usar a fila em nuvem (beta), os arquivos restantes expiram em até 24 horas.</p></details>
         <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
         <details><summary>Posso cortar live de outros streamers?</summary><p>Só com autorização do streamer. Combine com ele e mantenha os créditos (quando você corta por link, o NEONCUT coloca o crédito do canal na descrição). Você é responsável pelo que publica.</p></details>
@@ -1023,7 +1023,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link do vídeo ou live" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
       <div class="plats" id="plats"><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span><span data-p="youtube" class="ytchip">YouTube<em class="ytm">via arquivo</em></span></div>
       <p class="note err hidden" id="linkErr" style="margin:12px 0 0"></p>
-      <div class="panel hidden" id="ytImport" style="margin-top:12px"><h3 style="margin:0 0 6px">YouTube · importar arquivo</h3><p class="note" style="margin:0 0 12px">Formato de link reconhecido. Para gerar cortes, escolha o arquivo original ou uma cópia autorizada. O download automático do YouTube está indisponível.</p><div class="row" style="flex-wrap:wrap"><button type="button" class="btn small" id="ytChoose">Escolher arquivo de vídeo</button><a id="ytWatch" class="btn ghost small" target="_blank" rel="noopener noreferrer">Abrir vídeo no YouTube</a><a class="btn ghost small" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube Studio (meus vídeos)</a></div></div>
+      <div class="panel hidden" id="ytImport" style="margin-top:12px"><h3 id="ytImportTitle" style="margin:0 0 6px">YouTube · importar arquivo</h3><p class="note" style="margin:0 0 12px"><span id="ytImportMessage">Para gerar cortes, escolha o arquivo original ou uma cópia autorizada.</span></p><div class="row" style="flex-wrap:wrap"><button type="button" class="btn small" id="ytChoose">Escolher arquivo de vídeo</button><a id="ytWatch" class="btn ghost small" target="_blank" rel="noopener noreferrer">Abrir vídeo no YouTube</a><a class="btn ghost small" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube Studio (meus vídeos)</a></div></div>
       <div class="linkinfo hidden" id="linkInfo">
         <img id="liThumb" alt="">
         <div>
@@ -2346,9 +2346,11 @@ function isYoutubeHost(value) {
 function clearYoutubeRef() {
   S.ytRef=null; $('#ytImport').classList.add('hidden'); $('#ytFileRef').classList.add('hidden'); $('#ytFileRef').textContent='';
 }
-function showYoutubeImport(id) {
+function showYoutubeImport(id,info=null) {
   S.link=null; S.ytRef='https://www.youtube.com/watch?v='+id;
   $('#linkInfo').classList.add('hidden'); showLinkErr('');
+  $('#ytImportTitle').textContent=info?.title?'YouTube · '+info.title:'YouTube · importar arquivo';
+  $('#ytImportMessage').textContent=info?.import_message||'O YouTube não disponibilizou a importação direta neste momento. Envie o arquivo original de um vídeo próprio ou autorizado para continuar.';
   $('#ytWatch').href=S.ytRef; $('#ytImport').classList.remove('hidden'); updateGo();
 }
 $('#ytChoose').onclick=()=>{
@@ -2402,7 +2404,10 @@ $('#fetchInfo').onclick = async () => {
   if (!S.user) { toast('Para colar link, crie sua conta grátis. Sem cadastro, use "Enviar arquivo".', 5000); openAuth('signup', () => $('#fetchInfo').click()); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
-    const info = await api('/api/info', { url }); S.link = info;
+    const info = await api('/api/info', { url:yid?'https://www.youtube.com/watch?v='+yid:url });
+    if($('#url').value.trim()!==url)return;
+    if(yid&&info.import_required){showYoutubeImport(yid,info);return;}
+    S.link = info;
     $('#liThumb').src = info.thumbnail || ''; $('#liThumb').classList.toggle('hidden', !info.thumbnail); $('#linkInfo').style.gridTemplateColumns = info.thumbnail ? '' : '1fr';
     $('#liTitle').textContent = info.title;
     $('#liMeta').innerHTML = (info.is_live ? '<span class="live">AO VIVO</span>' : '') + `${PLAT_NAME[info.platform] || 'Link'} · ${esc(info.uploader || '')}${info.duration ? ' · ' + fmtH(info.duration) : ''}`;
@@ -2414,8 +2419,8 @@ $('#fetchInfo').onclick = async () => {
       : `Até ${info.max_minutes} minutos por vez.`;
     [...$('#liMin').options].forEach(o => o.disabled = +o.value > info.max_live_minutes);
     $('#linkInfo').classList.remove('hidden');
-  } catch (e) { S.link = null; if(yid){showYoutubeImport(yid);}else showLinkErr(e.message); }
-  btn.disabled = false; btn.textContent = 'Buscar'; updateGo();
+  } catch (e) { if($('#url').value.trim()===url){S.link = null; if(yid){showYoutubeImport(yid);}else showLinkErr(e.message);} }
+  finally {btn.disabled = false; btn.textContent = 'Buscar'; updateGo();}
 };
 // ---------- seletor de tempo em rolagem (passos de 30 s) ----------
 const ROW = 44, WHEEL = { inp: null, cols: [] };
@@ -2527,6 +2532,8 @@ $('#go').onclick = async () => {
     console.error(e);
     const st = document.querySelector('#steps .step.active');
     track('generation_failed', { code: errCode(e), stage: st ? (STEP_CODE[st.id] || st.id) : '?', msg: shortMsg(e), mode: S.mode, demo: sample ? 1 : 0, vw: innerWidth });
+    const yid=e.ncRemoteFailure&&S.link?.platform==='youtube'&&youtubeVideoId(S.link.url);
+    if(yid){$('#proc').classList.add('hidden');$('#upload').classList.remove('hidden');showYoutubeImport(yid);toast('O YouTube recusou ou não concluiu a importação. Você pode continuar com o arquivo original.',5000);return;}
     $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(e.message)}</p><p class="note">${friendlyTip(e)}</p><div class="row"><button class="btn ghost small" onclick="location.reload()">Tentar de novo</button><button class="btn ghost small" data-survey="falha">Contar o que aconteceu</button></div>`);
   }
 };
@@ -2539,7 +2546,7 @@ async function pipelineRun(skip) {
   let asrP = null;
   if (wantCaps && !lowMemory) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
   const st7 = $('#st7'); if (st7) st7.classList.add('hidden'); // legendar agora acontece depois, com os cortes já na tela
-  if (S.mode === 'link') { const f = await fetchRemote(); S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
+  if (S.mode === 'link') { let f;try{f=await fetchRemote();}catch(e){e.ncRemoteFailure=true;throw e;} S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
   const pv = $('#pv'), ev = $('#ev'), av = $('#av');
   await Promise.all([loadMeta(pv, S.url), loadMeta(ev, S.url), loadMeta(av, S.url)]);
   S.duration = pv.duration; S.vw = pv.videoWidth; S.vh = pv.videoHeight;
@@ -3594,12 +3601,15 @@ function startStreams() { if (!$('#upload').classList.contains('hidden')) loadSt
 // ---------- logo: volta para a tela inicial (com lives e YouTube) ----------
 function updateBackBar() { const has = S.clips.length && $('#results').classList.contains('hidden') && $('#proc').classList.contains('hidden') && !$('#upload').classList.contains('hidden'); $('#backBar').classList.toggle('hidden', !has); if (has) $('#backTitle').textContent = (S.project && S.project.title) || S.clips.length + ' cortes'; }
 function goHome() {
-  if (location.hash !== '#criar') { location.hash = '#criar'; }
-  if (!$('#proc').classList.contains('hidden')) { window.scrollTo({ top: 0, behavior: 'smooth' }); return; } // processando: não interrompe
-  $('#results').classList.add('hidden'); $('#upload').classList.remove('hidden');
-  route(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Keep the current project, results and processing state intact.
+  if (location.hash !== '#inicio') location.hash = '#inicio';
+  else route();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-document.querySelector('.logo').addEventListener('click', e => { if (!S.user || S.demo) return; e.preventDefault(); goHome(); });
+document.querySelector('.nav .logo').addEventListener('click', e => {
+  if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;
+  e.preventDefault();goHome();
+});
 $('#backToRes').onclick = () => { $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#results').classList.remove('hidden'); window.scrollTo(0, 0); };
 
 // ---------- YouTube: canais, sugestões e cortes viralizando ----------
