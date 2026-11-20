@@ -848,6 +848,27 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 @media(max-width:860px){#vLanding .home-hero{grid-template-columns:1fr;padding:23px 19px;gap:22px}.home-preview .hx-vis{min-height:0;max-width:530px;margin:auto}.home-preview .hx-cut{max-height:320px;width:auto;max-width:100%}.home-preview .hx-orig{width:100%}.home-preview .hx-vis{grid-template-columns:minmax(0,1fr) 20px minmax(0,.8fr)}#vLanding .home-welcome{flex-wrap:wrap;gap:14px;padding:18px}.home-profile{flex-basis:100%}.home-stat{flex:1;min-width:100px}.home-welcome>.btn{flex:none}.home-launch{grid-template-columns:repeat(2,minmax(0,1fr))}#vLanding .lp-sec{padding-top:42px}}
 @media(max-width:420px){.home-launch-card{padding:11px;gap:7px}.home-icon{width:30px;height:30px;font-size:18px}.home-launch-card>i{display:none}.home-preview figcaption{font-size:8px}.home-preview-head,.home-preview-foot{padding:10px}.home-preview .hx-vis{padding:12px 8px}.home-preview .hx-cut{max-height:245px}.home-welcome>.btn{width:100%}}
 
+
+/* Compact real-gameplay demo cards */
+#demoGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:15px}
+.demo-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:30px 0 0}
+.demo-section-head h3{font-size:clamp(20px,2.5vw,26px);letter-spacing:-.035em;margin:5px 0 4px}
+.demo-section-head .note{margin:0}.demo-free-label{font-size:10px;letter-spacing:.08em;font-weight:800;color:#a3e635;border:1px solid #3a4b25;background:#1b2412;padding:7px 10px;border-radius:7px;white-space:nowrap}
+#demoGrid .dcard{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:center;gap:14px;padding:12px;background:#141416;border:1px solid #303035;border-radius:16px;min-width:0;transition:border-color .18s}
+#demoGrid .dcard:hover{border-color:#687943}
+.demo-media{position:relative;min-width:0;border-radius:10px;overflow:hidden;background:#09090b}
+#demoGrid .dcard video{display:block;width:100%;aspect-ratio:16/9;border-radius:10px;object-fit:contain;max-height:200px}
+.demo-media-label{position:absolute;top:7px;right:7px;background:rgba(9,9,11,.85);border-radius:5px;color:#fafafa;font-size:10px;font-weight:700;padding:4px 6px;pointer-events:none}
+.demo-card-body{min-width:0;display:flex;flex-direction:column;gap:7px;align-items:flex-start}
+.demo-card-meta{display:flex;gap:7px;align-items:center;flex-wrap:wrap;color:#a1a1aa;font-size:10px}
+.demo-tag{font-size:9px;letter-spacing:.06em;font-weight:800;color:#a3e635;border:1px solid #3d4d26;padding:3px 6px;border-radius:5px}
+.demo-card-body h4{margin:0;font-size:16px;line-height:1.22;letter-spacing:-.025em;overflow-wrap:anywhere}
+.demo-card-body .note{font-size:12px;line-height:1.45}.demo-credit{color:#a1a1aa;font-size:10px}
+.demo-card-body .btn{margin-top:4px;display:flex;gap:12px;align-items:center;padding:9px 12px;white-space:normal}
+@media(max-width:1000px){#demoGrid .dcard{grid-template-columns:1fr;align-items:stretch}#demoGrid .dcard video{max-height:190px}.demo-card-body .btn{width:100%;justify-content:space-between}}
+@media(max-width:580px){#demoGrid{grid-template-columns:1fr}.demo-section-head{align-items:flex-start}.demo-free-label{display:none}#demoGrid .dcard{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:10px;padding:10px}.demo-card-body h4{font-size:14px}.demo-card-body .btn{font-size:12px;padding:8px}.demo-card-body .note{font-size:11px}.demo-credit{font-size:9px}}
+@media(max-width:350px){#demoGrid .dcard{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body class="yt-off">
@@ -922,6 +943,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <div><span class="dbadge">PRÉVIA INSTANTÂNEA</span><h3>Veja um exemplo antes de criar</h3><p class="sub">Assista a uma amostra visual do template, sem enviar arquivos, criar conta ou carregar a IA. Quando estiver pronto, teste a criação real com um vídeo de exemplo.</p><div class="row"><button type="button" class="btn" data-demo-try>Testar a criação real</button><button type="button" class="btn ghost" data-cta>Usar meu vídeo</button></div><p class="note">Amostra ilustrativa de template; não representa uma análise feita agora nem garante resultados de audiência.</p></div>
         <video id="instantPreview" controls playsinline preload="none" aria-label="Gameplay real com webcam, exemplo de enquadramento"><source src="demo/stream-web.mp4" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
       </div>
+      <div class="demo-section-head"><div><span class="home-overline">EXPERIMENTE NA PRÁTICA</span><h3>Escolha um gameplay</h3><p class="note">Vídeos de demonstração para testar a geração real de cortes, sem gastar sua cota.</p></div><span class="demo-free-label">TESTE GRATUITO</span></div>
       <div class="dgrid" id="demoGrid"><p class="note">Carregando exemplos…</p></div>
       <h3 style="margin:36px 0 6px;text-align:center">Os visuais disponíveis</h3>
       <p class="sub" style="text-align:center">Templates prontos. Ou use "Só o corte" para receber o trecho no formato original.</p>
@@ -2496,7 +2518,7 @@ $('#go').onclick = async () => {
   go.disabled = false;
   S.settings = { D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: $('#optSilence') ? $('#optSilence').checked : true };
   if (S.settings.tpl === 'raw') S.settings.model = 'none'; // formato original não renderiza legendas
-  if (sample) { S.settings.N = 3; S.settings.D = Math.min(30, S.settings.D); if (S.sample.builtin) S.settings.model = 'none'; }
+  if (sample) { S.settings.N = S.sample.has_audio ? 2 : 3; S.settings.D = Math.min(S.sample.has_audio ? 12 : 30, S.settings.D); if (S.sample.builtin && !S.sample.has_audio) S.settings.model = 'none'; }
   track('generation_started', { mode: S.mode, quick: $('#upload').classList.contains('quick') ? 1 : 0, focus: S.settings.focus, n: S.settings.N, demo: sample ? 1 : 0, guest: S.user ? 0 : 1 });
   const skip = []; if (S.mode !== 'link') skip.push(0, 1); if (!S.settings.visual) skip.push(4); if (S.settings.model === 'none') skip.push(6, 7);
   $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#proc').classList.remove('hidden'); stepsUI(skip); window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3069,7 +3091,7 @@ function route() {
     const target = { '#como': '#como', '#precos': '#precos-sec', '#faq': '#faq' }[h];
     setTimeout(() => $(target)?.scrollIntoView({ behavior: 'smooth' }), 30);
   } else if (!S.cur) window.scrollTo(0, 0);
-  if (v !== 'vLanding') $('#instantPreview')?.pause();
+  if (v !== 'vLanding') {$('#instantPreview')?.pause();document.querySelectorAll('#demoGrid video').forEach(video=>video.pause());}
   if(v!=='vApp')$('#fullPreview')?.pause();
   if (v === 'vProjects') renderProjects();
   const gb = $('#guestBar'); if (gb) gb.classList.toggle('hidden', !!S.user || v !== 'vApp');
@@ -4458,9 +4480,9 @@ async function renderDemos() {
   const box = $('#demoGrid'); if (!box) return;
   const list = await loadDemos();
   if (!list.length) { box.innerHTML = '<p class="note" style="text-align:center">Exemplos em breve.</p>'; return; }
-  box.innerHTML = list.map(d => `<div class="dcard"><video src="${esc(d.url)}#t=6" preload="metadata" muted playsinline aria-hidden="true"></video>
-    <div><span class="dbadge">DEMO</span><span class="note">${esc(d.cat_name || 'Exemplo')}</span></div><b>${esc(d.title)}</b>
-    ${d.credit ? `<p class="note">${esc(d.credit)}</p>` : ''}<button type="button" class="btn" data-demo-run="${esc(d.id)}" style="margin-top:auto">Experimentar exemplo</button></div>`).join('');
+  box.innerHTML = list.map(d => `<article class="dcard"><div class="demo-media"><video src="${esc(d.url)}#t=0.1" preload="metadata" playsinline controls aria-label="Vídeo: ${esc(d.title)}"></video><span class="demo-media-label">${d.duration ? esc(String(d.duration))+' s' : 'VÍDEO'}</span></div>
+    <div class="demo-card-body"><div class="demo-card-meta"><span class="demo-tag">DEMO</span><span>${esc(d.cat_name || 'Exemplo')}</span></div><h4>${esc(d.title)}</h4>
+    <p class="note">${esc(d.description || d.credit || 'Vídeo de exemplo para experimentar a geração de cortes.')}</p>${d.description && d.credit ? `<small class="demo-credit">${esc(d.credit)}</small>` : ''}<button type="button" class="btn small" data-demo-run="${esc(d.id)}">Experimentar <span aria-hidden="true">→</span></button></div></article>`).join('');
 }
 function openDemoPicker() {
   loadDemos().then(list => {
@@ -4502,7 +4524,7 @@ function updateResultNotes() {
 }
 document.addEventListener('click', e => {
   const quick = e.target.closest('[data-demo-try]'); if (quick) { e.preventDefault(); $('#instantPreview')?.pause(); openDemoPicker(); return; }
-  const r = e.target.closest('[data-demo-run]'); if (r) { e.preventDefault(); $('#instantPreview')?.pause(); runDemo(r.dataset.demoRun); return; }
+  const r = e.target.closest('[data-demo-run]'); if (r) { e.preventDefault(); $('#instantPreview')?.pause(); document.querySelectorAll('#demoGrid video').forEach(v=>v.pause()); runDemo(r.dataset.demoRun); return; }
   const l = e.target.closest('[data-demo-open-list]');
   if (l) { e.preventDefault(); const sec = $('#demos'); if (sec && !$('#vLanding').classList.contains('hidden')) sec.scrollIntoView({ behavior: 'smooth' }); else openDemoPicker(); return; }
   if (e.target.id === 'sampleOwn') { S.sample = null; location.hash = '#criar'; location.reload(); return; }

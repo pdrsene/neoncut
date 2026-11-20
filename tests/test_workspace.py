@@ -10,7 +10,7 @@ from fastapi import HTTPException
 tmp=tempfile.TemporaryDirectory()
 os.environ["DB_DIR"]=tmp.name
 os.environ["ADMIN_EMAILS"]=""
-from server import accounts as A, creator as C, workspace as W
+from server import accounts as A, creator as C, workspace as W, growth as G
 def user():
     return A.db().execute("INSERT INTO users(email,name,created) VALUES(?,?,?)",(str(time.time_ns())+"@test.invalid","Test",time.time())).lastrowid
 class WorkspaceTests(unittest.TestCase):
@@ -36,6 +36,11 @@ class WorkspaceTests(unittest.TestCase):
         self.assertFalse(A.plan_info(self.u(self.uid))["hd_unlimited"])
         with self.assertRaises(HTTPException) as e:A.use_hd(self.req)
         self.assertEqual(e.exception.status_code,402)
+    def test_real_builtin_demos(self):
+        items=G.list_demos()["demos"]
+        self.assertEqual({x["id"] for x in items},{"builtin-drive","builtin-robbery"})
+        self.assertTrue(all(x["has_audio"] and x["duration"]==24 for x in items))
+        self.assertEqual({x["url"] for x in items},{"/demo/drive-demo.mp4","/demo/robbery-demo.mp4"})
     def test_retired_calendar_preserves_data(self):
         A.db().execute("INSERT INTO content_calendar(uid,day,platform,title,description,tags,status) VALUES(?,?,?,?,?,?,?)",
                        (self.uid,"2026-11-20","TikTok","Legacy","","","planejado"))

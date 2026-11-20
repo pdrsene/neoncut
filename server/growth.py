@@ -31,9 +31,15 @@ DEMO_DIR = A.DB_DIR / "demos"
 DEMO_DIR.mkdir(parents=True, exist_ok=True)
 DEMO_MAX_MB = int(os.environ.get("DEMO_MAX_MB", "80"))
 DEMO_CATS = {"gtarp": "GTA RP • Humor", "acao": "Gameplay • Ação", "podcast": "Podcast • React", "outro": "Exemplo"}
-# exemplo embutido (animação própria do NEONCUT, sem direitos de terceiros): aparece enquanto não houver vídeos cadastrados
-BUILTIN = [{"id": "builtin", "cat": "outro", "title": "Exemplo NEONCUT (animação própria)", "credit": "Vídeo próprio do NEONCUT",
-            "url": "/demo/exemplo.mp4", "builtin": True}]
+# Gameplays fornecidos para demonstração da plataforma; os uploads do admin têm prioridade.
+BUILTIN = [
+    {"id": "builtin-drive", "cat": "gtarp", "title": "Distração ao volante", "credit": "Gameplay de demonstração",
+     "url": "/demo/drive-demo.mp4", "builtin": True, "has_audio": True, "duration": 24,
+     "description": "Teste com gameplay, reação e fala do streamer."},
+    {"id": "builtin-robbery", "cat": "gtarp", "title": "Pix durante o assalto", "credit": "Gameplay de demonstração",
+     "url": "/demo/robbery-demo.mp4", "builtin": True, "has_audio": True, "duration": 24,
+     "description": "Uma situação inusitada com diálogo e reação."},
+]
 
 # custos estimados (só para o painel; ajuste no Railway)
 MP_FEE_PCT = float(os.environ.get("MP_FEE_PCT", "4.99"))       # taxa média do Mercado Pago (%)
