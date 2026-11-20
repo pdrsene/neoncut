@@ -828,12 +828,32 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 .mtab th{color:var(--muted);font-weight:600}
 .mlist{margin:0;padding-left:18px;font-size:13px;line-height:1.6}
 @media (max-width:600px){.fun .fr{grid-template-columns:110px 1fr 86px}}
+
+/* NEONCUT home — clear editorial hierarchy, real gameplay, and quick actions */
+#vLanding{padding-top:16px}
+#vLanding .home-welcome{display:flex;align-items:center;gap:24px;margin:8px 0 22px;padding:22px 24px;background:#131315;border:1px solid #303035;border-radius:18px}
+.home-profile{flex:1;min-width:0}.home-profile h2{font-size:clamp(20px,3vw,28px);margin:6px 0 3px;letter-spacing:-.035em;overflow-wrap:anywhere}.home-profile p{margin:0}
+.home-overline{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--accent)}.home-center{display:block;text-align:center;margin-bottom:12px}
+.home-stat{min-width:120px;display:grid;gap:5px}.home-stat span{color:var(--muted);font-size:12px}.home-stat strong{font-size:21px;letter-spacing:-.03em}.home-meter{height:4px;background:#303035;border-radius:9px;overflow:hidden}.home-meter i{display:block;background:var(--accent);height:100%;width:0}
+#vLanding .home-hero{padding:42px 34px 24px;gap:28px;background:radial-gradient(ellipse at 88% 8%,rgba(163,230,53,.10),transparent 49%),linear-gradient(135deg,#18181b,#0e0e10);border:1px solid #2b2b30;border-radius:26px;grid-template-columns:minmax(0,1.04fr) minmax(0,1fr)}
+.home-copy{min-width:0}.home-hero h1{font-size:clamp(36px,4.4vw,63px);line-height:1.05;letter-spacing:-.055em;max-width:620px}
+.home-hero .kick{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.1em}.home-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(163,230,53,.55);flex:none}
+.home-pills{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px}.home-pills span{font-size:11px;font-weight:650;border:1px solid #3f3f46;border-radius:99px;color:#d4d4d8;padding:5px 10px}
+.home-preview{min-width:0;border:1px solid #39393e;border-radius:18px;background:#09090b;box-shadow:0 20px 50px rgba(0,0,0,.25);overflow:hidden}
+.home-preview-head,.home-preview-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font-size:10px;letter-spacing:.06em;padding:13px;background:#151517}.home-preview-head>span:first-child{display:flex;gap:5px}.home-preview-head i{width:7px;height:7px;border-radius:50%;background:#52525b}.home-preview-head b{font-size:10px;color:var(--accent);background:rgba(163,230,53,.1);border-radius:5px;padding:4px 7px}
+.home-preview .hx-vis{padding:20px 12px;display:grid;grid-template-columns:minmax(0,1.15fr) 20px minmax(0,.83fr);gap:7px;min-height:300px}.home-preview figure{min-width:0;gap:9px}.home-preview figcaption{font-size:9px;letter-spacing:.04em;white-space:nowrap}.home-preview .hx-orig,.home-preview .hx-cut{width:100%;max-width:100%;object-fit:cover}.home-preview .hx-arrow{font-size:23px;text-align:center}.home-preview-text{color:var(--muted);font-size:10px}.home-wave{width:100%;height:43px;display:flex;align-items:center;justify-content:space-between;gap:2px;padding:3px 5px;background:#18181b;border-radius:6px;overflow:hidden}.home-wave i{width:3px;max-width:3%;height:var(--h);background:#a3e635;opacity:.52;border-radius:3px}.home-preview-foot{letter-spacing:0;font-size:10px}.home-preview-foot>span:first-child{display:flex;align-items:center;gap:6px}
+.home-launch{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:10px;margin-top:16px}.home-launch-card{display:flex;align-items:center;gap:10px;padding:15px;background:#141416;border:1px solid #2b2b30;border-radius:14px;color:var(--text);text-decoration:none;min-width:0;transition:border-color .18s,background .18s}.home-launch-card:hover{border-color:var(--accent);background:#1a1d13}.home-icon{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:10px;background:rgba(163,230,53,.09);color:var(--accent);font-size:22px}.home-launch-card>span:nth-child(2){min-width:0;flex:1}.home-launch-card b,.home-launch-card small{display:block}.home-launch-card b{font-size:13px}.home-launch-card small{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.35}.home-launch-card>i{font-size:14px;color:var(--muted);font-style:normal}
+#vLanding .lp-sec{padding-top:68px;scroll-margin-top:100px}#vLanding .lp-h{letter-spacing:-.045em}#vLanding .diffs>div,#vLanding .steps3>div{padding:24px;background:linear-gradient(140deg,#1b1b1e,#111113);border-color:#313135}#vLanding .diffs>div:hover{border-color:#596b30}
+#vLanding .lp-final{margin:50px 0 24px;padding:40px 20px;background:radial-gradient(ellipse at top,rgba(163,230,53,.10),transparent 75%),#151517;border:1px solid #303035;border-radius:22px}
+@media(max-width:860px){#vLanding .home-hero{grid-template-columns:1fr;padding:23px 19px;gap:22px}.home-preview .hx-vis{min-height:0;max-width:530px;margin:auto}.home-preview .hx-cut{max-height:320px;width:auto;max-width:100%}.home-preview .hx-orig{width:100%}.home-preview .hx-vis{grid-template-columns:minmax(0,1fr) 20px minmax(0,.8fr)}#vLanding .home-welcome{flex-wrap:wrap;gap:14px;padding:18px}.home-profile{flex-basis:100%}.home-stat{flex:1;min-width:100px}.home-welcome>.btn{flex:none}.home-launch{grid-template-columns:repeat(2,minmax(0,1fr))}#vLanding .lp-sec{padding-top:42px}}
+@media(max-width:420px){.home-launch-card{padding:11px;gap:7px}.home-icon{width:30px;height:30px;font-size:18px}.home-launch-card>i{display:none}.home-preview figcaption{font-size:8px}.home-preview-head,.home-preview-foot{padding:10px}.home-preview .hx-vis{padding:12px 8px}.home-preview .hx-cut{max-height:245px}.home-welcome>.btn{width:100%}}
+
 </style>
 </head>
 <body class="yt-off">
 <div class="wrap">
   <header class="nav">
-    <a class="logo" href="#inicio" style="text-decoration:none;color:inherit">
+    <a class="logo" href="#inicio" aria-label="NEONCUT — Página inicial" style="text-decoration:none;color:inherit">
       <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
         <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d8b"/><stop offset="1" stop-color="#ffb03c"/></linearGradient></defs>
         <circle cx="20" cy="20" r="18" fill="url(#lg)"/>
@@ -852,30 +872,47 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
   <!-- ===================== LANDING ===================== -->
   <main id="vLanding" class="view">
     <div class="inapp hidden" data-inapp></div>
-    <section class="hx">
-      <div>
-        <p class="kick">A ferramenta de quem vive de cortes</p>
-        <h1>Menos tempo editando.<br><em>Mais cortes publicados.</em></h1>
-        <p class="lead">Transforme gameplays e lives em vídeos prontos para TikTok, Reels e Shorts com inteligência artificial.</p>
+    <section class="home-welcome hidden" id="homeWelcome" aria-label="Sua conta">
+      <div class="home-profile"><span class="home-overline">SEU ESPAÇO DE CRIAÇÃO</span><h2 id="homeGreeting">Bem-vindo à NEONCUT</h2><p class="note">Tudo pronto para o seu próximo corte.</p></div>
+      <div class="home-stat"><span>Plano ativo</span><strong id="homePlan">Grátis</strong></div>
+      <div class="home-stat"><span>Vídeos utilizados no mês</span><strong id="homeQuota">—</strong><div class="home-meter"><i id="homeMeter"></i></div></div>
+      <a class="btn small" href="#projetos">Meus projetos <span aria-hidden="true">↗</span></a>
+    </section>
+    <section class="hx home-hero" aria-labelledby="homeTitle">
+      <div class="home-copy">
+        <p class="kick"><span class="home-dot"></span> O estúdio de quem cria cortes</p>
+        <h1 id="homeTitle">Sua próxima live.<br>Seus próximos <em>cortes.</em></h1>
+        <p class="lead">Transforme horas de gameplay em vídeos verticais com IA. Encontre momentos, personalize legendas e publique no seu ritmo.</p>
+        <div class="home-pills"><span>TikTok</span><span>Instagram Reels</span><span>YouTube Shorts</span></div>
         <form class="hx-form" id="hxForm" novalidate>
           <label for="hxUrl" class="sr">Link da live ou do vídeo</label>
-          <input type="url" id="hxUrl" placeholder="Link da Twitch, Kick ou YouTube (com arquivo)" autocomplete="off" inputmode="url">
+          <input type="url" id="hxUrl" placeholder="Cole um link da Twitch, Kick ou YouTube" autocomplete="off" inputmode="url">
           <p class="hx-err hidden" id="hxErr" role="alert"></p>
           <div class="row2">
-            <button class="btn" type="submit" id="hxGo">Criar meu corte grátis</button>
+            <button class="btn" type="submit" id="hxGo">Criar meu corte <span aria-hidden="true">→</span></button>
             <button class="btn ghost" type="button" id="hxFile">Enviar arquivo</button>
           </div>
           <input type="file" id="hxFileIn" accept="video/*" hidden>
           <div class="hx-links"><button type="button" data-demo-open-list>Ver exemplo de corte sem esperar</button></div>
-          <div class="hx-trust"><span>Sem cadastro para testar com arquivo</span><span>Sem cartão</span><span>Sem instalação</span></div>
+          <div class="hx-trust"><span>Primeiro corte Full HD grátis</span><span>Sem cartão para testar</span></div>
         </form>
       </div>
-      <div class="hx-vis" aria-label="Demonstração: vídeo original e corte vertical gerado pelo NEONCUT">
-        <figure><figcaption>ORIGINAL 16:9</figcaption><video class="hx-orig" id="hxOrig" src="demo/exemplo.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video></figure>
-        <span class="hx-arrow" aria-hidden="true">→</span>
-        <figure><figcaption>CORTE 9:16</figcaption><canvas class="hx-cut" id="hxCut" width="360" height="640"></canvas></figure>
+      <div class="home-preview"><div class="home-preview-head"><span><i></i><i></i><i></i></span><span>NEONCUT / PREVIEW</span><b>DEMO</b></div>
+        <div class="hx-vis" aria-label="Demonstração de gameplay real original e corte vertical">
+          <figure><figcaption>01 / ORIGINAL · 16:9</figcaption><video class="hx-orig" id="hxOrig" src="demo/robbery-web.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video><div class="home-wave" aria-hidden="true"><i style="--h:17px"></i><i style="--h:38px"></i><i style="--h:26px"></i><i style="--h:18px"></i><i style="--h:36px"></i><i style="--h:45px"></i><i style="--h:22px"></i><i style="--h:24px"></i><i style="--h:27px"></i><i style="--h:25px"></i><i style="--h:36px"></i><i style="--h:41px"></i><i style="--h:21px"></i><i style="--h:23px"></i><i style="--h:42px"></i><i style="--h:32px"></i><i style="--h:28px"></i><i style="--h:26px"></i><i style="--h:23px"></i><i style="--h:26px"></i><i style="--h:46px"></i><i style="--h:33px"></i><i style="--h:20px"></i><i style="--h:27px"></i><i style="--h:36px"></i><i style="--h:22px"></i><i style="--h:39px"></i><i style="--h:24px"></i><i style="--h:18px"></i><i style="--h:39px"></i><i style="--h:43px"></i><i style="--h:19px"></i><i style="--h:24px"></i><i style="--h:27px"></i></div><span class="home-preview-text">Gameplay de exemplo</span></figure>
+          <span class="hx-arrow" aria-hidden="true">→</span>
+          <figure><figcaption>02 / CORTE · 9:16</figcaption><canvas class="hx-cut" id="hxCut" width="360" height="640" role="img" aria-label="Prévia de gameplay no template Neon Sunset"></canvas><span class="home-preview-text">Neon Sunset</span></figure>
+        </div><div class="home-preview-foot"><span><span class="home-dot"></span> Renderização de exemplo</span><span>9:16 · sem áudio</span></div>
       </div>
-      <p class="hx-cap">Este corte vertical é renderizado agora, no seu navegador, pelo mesmo motor que gera os seus cortes (vídeo de exemplo: animação própria do NEONCUT).</p>
+      <p class="hx-cap">Prévia de gameplay real renderizada no navegador pelo motor de templates da NEONCUT. Não é uma análise automática.</p>
+    </section>
+    <section class="home-launch" aria-label="Acessos rápidos">
+      <a href="#criar" class="home-launch-card"><span class="home-icon" aria-hidden="true">✂</span><span><b>Criar cortes</b><small>Comece com um vídeo ou link</small></span><i>↗</i></a>
+      <a href="#projetos" class="home-launch-card home-member hidden"><span class="home-icon" aria-hidden="true">▤</span><span><b>Meus projetos</b><small>Continue suas edições</small></span><i>↗</i></a>
+      <a href="#creator" class="home-launch-card"><span class="home-icon" aria-hidden="true">◇</span><span><b>Creator Hub</b><small>XP, portfólio e conquistas</small></span><i>↗</i></a>
+      <a href="#oportunidades" class="home-launch-card home-member hidden"><span class="home-icon" aria-hidden="true">◎</span><span><b>Oportunidades</b><small>Explore vagas cadastradas</small></span><i>↗</i></a>
+      <a href="#precos" class="home-launch-card home-visitor"><span class="home-icon" aria-hidden="true">↗</span><span><b>Conheça os planos</b><small>Full HD ilimitado no Pro</small></span><i>↗</i></a>
+      <a href="#nuvem" class="home-launch-card home-member hidden"><span class="home-icon" aria-hidden="true">☁</span><span><b>Fila em nuvem</b><small>Recortes manuais · beta</small></span><i>↗</i></a>
     </section>
 
     <section class="lp-sec" id="demos">
@@ -901,14 +938,14 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     </section>
 
     <section class="lp-sec" id="diferenciais">
-      <h2 class="lp-h">Diferenciais da NEONCUT</h2>
+      <span class="home-overline home-center">FERRAMENTAS DO CRIADOR</span><h2 class="lp-h">Tudo para o seu próximo corte</h2>
       <div class="diffs">
         <div><small>EXCLUSIVO</small><b>Gancho Turbo</b><p>Cada corte pode abrir com o momento mais forte nos 2 primeiros segundos, com texto editável. Prende quem está rolando o feed.</p></div>
         <div><small>PRODUTIVIDADE</small><b>Nota de potencial</b><p>Cada corte recebe uma nota de 0 a 100 para você decidir o que publicar primeiro.</p></div>
         <div><small>LEGENDAS</small><b>Legenda automática</b><p>Fala transcrita palavra por palavra, com estilos prontos e destaque animado.</p></div>
         <div><small>CORTADORES</small><b>Radar de lives</b><p>As lives de GTA RP em português mais assistidas agora, num lugar só (com conta).</p></div>
         <div><small>CRÉDITOS</small><b>Crédito do streamer</b><p>Cortou por link? A descrição já sai com o crédito e o link do canal.</p></div>
-        <div><small>BRASIL</small><b>PIX e preço em reais</b><p>Pagamento único por PIX ou cartão, sem renovação automática.</p></div>
+        <div><small>BUSCA</small><b>Encontre falas específicas</b><p>Indexe toda a gravação no navegador e busque palavras e expressões relacionadas.</p></div><div><small>CREATOR HUB</small><b>Evolua a cada corte</b><p>Ganhe XP, conquiste níveis e monte seu portfólio público.</p></div><div><small>NUVEM · BETA</small><b>Exporte sem manter a aba aberta</b><p>Recortes manuais em 720p de arquivos pequenos, com fila e expiração de 24 horas.</p></div><div><small>BRASIL</small><b>PIX e preço em reais</b><p>Pagamento único por PIX ou cartão, sem renovação automática.</p></div>
       </div>
     </section>
 
@@ -932,7 +969,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <details><summary>Funciona no celular?</summary><p>Funciona no Chrome (Android) e no Safari (iPhone). Se você abriu o site pelo Instagram ou pelo TikTok, abra no navegador do celular para conseguir baixar: o navegador interno desses apps bloqueia downloads. Vídeos curtos (até ~10 minutos) funcionam melhor no celular.</p></details>
         <details><summary>O que é o Gancho Turbo?</summary><p>A IA encontra o momento mais forte do corte e mostra ele nos 2 primeiros segundos, com um texto como "ESPERA O FINAL". Depois o vídeo volta para o começo. Você pode trocar o texto ou desligar no editor.</p></details>
         <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Para YouTube, cole o link como referência e envie o arquivo original. Se o vídeo for seu, exporte pelo YouTube Studio. O download automático do YouTube não está disponível.</p></details>
-        <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>Não. O corte, a legenda e a exportação acontecem no seu navegador. Vídeos baixados por link ficam no servidor só durante o processamento.</p></details>
+        <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>No editor padrão, corte, legenda e exportação acontecem no navegador. Arquivos importados por link ficam temporariamente no servidor. Se você usar a fila em nuvem (beta), os arquivos restantes expiram em até 24 horas.</p></details>
         <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
         <details><summary>Posso cortar live de outros streamers?</summary><p>Só com autorização do streamer. Combine com ele e mantenha os créditos (quando você corta por link, o NEONCUT coloca o crédito do canal na descrição). Você é responsável pelo que publica.</p></details>
       </div>
@@ -2976,6 +3013,22 @@ function renderNav() {
     ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' || !sawResult() ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a id="navLevel" class="navlevel hidden" href="#creator" aria-label="Seu nível no Creator Hub"><b></b><small></small></a><a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
     : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
   paintNavLevel();
+  renderHome();
+}
+function renderHome(){
+  const u=S.user,p=S.plan||{};
+  $('#homeWelcome').classList.toggle('hidden',!u);
+  document.querySelectorAll('.home-member').forEach(e=>e.classList.toggle('hidden',!u));
+  document.querySelectorAll('.home-visitor').forEach(e=>e.classList.toggle('hidden',!!u));
+  if(u){
+    const name=String(u.name||'').trim().split(/\s+/)[0];
+    $('#homeGreeting').textContent=name?'Olá, '+name+'!':'Bem-vindo à NEONCUT';
+    $('#homePlan').textContent=p.plan_name||PLAN_LABEL[p.plan]||'Grátis';
+    const used=Number(p.used),limit=Number(p.limit),valid=Number.isFinite(used)&&Number.isFinite(limit)&&limit>0;
+    $('#homeQuota').textContent=valid?used+' / '+limit:'—';
+    $('#homeMeter').style.width=valid?Math.min(100,Math.max(0,100*used/limit))+'%':'0%';
+  }
+  const b=$('#hxGo');if(b)b.textContent=u?'Criar novo corte →':'Criar meu corte grátis →';
 }
 function paintNavLevel(){
   const el=$('#navLevel'),d=S.creatorLevel;if(!el)return;
@@ -3006,7 +3059,7 @@ function route() {
   let h = location.hash || '';
   // Redirect retired calendar bookmarks to the Creator Hub.
   if(h === '#calendario'){history.replaceState(null,'','#creator');h='#creator';}
-  if ((!h || h === '#inicio') && S.user) { history.replaceState(null, '', '#criar'); h = '#criar'; }
+  if (!h) h = '#inicio'; // home is accessible with or without an account
   if (NEEDS_LOGIN.includes(h) && !S.user && !(h === '#criar' && (guestOk() || S._demoNav))) { openAuth('signup'); history.replaceState(null, '', '#inicio'); h = '#inicio'; }
   if (h === '#entrar') openAuth('login');
   if (h === '#estudio') { history.replaceState(null, '', '#criar'); h = '#criar'; setTimeout(openStudioFromNav, 60); }
@@ -4389,7 +4442,7 @@ function heroTick() {
 function heroStart() {
   const v = $('#hxOrig'); if (!v) return;
   const still = () => { if (v.readyState >= 2) heroDraw(); else v.addEventListener('loadeddata', heroDraw, { once: true }); };
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { if (v.currentTime < 1) v.currentTime = 8; v.addEventListener('seeked', heroDraw, { once: true }); still(); return; }
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { still(); return; }
   v.play().then(() => { if (!HERO.raf) heroTick(); }).catch(still);
 }
 if ('IntersectionObserver' in window && $('.hx-vis')) {
