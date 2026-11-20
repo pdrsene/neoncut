@@ -262,6 +262,37 @@ def health():
     return {"ok": True, "yt_dlp": ver, "jobs": len(JOBS), "max_minutes": MAX_MINUTES, "max_live_minutes": MAX_LIVE_MINUTES}
 
 
+def youtube_failure_kind(error: str) -> str:
+    t = (error or "").lower()
+    if is_bot_check(t) or "403" in t or "429" in t or "login required" in t or "sign in" in t:
+        return "access"
+    if "private" in t or "drm" in t or "age-restricted" in t:
+        return "restricted"
+    if "requested format" in t or "no video formats" in t:
+        return "format"
+    if "timed out" in t or "connection" in t:
+        return "timeout"
+    return "extractor"
+
+
+def youtube_import_fallback(url: str, reason: str) -> dict:
+    # Log only a fixed category, never raw extractor output or credentials.
+    import logging
+    logging.getLogger("uvicorn.error").warning("YouTube import unavailable: %s", reason)
+    result = youtube_reference(url)
+    result["import_reason"] = reason
+    messages = {
+        "timeout": "O YouTube demorou para responder. Tente novamente ou envie o arquivo original autorizado.",
+        "unavailable": "O serviço de importação está indisponível. Envie o arquivo original autorizado.",
+        "access": "O YouTube não autorizou a importação direta. Envie o arquivo original de um vídeo próprio ou autorizado.",
+        "restricted": "Este vídeo possui restrições de acesso. Envie o arquivo original autorizado.",
+        "format": "Nenhum formato compatível foi disponibilizado. Envie o arquivo original autorizado.",
+        "metadata": "Não foi possível interpretar as informações do vídeo. Tente novamente ou envie o arquivo autorizado.",
+    }
+    result["import_message"] = messages.get(reason, result["import_message"])
+    return result
+
+
 class InfoReq(BaseModel):
     url: str
 
@@ -287,12 +318,21 @@ def info(body: InfoReq, req: Request):
                 _yt_alt_until = time.time() + 1800
             r = r2
     except subprocess.TimeoutExpired:
-        if plat=="youtube":return youtube_reference(body.url)
+        if plat=="youtube":return youtube_import_fallback(body.url, "timeout")
         raise HTTPException(504, "A plataforma demorou demais para responder.")
+    except OSError:
+        if plat=="youtube":return youtube_import_fallback(body.url, "unavailable")
+        raise HTTPException(503, "O serviço de importação está indisponível.")
     if r.returncode != 0:
-        if plat=="youtube":return youtube_reference(body.url)
+        if plat=="youtube":return youtube_import_fallback(body.url, youtube_failure_kind(r.stderr or r.stdout))
         raise HTTPException(400, friendly_error(r.stderr or r.stdout))
-    j = json.loads(r.stdout)
+    try:
+        j = json.loads(r.stdout)
+        if not isinstance(j, dict):
+            raise ValueError("invalid metadata")
+    except (ValueError, TypeError):
+        if plat=="youtube":return youtube_import_fallback(body.url, "metadata")
+        raise HTTPException(502, "A plataforma retornou informações inválidas.")
     if j.get("_type") == "playlist" and j.get("entries"):
         j = j["entries"][0]
     video_url = j.get("webpage_url") or body.url
