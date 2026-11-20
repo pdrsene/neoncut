@@ -826,7 +826,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <p class="lead">Transforme gameplays e lives em vídeos prontos para TikTok, Reels e Shorts com inteligência artificial.</p>
         <form class="hx-form" id="hxForm" novalidate>
           <label for="hxUrl" class="sr">Link da live ou do vídeo</label>
-          <input type="url" id="hxUrl" placeholder="Cole o link de um VOD da Twitch ou da Kick" autocomplete="off" inputmode="url">
+          <input type="url" id="hxUrl" placeholder="Link da Twitch, Kick ou YouTube (com arquivo)" autocomplete="off" inputmode="url">
           <p class="hx-err hidden" id="hxErr" role="alert"></p>
           <div class="row2">
             <button class="btn" type="submit" id="hxGo">Criar meu corte grátis</button>
@@ -898,7 +898,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <details><summary>O primeiro corte é grátis mesmo?</summary><p>Sim. Na conta grátis, o primeiro corte que você baixar de um vídeo seu sai em 1080p e sem marca d'água. Depois, o plano Grátis exporta em 720p com marca d'água.</p></details>
         <details><summary>Funciona no celular?</summary><p>Funciona no Chrome (Android) e no Safari (iPhone). Se você abriu o site pelo Instagram ou pelo TikTok, abra no navegador do celular para conseguir baixar: o navegador interno desses apps bloqueia downloads. Vídeos curtos (até ~10 minutos) funcionam melhor no celular.</p></details>
         <details><summary>O que é o Gancho Turbo?</summary><p>A IA encontra o momento mais forte do corte e mostra ele nos 2 primeiros segundos, com um texto como "ESPERA O FINAL". Depois o vídeo volta para o começo. Você pode trocar o texto ou desligar no editor.</p></details>
-        <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Links do YouTube estão em manutenção: enquanto isso, baixe o vídeo e envie pelo botão "Enviar arquivo".</p></details>
+        <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Para YouTube, cole o link como referência e envie o arquivo original. Se o vídeo for seu, exporte pelo YouTube Studio. O download automático do YouTube não está disponível.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>Não. O corte, a legenda e a exportação acontecem no seu navegador. Vídeos baixados por link ficam no servidor só durante o processamento.</p></details>
         <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
         <details><summary>Posso cortar live de outros streamers?</summary><p>Só com autorização do streamer. Combine com ele e mantenha os créditos (quando você corta por link, o NEONCUT coloca o crédito do canal na descrição). Você é responsável pelo que publica.</p></details>
@@ -928,9 +928,10 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <div class="guestbar hidden" id="guestBar"><span>🎁 <b>Teste grátis, sem cadastro.</b> Envie um vídeo seu e veja os cortes prontos. Para baixar, é só criar a conta (10 segundos).</span><div class="spacer"></div><button class="btn ghost small" data-auth-open="login">Já tenho conta</button></div>
     <div class="tabs"><button class="tab on" data-tab="link">🔗 Colar link</button><button class="tab" data-tab="file">📁 Enviar arquivo</button></div>
     <div id="tabLink">
-      <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link da Twitch ou da Kick" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
-      <div class="plats" id="plats"><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span><span data-p="youtube" class="ytchip">YouTube<em class="ytm">🛠 em manutenção</em></span></div>
+      <div class="urlrow"><input type="text" id="url" placeholder="Cole aqui o link do vídeo ou live" autocomplete="off"><button class="btn" id="fetchInfo">Buscar</button></div>
+      <div class="plats" id="plats"><span data-p="twitch">Twitch</span><span data-p="kick">Kick</span><span data-p="youtube" class="ytchip">YouTube<em class="ytm">via arquivo</em></span></div>
       <p class="note err hidden" id="linkErr" style="margin:12px 0 0"></p>
+      <div class="panel hidden" id="ytImport" style="margin-top:12px"><h3 style="margin:0 0 6px">YouTube · importar arquivo</h3><p class="note" style="margin:0 0 12px">Formato de link reconhecido. Para gerar cortes, escolha o arquivo original ou uma cópia autorizada. O download automático do YouTube está indisponível.</p><div class="row" style="flex-wrap:wrap"><button type="button" class="btn small" id="ytChoose">Escolher arquivo de vídeo</button><a id="ytWatch" class="btn ghost small" target="_blank" rel="noopener noreferrer">Abrir vídeo no YouTube</a><a class="btn ghost small" href="https://studio.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube Studio (meus vídeos)</a></div></div>
       <div class="linkinfo hidden" id="linkInfo">
         <img id="liThumb" alt="">
         <div>
@@ -953,6 +954,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       </div>
     </div>
     <div id="tabFile" class="hidden">
+    <p id="ytFileRef" class="note hidden"></p>
     <div class="drop" id="drop">
       <div style="font-size:44px">🎮</div>
       <h3><span class="desk">Arraste seu vídeo de gameplay aqui</span><span class="mob">Escolha um vídeo da sua galeria</span></h3>
@@ -2207,12 +2209,12 @@ function toast(msg, ms = 2600) { const d = document.createElement('div'); d.clas
 
 function setFile(f, fromDemo) {
   if (!f || !(f.type.startsWith('video') || /\.(mp4|mov|webm|mkv|m4v)$/i.test(f.name || ''))) { toast('Escolha um arquivo de vídeo'); return; }
-  if (!fromDemo) S.sample = null;
+  if (!fromDemo) S.sample = null; else clearYoutubeRef();
   if (typeof sampleUI === 'function') sampleUI();
   track('video_uploaded', { src: fromDemo ? 'demo' : 'file', size_mb: Math.round(f.size / 1e6), demo: fromDemo ? 1 : 0 });
   S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f);
   const chip = $('#chip'); chip.style.display = 'block';
-  chip.innerHTML = `🎬 <b>${f.name}</b> · ${(f.size / 1e6).toFixed(0)} MB` + (f.size > 1.6e9 ? '<br><span class="err">Arquivo muito grande para o navegador. Prefira até ~1,5 GB (corte o vídeo em partes).</span>' : '');
+  chip.innerHTML = `🎬 <b>${esc(f.name)}</b> · ${(f.size / 1e6).toFixed(0)} MB` + (f.size > 1.6e9 ? '<br><span class="err">Arquivo muito grande para o navegador. Prefira até ~1,5 GB (corte o vídeo em partes).</span>' : '');
   updateGo();
 }
 $('#pick').onclick = () => $('#file').click();
@@ -2227,6 +2229,38 @@ const API = (window.NEONCUT_API || '').replace(/\/$/, '');
 S.mode = 'link';
 const IS_MOBILE = matchMedia('(max-width: 700px)').matches || /Android|iPhone|iPad/i.test(navigator.userAgent);
 const PLAT_RE = { youtube: /(youtube\.com|youtu\.be)/i, twitch: /twitch\.tv/i, kick: /kick\.com/i };
+function youtubeVideoId(value) {
+  try {
+    const u=new URL(value.trim());
+    if(!['https:','http:'].includes(u.protocol)||u.username||u.password||u.port)return null;
+    const host=u.hostname.toLowerCase(), parts=u.pathname.split('/').filter(Boolean);
+    let id=null;
+    if(host==='youtu.be'&&parts.length===1)id=parts[0];
+    else if(['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com'].includes(host)){
+      if(u.pathname==='/watch')id=u.searchParams.get('v');
+      else if(parts.length===2&&['shorts','live','embed','v'].includes(parts[0]))id=parts[1];
+    }
+    return id&&/^[A-Za-z0-9_-]{11}$/.test(id)?id:null;
+  }catch{return null;}
+}
+function isYoutubeHost(value) {
+  try{return ['youtube.com','www.youtube.com','m.youtube.com','music.youtube.com','youtu.be','youtube-nocookie.com','www.youtube-nocookie.com'].includes(new URL(value.trim()).hostname.toLowerCase());}
+  catch{return false;}
+}
+function clearYoutubeRef() {
+  S.ytRef=null; $('#ytImport').classList.add('hidden'); $('#ytFileRef').classList.add('hidden'); $('#ytFileRef').textContent='';
+}
+function showYoutubeImport(id) {
+  S.link=null; S.ytRef='https://www.youtube.com/watch?v='+id;
+  $('#linkInfo').classList.add('hidden'); showLinkErr('');
+  $('#ytWatch').href=S.ytRef; $('#ytImport').classList.remove('hidden'); updateGo();
+}
+$('#ytChoose').onclick=()=>{
+  if(!S.ytRef)return;
+  document.querySelector('.tab[data-tab="file"]').click();
+  $('#ytFileRef').textContent='Referência do YouTube selecionada. Escolha o arquivo correspondente.';
+  $('#ytFileRef').classList.remove('hidden'); $('#file').click();
+};
 const PLAT_NAME = { youtube: 'YouTube', twitch: 'Twitch', kick: 'Kick', tiktok: 'TikTok', instagram: 'Instagram', x: 'X', facebook: 'Facebook', outro: 'Link' };
 async function api(path, body, method, body2) {
   const b = body2 !== undefined ? body2 : body;
@@ -2260,14 +2294,16 @@ function updateGo() { $('#go').disabled = S.mode === 'link' ? !S.link : !S.file;
 if (IS_MOBILE) setTimeout(() => { const t = document.querySelector('.tab[data-tab="file"]'); if (t && S.mode === 'link' && !S.link) t.click(); }, 0);
 $('#url').addEventListener('input', e => {
   const v = e.target.value; document.querySelectorAll('#plats span').forEach(sp => sp.classList.toggle('on', PLAT_RE[sp.dataset.p].test(v)));
-  S.link = null; $('#linkInfo').classList.add('hidden'); showLinkErr(''); updateGo();
+  clearYoutubeRef(); S.link = null; $('#linkInfo').classList.add('hidden'); showLinkErr(''); updateGo();
 });
 $('#url').addEventListener('keydown', e => { if (e.key === 'Enter') $('#fetchInfo').click(); });
 $('#url').addEventListener('paste', () => setTimeout(() => $('#fetchInfo').click(), 50));
 $('#fetchInfo').onclick = async () => {
   const url = $('#url').value.trim(); if (!url) return;
+  const yid=youtubeVideoId(url);
+  if(isYoutubeHost(url)&&!yid){showLinkErr('Cole o link de um vídeo, Short ou live específica do YouTube, não de canal ou playlist.');return;}
+  if(yid&&!S.cfg.youtube){showYoutubeImport(yid);track('source_selected',{src:'youtube_file'});return;}
   if (!S.user) { toast('Para colar link, crie sua conta grátis. Sem cadastro, use "Enviar arquivo".', 5000); openAuth('signup', () => $('#fetchInfo').click()); return; }
-  if (!S.cfg.youtube && /(^|\/\/|\.)(youtube\.com|youtu\.be)\//i.test(url)) { showLinkErr('O YouTube está em manutenção no NEONCUT. Por enquanto use um link da Twitch ou da Kick, ou baixe o vídeo e envie pela aba "Enviar arquivo".'); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
     const info = await api('/api/info', { url }); S.link = info;
@@ -2282,7 +2318,7 @@ $('#fetchInfo').onclick = async () => {
       : `Até ${info.max_minutes} minutos por vez.`;
     [...$('#liMin').options].forEach(o => o.disabled = +o.value > info.max_live_minutes);
     $('#linkInfo').classList.remove('hidden');
-  } catch (e) { S.link = null; showLinkErr(e.message); }
+  } catch (e) { S.link = null; if(yid){showYoutubeImport(yid);}else showLinkErr(e.message); }
   btn.disabled = false; btn.textContent = 'Buscar'; updateGo();
 };
 // ---------- seletor de tempo em rolagem (passos de 30 s) ----------
@@ -2992,7 +3028,7 @@ async function startProject() {
   if (!S.user) {  // visitante: o 1º corte acontece todo no aparelho, sem conta (salvar/baixar pede cadastro)
     const source = S.file.name, title = S.file.name.replace(/\.[^.]+$/, ''), minutes = (await fileDuration(S.file)) / 60, lim = S.cfg.limits.free.max_minutes;
     if (minutes > lim + .5) { const e = new Error(`No teste grátis o limite é ${Math.round(lim)} minutos por vídeo. Escolha um vídeo menor.`); throw e; }
-    S.project = { id: null, guest: true, kind: 'file', source, title, minutes, range: null };
+    S.project = { id: null, guest: true, kind: 'file', source, title, minutes, range: null, youtube_ref:S.ytRef||null };
     return { guest: true };
   }
   let minutes = 0, kind = 'file', source = '', title = '';
@@ -3001,7 +3037,7 @@ async function startProject() {
     minutes = L.is_live ? +$('#liMin').value : (Math.min(parseTime($('#liEnd').value), L.duration || 1e9) - parseTime($('#liStart').value)) / 60;
   } else { source = S.file.name; title = S.file.name.replace(/\.[^.]+$/, ''); minutes = (await fileDuration(S.file)) / 60; }
   const r = await api('/api/projects', { source, kind, title, minutes, reuse_id: S.reuseId || null });
-  S.project = { id: r.id, kind, source, title, range: S.mode === 'link' && !S.link.is_live ? [$('#liStart').value, $('#liEnd').value] : null };
+  S.project = { id: r.id, kind, source, title, range: S.mode === 'link' && !S.link.is_live ? [$('#liStart').value, $('#liEnd').value] : null, youtube_ref:kind==='file'?S.ytRef||null:null };
   S.plan = Object.assign(S.plan, r.plan); S.reuseId = null; loadMe();
   return r;
 }
@@ -3025,7 +3061,7 @@ async function saveProject() {
   if (S.project && S.project.guest) { guestStash(); return; }
   if (S.demo || !S.project || !S.project.id) return;
   const clips = S.clips.map(packClip);
-  const meta = { range: S.project.range, kind: S.project.kind, settings: S.settings };
+  const meta = { range: S.project.range, kind: S.project.kind, settings: S.settings, ...(S.project.youtube_ref ? {youtube_ref:S.project.youtube_ref}: {}) };
   try { await api('/api/projects/' + S.project.id, null, 'PUT', { duration: S.duration, clips, meta }); } catch (e) { console.warn(e); }
 }
 let _saveT = 0; function saveProjectSoon() { clearTimeout(_saveT); _saveT = setTimeout(saveProject, 1200); }
@@ -3125,7 +3161,7 @@ async function openProject(p, action) {
       VDB.put(p.id, file);
     }
     S.file = file; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(file);
-    S.project = { id: p.id, kind: p.kind, source: p.source, title: p.title, range: (p.meta && p.meta.range) || null };
+    S.project = { id: p.id, kind: p.kind, source: p.source, title: p.title, range: (p.meta && p.meta.range) || null, youtube_ref:p.meta?.youtube_ref||null };
     const pv = $('#pv'), ev = $('#ev'), avv = $('#av');
     await Promise.all([loadMeta(pv, S.url), loadMeta(ev, S.url), loadMeta(avv, S.url)]);
     S.duration = pv.duration; S.vw = pv.videoWidth; S.vh = pv.videoHeight;
@@ -3936,7 +3972,7 @@ function guestDone() {
 let _gFileSaved = false;
 function guestStash(withFile) {
   if (!S.project || !S.project.guest || !S.clips) return;
-  try { localStorage.setItem(GUEST_P, JSON.stringify({ t: Date.now(), source: S.project.source, title: S.project.title, minutes: S.project.minutes, duration: S.duration, settings: S.settings, clips: S.clips.map(packClip) })); } catch (e) { }
+  try { localStorage.setItem(GUEST_P, JSON.stringify({ t: Date.now(), source: S.project.source, title: S.project.title, minutes: S.project.minutes, youtube_ref:S.project.youtube_ref||null, duration: S.duration, settings: S.settings, clips: S.clips.map(packClip) })); } catch (e) { }
   if (withFile && !_gFileSaved && S.file) { _gFileSaved = true; VDB.put('guest', S.file); }
 }
 let _claimP = null;
@@ -3946,7 +3982,7 @@ function claimGuest() {
     const P = S.project;
     try {
       const r = await api('/api/projects', { source: P.source, kind: 'file', title: P.title, minutes: P.minutes || 0 });
-      S.project = { id: r.id, kind: 'file', source: P.source, title: P.title, range: null };
+      S.project = { id: r.id, kind: 'file', source: P.source, title: P.title, range: null, youtube_ref:P.youtube_ref||null };
       S.plan = Object.assign(S.plan, r.plan); loadMe();
       await saveProject(); if (S.file) VDB.put(r.id, S.file);
       try { localStorage.removeItem(GUEST_P); } catch (e) { }
@@ -4221,7 +4257,9 @@ function gotoCreate() { if (S.user || guestOk()) location.hash = '#criar'; else 
     const v = $('#hxUrl').value.trim();
     if (!v) { track('source_selected', { src: 'file', lp: 'hero' }); gotoCreate(); setTimeout(() => document.querySelector('.tab[data-tab="file"]')?.click(), 120); return; }
     if (!/^https?:\/\//i.test(v)) { err('Cole um link completo, começando com https://'); return; }
-    if (PLAT_RE.youtube.test(v) && !S.cfg.youtube) { err('Links do YouTube estão em manutenção. Use um link da Twitch ou da Kick, envie o arquivo do vídeo ou teste com um exemplo.'); return; }
+    const yid=youtubeVideoId(v);
+    if(isYoutubeHost(v)&&!yid){err('Cole o link de um vídeo, Short ou live específica do YouTube.');return;}
+    if(yid&&!S.cfg.youtube){track('source_selected',{src:'youtube_file',lp:'hero'});const go=()=>{location.hash='#criar';setTimeout(()=>{document.querySelector('.tab[data-tab="link"]').click();$('#url').value=v;$('#url').dispatchEvent(new Event('input'));$('#fetchInfo').click();},120)};if(S.user||guestOk())go();else openAuth('signup',go);return;}
     if (!PLAT_RE.twitch.test(v) && !PLAT_RE.kick.test(v) && !PLAT_RE.youtube.test(v)) { err('Por enquanto aceitamos links da Twitch e da Kick. Você também pode enviar o arquivo do vídeo.'); return; }
     track('source_selected', { src: 'link', lp: 'hero' });
     const go = () => { location.hash = '#criar'; setTimeout(() => { document.querySelector('.tab[data-tab="link"]').click(); $('#url').value = v; $('#url').dispatchEvent(new Event('input')); $('#fetchInfo').click(); }, 120); };
