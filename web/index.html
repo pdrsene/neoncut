@@ -818,7 +818,8 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 .pixel-card:disabled{opacity:.43;cursor:not-allowed}.pixel-card b{font-size:12px;line-height:1.3}.pixel-card small{font-size:11px;color:var(--muted)}
 .pixel-card .pxart{width:76px;height:76px;background:radial-gradient(circle,#292c25,#0e0e12);border-radius:12px}
 .creatorlevel .pxart{margin-bottom:8px;width:46px;height:46px}
-.nav-character{display:inline-flex;align-items:center}.nav-character .pxart{width:25px;height:25px}
+ .navlevel{display:grid;grid-template-columns:25px auto;grid-template-rows:auto auto;column-gap:5px;align-items:center;min-height:42px}
+.nav-character{display:inline-flex;align-items:center;grid-row:1/3}.nav-character .pxart{width:25px;height:25px}
 .px-public{display:flex;align-items:center;gap:12px;margin-bottom:10px}.px-public .pxart{width:78px;height:78px;background:#14191a;border-radius:12px}
 @media(max-width:480px){.pixel-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.pixel-card{padding:10px 4px}.pixel-card .pxart{width:62px;height:62px}}
 .creatorform{display:grid;gap:16px;margin-top:14px}.creatorform .f{min-width:0}.creatorform textarea{width:100%}.creatorlink{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;gap:8px;margin:8px 0}.creatorlink input{min-width:0;width:100%}.creatorlevels{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:14px}.creatorlevel{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px}.creatorlevel.unlocked{border-color:var(--accent)}.creatorlevel b,.creatorlevel small{display:block}.creatorlevel small{color:var(--muted)}.creatorxp{font-size:32px;color:var(--accent);font-weight:900}.portworks{display:grid;gap:10px;margin-top:20px}.portworks a{display:block;padding:14px;border:1px solid var(--line);border-radius:12px;overflow-wrap:anywhere;color:var(--text)}.porttheme-neon{border-color:#a3e635!important}.porttheme-gold{border-color:#facc15!important;box-shadow:inset 0 3px #facc15}.porttheme-legend{border-color:#a78bfa!important;box-shadow:inset 0 3px #a78bfa}.momentsearch{display:grid;gap:8px;margin:14px 0 0}.momentsearch .note{margin:0}.radar-tools{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.radar-tools input[type=search]{flex:1;min-width:150px}.radar-tools select{max-width:100%}.radar-growth{color:var(--accent);font-size:12px;display:block;margin-top:4px}
@@ -5204,7 +5205,7 @@ async function loadPublicPortfolio(){
  if(!/^[A-Za-z0-9_-]{12,40}$/.test(token)){box.textContent='Portfólio indisponível.';return;}
  try{const d=await api('/api/creator/public/'+encodeURIComponent(token));
    if(['neon','gold','legend'].includes(d.theme))box.classList.add('porttheme-'+d.theme);
-   box.innerHTML='<p class="note">NEONCUT · Portfólio</p><h1>'+esc(d.name)+'</h1><p class="note">Nível '+d.level+' · '+esc(d.title)+'</p><p style="white-space:pre-wrap">'+esc(d.bio)+'</p><div class="portworks">'+(d.links.length?d.links.map(l=>'<a href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer">'+esc(l.title)+' ↗</a>').join(''):'<p class="note">Nenhum trabalho publicado ainda.</p>')+'</div>';
+   box.innerHTML='<div class="px-public">'+pixelAvatarSvg(d.avatar_id||'rookie',78)+'<div><p class="note">NEONCUT · Portfólio</p><h1>'+esc(d.name)+'</h1><p class="note">Nível '+d.level+' · '+esc(d.title)+'</p></div></div><p style="white-space:pre-wrap">'+esc(d.bio)+'</p><div class="portworks">'+(d.links.length?d.links.map(l=>'<a href="'+esc(l.url)+'" target="_blank" rel="noopener noreferrer">'+esc(l.title)+' ↗</a>').join(''):'<p class="note">Nenhum trabalho publicado ainda.</p>')+'</div>';
  }catch(e){box.textContent='Portfólio privado ou indisponível.';}
 }
 
