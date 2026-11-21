@@ -2462,6 +2462,7 @@ async function exportClip(clip,onProg) {
     if(accelerated) { console.info('NEONCUT export WebCodecs (ms)',Math.round(performance.now()-started));return accelerated; }
   } catch(e) { console.warn('Exportação acelerada indisponível; usando gravador',e); }
   onProg?.(0);
+  if(S.libraryAudioCache?.file===S.file&&S.libraryProjectId===S.project?.id)await ensureLibraryAudio(false);
   return exportClipRealtime(clip,onProg);
 }
 async function exportClipRealtime(clip, onProg) {
@@ -2535,7 +2536,7 @@ function setFile(f, fromDemo) {
   if (!fromDemo) S.sample = null; else clearYoutubeRef();
   if (typeof sampleUI === 'function') sampleUI();
   track('video_uploaded', { src: fromDemo ? 'demo' : 'file', size_mb: Math.round(f.size / 1e6), demo: fromDemo ? 1 : 0 });
-  S.remoteCache=null;
+  S.remoteCache=null;S.libraryProjectId=null;S.libraryAudioCache=null;
   S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f);
   const chip = $('#chip'); chip.style.display = 'block';
   chip.innerHTML = `🎬 <b>${esc(f.name)}</b> · ${(f.size / 1e6).toFixed(0)} MB` + (f.size > 1.6e9 ? '<br><span class="err">Arquivo muito grande para o navegador. Prefira até ~1,5 GB (corte o vídeo em partes).</span>' : '');
@@ -3097,6 +3098,7 @@ function openEditor(clip) {
   S.hookPv = false; $('#inHook').checked = !!clip.hookOn; $('#inHookTxt').value = clip.hookTxt || ''; hookNoteUI();
   $('#vgenTitles').classList.add('hidden'); $('#vgenTags').innerHTML = '';
   renderTpls(); renderCaps(); renderStylePicks(); drawWave();
+  if(S.libraryAudioCache?.file===S.file&&S.libraryProjectId===S.project?.id)ensureLibraryAudio(true).catch(()=>{});
   const pv = $('#pv'); pv.pause(); ensureSrc(pv, clipSrc(clip)).then(() => seek(pv, clip.start)).then(drawPreview);
   updatePlay();
 }
@@ -3749,58 +3751,100 @@ $('#projList').addEventListener('change',async e=>{
   try{const res=await api('/api/projects/'+id+'/library',{folder:sel.value},'PATCH');p.meta=p.meta||{};p.meta.library=res.library;paintProjects();toast('Projeto movido para '+sel.value+'.');}
   catch(err){sel.disabled=false;sel.value=pjFolder(p);toast(err.message,4000);}
 });
-function pickFile() {
-  return new Promise(res => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'video/*'; i.onchange = () => res(i.files[0] || null); i.click(); });
+function pickFile(){
+  return new Promise(resolve=>{
+    const input=document.createElement('input');input.type='file';input.accept='video/*,.mp4,.mov,.webm,.mkv,.m4v';
+    let done=false;const finish=file=>{if(done)return;done=true;resolve(file||null);};
+    input.onchange=()=>finish(input.files?.[0]);
+    // Cancel is supported when available (modern browsers).
+    input.addEventListener('cancel',()=>finish(null),{once:true});
+    input.click();
+  });
 }
-// abre um projeto salvo com os cortes como estavam (sem gastar cota)
-async function openProject(p, action) {
-  if(S.fullScanning){toast('Pare a indexação antes de abrir outro projeto.');return;}
-  if (!p || !(p.clips || []).length) return;
-  const av = projAvail(p); if (!av.ok) { toast(av.why, 5000); return; }
-  let file = await VDB.get(p.id);
-  if (!file && av.how === 'arquivo') {
-    toast(`Escolha o arquivo "${p.source}" de novo para abrir este projeto.`, 5000);
-    file = await pickFile(); if (!file) return;
-    if (file.name !== p.source) toast('O nome do arquivo é diferente do original. Abrindo mesmo assim.', 4000);
+let openingSavedProject=false;
+async function ensureLibraryAudio(withWave=false){
+  const cache=S.libraryAudioCache,pid=S.project?.id,file=S.file;
+  if(!cache||cache.file!==file||S.libraryProjectId!==pid)return;
+  if(!cache.decodeTask){
+    cache.decodeTask=(async()=>{
+      const decoded=await decodeAudio(file);
+      if(S.libraryAudioCache!==cache||S.file!==file||S.project?.id!==pid)return null;
+      cache.decoded=decoded;
+      S.pcm=decoded?decoded.mono:null;
+      return decoded;
+    })().catch(err=>{cache.decodeTask=null;throw err;});
   }
-  location.hash = '#criar';
-  await sleep(50);
-  $('#upload').classList.add('hidden'); $('#streams').classList.add('hidden'); $('#ytSec').classList.add('hidden'); $('#backBar').classList.add('hidden'); $('#results').classList.add('hidden');
-  $('#proc').classList.remove('hidden'); $('#proc').querySelectorAll('.err,.note.after').forEach(x => x.remove());
-  S.settings = Object.assign({ D: 30, N: 5, model: 'base', lang: 'portuguese', tpl: 'stream', visual: true, focus: 'viral', hook: false, sens: 3, boostVoice: false, snapSilence: true }, (p.meta && p.meta.settings) || {});
-  const needAsr = S.settings.model !== 'none' && p.clips.some(c => !(c.words && c.words.length) && !c.transcribed);
-  const skip = [4, 5]; if (file) skip.push(0, 1); if (!needAsr) skip.push(6, 7);
-  stepsUI(skip);
-  try {
-    if (!file) {
-      const r = (p.meta && p.meta.range) || ['0:00', fmtH(p.duration || 600)];
-      file = await downloadJob({ url: p.source, start: parseTime(r[0]), end: parseTime(r[1]) }, p.title, false);
-      VDB.put(p.id, file);
+  const audio=await cache.decodeTask;
+  if(!withWave||!audio||S.libraryAudioCache!==cache||S.file!==file||S.project?.id!==pid)return;
+  if(!cache.featuresTask){
+    cache.featuresTask=audioFeatures(audio,()=>{},true).then(features=>{
+      if(S.libraryAudioCache!==cache||S.file!==file||S.project?.id!==pid)return;
+      S.feats=features;
+      if(S.cur)drawWave();
+      if(ADV.open)advTimeline();
+    }).catch(err=>{cache.featuresTask=null;throw err;});
+  }
+  return cache.featuresTask;
+}
+async function openProject(p,action='view'){
+  if(openingSavedProject){toast('Já estou abrindo um projeto.');return;}
+  if(S.fullScanning){toast('Pare a busca na gravação antes de abrir um projeto.');return;}
+  if(!p)return;
+  openingSavedProject=true;
+  try{
+    let file=await VDB.get(p.id);
+    const av=projAvail(p);
+    if(!file&&av.how==='link'){
+      const range=(p.meta&&p.meta.range)||['0:00',fmtH(p.duration||600)];
+      try{file=await downloadJob({url:p.source,start:parseTime(range[0]),end:parseTime(range[1])},p.title,false);}
+      catch(err){toast('O link não pôde ser recuperado. Selecione o vídeo original para continuar.',5500);}
     }
-    S.file = file; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(file);
-    S.project = { id: p.id, kind: p.kind, source: p.source, title: p.title, range: (p.meta && p.meta.range) || null, youtube_ref:p.meta?.youtube_ref||null };
-    const pv = $('#pv'), ev = $('#ev'), avv = $('#av');
-    await Promise.all([loadMeta(pv, S.url), loadMeta(ev, S.url), loadMeta(avv, S.url)]);
-    S.duration = pv.duration; S.vw = pv.videoWidth; S.vh = pv.videoHeight;
-    step(2, 'active'); const audio = await decodeAudio(S.file); S.pcm = audio ? audio.mono : null; step(2, 'done');
-    step(3, 'active'); S.feats = audio ? await audioFeatures(audio, q => step(3, 'active', Math.round(q * 100) + '%')) : null; step(3, 'done');
-    S.clips = p.clips.map(unpackClip);
-    let capErr = null;
-    if (needAsr && S.pcm) {
-      step(6, 'active');
-      try { await loadASR(S.settings.model); step(6, 'done'); step(7, 'active'); const todo = S.clips.filter(c => !c.words.length && !c.transcribed); for (let i = 0; i < todo.length; i++) { step(7, 'active', `${i + 1}/${todo.length}`); await transcribeClip(todo[i]); todo[i].wordsVer++; } step(7, 'done'); }
-      catch (err) { capErr = err.message; step(6, 'done'); step(7, 'done'); }
+    if(!file){
+      toast('Selecione o vídeo original para reabrir este projeto. Não será cobrada nova cota.',5000);
+      file=await pickFile();
+      if(!file)return;
+      if(p.kind==='file'&&p.source&&file.name!==p.source)toast('O arquivo tem outro nome. Confirme se é o mesmo vídeo antes de baixar.',4200);
     }
-    step(8, 'active'); await document.fonts.ready;
-    showResults(capErr); step(8, 'done');
-    if (needAsr) saveProject();
-    if (action === 'all') exportWithUI(S.clips, $('#exportAll'));
-    else if (typeof action === 'number' && S.clips[action]) openEditor(S.clips[action]);
-    else toast('Projeto aberto: seus cortes estão como você deixou ✂', 3500);
-  } catch (err) {
+    if(!p.clips||!p.clips.length){
+      location.hash='#criar';
+      S.reuseId=p.id;
+      setFile(file);
+      toast('Arquivo carregado. Configure e gere seus cortes.',3500);
+      return;
+    }
+    // A saved project already has cuts. Never re-run Whisper or movement analysis on open.
+    location.hash='#criar';
+    await sleep(50);
+    $('#upload').classList.add('hidden');$('#streams').classList.add('hidden');$('#ytSec').classList.add('hidden');
+    $('#backBar').classList.add('hidden');$('#results').classList.add('hidden');
+    $('#proc').classList.remove('hidden');
+    $('#proc').querySelectorAll('.err,.note.after').forEach(x=>x.remove());
+    S.settings=Object.assign({D:30,N:3,model:'none',lang:'portuguese',tpl:'stream',visual:false,turbo:true,focus:'viral',hook:false,sens:3,boostVoice:false,snapSilence:true},(p.meta&&p.meta.settings)||{});
+    if(!TEMPLATES.some(t=>t.id===S.settings.tpl))S.settings.tpl='stream';
+    S.settings.model='none';S.settings.visual=false;
+    stepsUI([0,1,2,3,4,5,6,7]);
+    S.file=file;
+    if(S.url)URL.revokeObjectURL(S.url);
+    S.url=URL.createObjectURL(file);
+    S.project={id:p.id,kind:p.kind,source:p.source,title:p.title,range:p.meta?.range||null,youtube_ref:p.meta?.youtube_ref||null};
+    S.libraryProjectId=p.id;S.libraryAudioCache={file,decoded:null,decodeTask:null,featuresTask:null};
+    S.pcm=null;S.feats=null;S.fullIndex=null;
+    await loadMeta($('#pv'),S.url);
+    S.duration=$('#pv').duration;S.vw=$('#pv').videoWidth;S.vh=$('#pv').videoHeight;
+    S.clips=p.clips.map(unpackClip);
+    step(8,'active');
+    await Promise.race([document.fonts.ready,sleep(400)]);
+    showResults(null);step(8,'done');
+    // Local videos are cached on this device only, not uploaded to our server.
+    if(!VDB.has(p.id))VDB.put(p.id,file);
+    if(action==='all')exportWithUI(S.clips,$('#exportAll'));
+    else if(typeof action==='number'&&S.clips[action])openEditor(S.clips[action]);
+    else toast('Projeto pronto! Escolha um corte para assistir ou editar.',3200);
+  }catch(err){
     console.error(err);
-    $('#proc').insertAdjacentHTML('beforeend', `<p class="err">Erro: ${esc(err.message)}</p><a class="btn ghost small" href="#projetos">Voltar aos projetos</a>`);
-  }
+    $('#proc').classList.remove('hidden');$('#results').classList.add('hidden');
+    $('#proc').insertAdjacentHTML('beforeend','<p class="err">Não consegui abrir o projeto: '+esc(err.message)+'</p><a class="btn ghost small" href="#projetos">Voltar à biblioteca</a>');
+  }finally{openingSavedProject=false;}
 }
 
 // ---------- conta ----------
@@ -4222,6 +4266,7 @@ function openAdvanced(clip) {
   advUndoBtns(); renderQSel(); advFit(true);
   const pv = advPV(); pv.pause(); ensureSrc(pv, clipSrc(clip)).then(() => seek(pv, clip.start)).then(() => { advDraw(); advLoop(); });
   advPanel(ADV.panel); advRenderAll();
+  if(S.libraryAudioCache?.file===S.file&&S.libraryProjectId===S.project?.id)ensureLibraryAudio(true).catch(()=>{});
 }
 function closeAdvanced() {
   ADV.open = false; advPV().pause(); cancelAnimationFrame(ADV.raf);
