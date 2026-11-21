@@ -917,10 +917,11 @@ TRACK_KINDS = {"visit", "link", "clip_generated", "export", "upgrade_open", "sig
                # funil completo (kit de crescimento)
                "page_view", "demo_started", "source_selected", "video_uploaded", "generation_started", "generation_failed",
                "generation_completed", "signup_started", "export_started", "export_failed", "download_completed",
-               "survey_shown", "inapp_open_browser", "js_error"}
+               "survey_shown", "inapp_open_browser", "js_error",
+               "youtube_beta_attempt", "youtube_beta_failed", "youtube_beta_ready", "youtube_file_fallback"}
 SAFE_META = {"n", "dur", "mode", "guest", "tpl", "why", "path", "login", "src", "kind", "code", "stage", "ms", "msg", "q",
              "demo", "first_free", "share", "focus", "quick", "size_mb", "cat", "plan", "utm_source", "utm_medium",
-             "utm_campaign", "utm_content", "utm_term", "gclid", "fbclid", "ttclid", "lp", "vw", "id","download_ms","analysis_ms","preview_ms"}
+             "utm_campaign", "utm_content", "utm_term", "gclid", "fbclid", "ttclid", "lp", "vw", "id","download_ms","analysis_ms","preview_ms","reason"}
 
 
 def ua_info(ua: str) -> dict:
@@ -992,6 +993,10 @@ class TrackReq(BaseModel):
 
 @router.post("/api/track")
 def track(body: TrackReq, req: Request):
+    # Exclude verified crawler user agents from the visitor funnel and future A/B reports.
+    ua = req.headers.get("user-agent", "").lower()
+    if re.search(r"googlebot|googleother|bingbot|duckduckbot|yandexbot|baiduspider|bytespider|semrushbot|ahrefsbot|facebookexternalhit|twitterbot|applebot|headlesschrome|crawler|spider", ua):
+        return {"ok": True}
     if body.kind not in TRACK_KINDS:
         return {"ok": False}
     throttle("track:" + (req.client.host if req.client else "?"), 240, 3600)
@@ -1121,6 +1126,10 @@ def admin_metrics(req: Request, days: int = 30):
                     "purchases": v["purchases"], "revenue": round(v["revenue"], 2)} for k, v in series.items()],
         "purchases": [{"ts": r["created"], "amount": r["amount"], "plan": r["plan"], "status": r["status"],
                        "email": r["email"] or "?", "ref": r["ref"]} for r in buys],
+        "youtube": {"attempts": ev("youtube_beta_attempt"),
+                    "metadata_ready": one("SELECT COUNT(*) FROM events WHERE kind='youtube_beta_ready' AND meta LIKE '%metadata%' AND ts>=?", since),
+                    "downloads_ready": one("SELECT COUNT(*) FROM events WHERE kind='youtube_beta_ready' AND meta LIKE '%download%' AND ts>=?", since),
+                    "failed": ev("youtube_beta_failed"), "file_fallback": ev("youtube_file_fallback")},
         "feedback": {"n": fb_n, "avg": round(sum(int(k) * v for k, v in fb_dist.items()) / fb_n, 2) if fb_n else None,
                      "dist": fb_dist, "liked_pct": round(100 * (fb_dist["4"] + fb_dist["5"]) / fb_n) if fb_n else None,
                      "shown": ev("feedback_shown"),

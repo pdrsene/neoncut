@@ -4561,6 +4561,17 @@ async function loadMetrics() {
       ${kpi('💰', 'Receita', 'R$ ' + money_(t.revenue), per, 'hl')}
       ${kpi('⭐', 'Assinantes ativos', fmtN(t.pro_active + t.proplus_active), `${t.pro_active} Pro · ${t.proplus_active} Pro+ · ${fmtN(t.users_total)} contas`)}
     </div>
+    <section class="panel" style="margin-top:16px">
+      <h4 class="h4">YouTube · testes e importação</h4>
+      <div class="row" style="gap:18px;flex-wrap:wrap">
+        <span><b>${fmtN(m.youtube?.attempts||0)}</b> tentativas</span>
+        <span><b>${fmtN(m.youtube?.metadata_ready||0)}</b> links reconhecidos</span>
+        <span><b>${fmtN(m.youtube?.downloads_ready||0)}</b> vídeos importados</span>
+        <span><b>${fmtN(m.youtube?.failed||0)}</b> falhas</span>
+        <span><b>${fmtN(m.youtube?.file_fallback||0)}</b> importações por arquivo sugeridas</span>
+      </div>
+      <p class="note">O teste por link está disponível só para administradores até a importação ser validada. Esses eventos passam a ser contabilizados a partir desta versão.</p>
+    </section>
     <div class="mgrid">
       <section class="panel"><h4 class="h4">Funil ${per}</h4>
         <div class="mfunnel">${m.funnel.map(([l, v], i) => `<div class="mfrow"><span>${l}</span><div class="mfbar"><i style="width:${Math.max(v ? 2 : 0, 100 * v / fmax)}%"></i></div><b>${fmtN(v)}</b><small>${i ? pctOf(v, m.funnel[i - 1][1]) : ''}</small></div>`).join('')}</div>
