@@ -7,6 +7,8 @@ PAYS = {"1001": {"status": "approved", "transaction_amount": 12.9, "external_ref
         "1002": {"status": "approved", "transaction_amount": 1.0, "external_reference": "1:pro:1290"},
         "1003": {"status": "pending", "transaction_amount": 12.9, "external_reference": "1:pro:1290"}}
 
+for _k, _v in PAYS.items(): _v.update(id=int(_k), currency_id="BRL")
+
 class H(BaseHTTPRequestHandler):
     def do_GET(self):
         time.sleep(0.05)
