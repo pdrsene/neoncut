@@ -21,6 +21,19 @@ LEVELS = [
     (1500, "Lenda", "Tema roxo Lenda", "legend"),
 ]
 THEMES = {"base": 0, "neon": 300, "gold": 750, "legend": 1500}
+PIXEL_AVATARS = [
+    {"id":"rookie","name":"Pixel Rookie","tier":1,"role":"Explorador"},
+    {"id":"fox","name":"Raposa Neon","tier":1,"role":"Explorador"},
+    {"id":"scout","name":"Clip Scout","tier":2,"role":"Cortador"},
+    {"id":"ninja","name":"Ninja do Corte","tier":2,"role":"Cortador"},
+    {"id":"bot","name":"Cyber Bot","tier":3,"role":"Especialista"},
+    {"id":"mage","name":"Mago dos Clipes","tier":3,"role":"Especialista"},
+    {"id":"knight","name":"Cavaleiro XP","tier":4,"role":"Elite"},
+    {"id":"racer","name":"Piloto Neon","tier":4,"role":"Elite"},
+    {"id":"ghost","name":"Fantasma Viral","tier":5,"role":"Lenda"},
+    {"id":"dragon","name":"Dragão Pixel","tier":5,"role":"Lenda"},
+]
+AVATAR_BY_ID = {item["id"]: item for item in PIXEL_AVATARS}
 XP_PER_CLIP = 10
 DAILY_CLIPS = 20
 REFERRAL_XP = 100
@@ -47,6 +60,9 @@ def init():
     );
     CREATE INDEX IF NOT EXISTS ix_creator_inviter ON creator_referrals(inviter);
     """)
+    cols = {r[1] for r in A.db().execute("PRAGMA table_info(creator_profiles)")}
+    if "avatar_id" not in cols:
+        A.db().execute("ALTER TABLE creator_profiles ADD COLUMN avatar_id TEXT NOT NULL DEFAULT 'rookie'")
 
 init()
 
@@ -78,9 +94,29 @@ def sync_referrals(uid):
                   (uid,"referral",str(row["invited"]),REFERRAL_XP,time.time()))
 
 def profile_data(row, xp):
+    lvl = level_info(xp)
+    requested = row["avatar_id"] if "avatar_id" in row.keys() else "rookie"
+    item = AVATAR_BY_ID.get(requested)
+    avatar_id = requested if item and item["tier"] <= lvl["level"] else "rookie"
     return {"token": row["token"], "name": row["name"], "bio": row["bio"],
-            "theme": row["theme"] if xp>=THEMES.get(row["theme"],10**9) else "base",
-            "public": bool(row["public"]), "links": json.loads(row["links"]), **level_info(xp)}
+            "theme": row["theme"] if xp >= THEMES.get(row["theme"],10**9) else "base",
+            "avatar_id":avatar_id, "avatars": PIXEL_AVATARS,
+            "public": bool(row["public"]), "links": json.loads(row["links"]), **lvl}
+
+class AvatarPick(BaseModel):
+    avatar_id: str
+
+@router.post("/api/creator/avatar")
+def set_avatar(body: AvatarPick, req: Request):
+    u = A.current_user(req)
+    item = AVATAR_BY_ID.get(body.avatar_id)
+    if not item:
+        raise HTTPException(400, "Personagem inválido.")
+    if item["tier"] > level_info(points(u["id"]))["level"]:
+        raise HTTPException(403, "Esse personagem será liberado em outro nível.")
+    ensure_profile(u["id"])
+    A.db().execute("UPDATE creator_profiles SET avatar_id=? WHERE uid=?", (item["id"], u["id"]))
+    return {"ok": True, "avatar_id": item["id"]}
 
 @router.get("/api/creator/me")
 def me(req: Request):
@@ -163,4 +199,4 @@ def public_profile(token: str):
     if not row: raise HTTPException(404,"Portfólio privado ou indisponível.")
     d=profile_data(row,points(row["uid"]))
     # No email, account ID, projects, or private video URLs.
-    return {k:d[k] for k in ("name","bio","theme","links","title","level")}
+    return {k:d[k] for k in ("name","bio","theme","links","title","level","avatar_id")}
