@@ -937,6 +937,33 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 @media(max-width:580px){#demoGrid{grid-template-columns:1fr}.demo-section-head{align-items:flex-start}.demo-free-label{display:none}#demoGrid .dcard{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:10px;padding:10px}.demo-card-body h4{font-size:14px}.demo-card-body .btn{font-size:12px;padding:8px}.demo-card-body .note{font-size:11px}.demo-credit{font-size:9px}}
 @media(max-width:350px){#demoGrid .dcard{grid-template-columns:1fr}}
 
+
+/* ===== mina pixel: o personagem minerando cortes durante a análise ===== */
+.mine{position:relative;height:150px;margin:14px 0 16px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:linear-gradient(#0d0f14,#101318);image-rendering:pixelated}
+.mine-sky{position:absolute;inset:0;background-image:radial-gradient(#3f3f46 1px,transparent 1px);background-size:22px 22px;opacity:.35}
+.mine-ground{position:absolute;left:0;right:0;bottom:0;height:30px;background:repeating-linear-gradient(90deg,#1f1f23 0 12px,#27272a 12px 24px);border-top:4px solid #3f3f46}
+.mine-rig{position:absolute;left:calc(50% - 120px);bottom:28px;width:84px;height:84px;animation:mineBob .9s steps(2) infinite}
+.mine-char svg{width:84px;height:84px;display:block}
+.mine-pick{position:absolute;right:-18px;top:6px;width:40px;height:40px;transform-origin:6px 34px;animation:mineSwing .9s cubic-bezier(.5,0,.6,1) infinite;
+  background:linear-gradient(#a3e635,#a3e635) 4px 4px/32px 6px no-repeat,linear-gradient(#a3e635,#a3e635) 30px 10px/6px 6px no-repeat,linear-gradient(#a3e635,#a3e635) 2px 10px/6px 6px no-repeat,linear-gradient(#8b5a2b,#8b5a2b) 17px 8px/6px 30px no-repeat}
+.mine-rock{position:absolute;left:calc(50% - 10px);bottom:28px;width:64px;height:52px;background:#3f3f46;box-shadow:inset -8px -8px 0 #27272a,inset 8px 8px 0 #52525b;clip-path:polygon(12% 0,88% 0,100% 30%,100% 100%,0 100%,0 30%);animation:mineShake .9s steps(1) infinite}
+.mine-rock i{position:absolute;width:8px;height:8px;background:#a3e635;box-shadow:0 0 8px #a3e635}
+.mine-rock i:nth-child(1){left:14px;top:14px}.mine-rock i:nth-child(2){left:38px;top:24px}.mine-rock i:nth-child(3){left:22px;top:34px;background:#facc15;box-shadow:0 0 8px #facc15}
+.mine-cart{position:absolute;left:calc(50% + 110px);bottom:28px;width:70px;height:34px;background:#27272a;border:4px solid #52525b;border-top:0}
+.mine-cart b{position:absolute;left:4px;right:4px;bottom:4px;height:var(--fill,0px);max-height:22px;background:repeating-linear-gradient(90deg,#a3e635 0 10px,#65a30d 10px 14px);transition:height .4s}
+.mine-cart:before,.mine-cart:after{content:"";position:absolute;bottom:-12px;width:12px;height:12px;background:#a1a1aa;border:3px solid #18181b}
+.mine-cart:before{left:4px}.mine-cart:after{right:4px}
+.mine-fx{position:absolute;inset:0;pointer-events:none}
+.mine-gem{position:absolute;left:calc(50% - 4px);bottom:70px;width:22px;height:16px;background:#a3e635;border:3px solid #09090B;box-shadow:0 0 10px rgba(163,230,53,.7);animation:mineGem 1.1s cubic-bezier(.3,.6,.5,1) forwards}
+.mine-gem:before{content:"";position:absolute;left:7px;top:2px;border-left:7px solid #09090B;border-top:4px solid transparent;border-bottom:4px solid transparent}
+.mine-spark{position:absolute;left:calc(50% - 14px);bottom:62px;width:6px;height:6px;background:#facc15;animation:mineSpark .5s ease-out forwards}
+@keyframes mineSwing{0%{transform:rotate(-70deg)}55%{transform:rotate(-80deg)}72%{transform:rotate(40deg)}100%{transform:rotate(-70deg)}}
+@keyframes mineBob{0%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes mineShake{0%,70%{transform:none}75%{transform:translateX(3px)}85%{transform:translateX(-2px)}}
+@keyframes mineGem{0%{transform:translate(0,0) scale(.4);opacity:0}15%{opacity:1}60%{transform:translate(70px,-46px) scale(1)}100%{transform:translate(140px,22px) scale(.8);opacity:0}}
+@keyframes mineSpark{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+@media (max-width:520px){.mine-rig{left:calc(50% - 104px);transform:scale(.85)}.mine-cart{left:calc(50% + 70px);width:56px}}
+@media (prefers-reduced-motion:reduce){.mine-rig,.mine-pick,.mine-rock{animation:none}}
 </style>
 </head>
 <body class="yt-off">
@@ -1217,6 +1244,13 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
   <section class="panel hidden" id="proc">
     <h2>Cortando seu gameplay…</h2>
     <p class="sub">Procurando os momentos mais interessantes. Mantenha esta aba aberta durante a análise.</p>
+    <div class="mine" id="mine" aria-hidden="true">
+      <div class="mine-sky"></div><div class="mine-ground"></div>
+      <div class="mine-rig"><div class="mine-char" id="mineChar"></div><div class="mine-pick"></div></div>
+      <div class="mine-rock"><i></i><i></i><i></i></div>
+      <div class="mine-fx" id="mineFx"></div>
+      <div class="mine-cart"><b></b></div>
+    </div>
     <p class="note" id="procDetail" role="status">Preparando a análise…</p><div class="steps" id="steps"></div>
     <div class="bar"><i id="pbar"></i></div>
   </section>
@@ -2162,16 +2196,32 @@ function rankSpokenMoment(c) {
   return {score:Math.round(clamp(score,0,99)),quote:quote || null};
 }
 
+// Amostra rápida de fala para a seleção: um único pedaço de até 16 s em volta do pico
+// (antes: o corte inteiro, em 2–3 chamadas do Whisper por candidato).
+async function probeSpeech(c) {
+  if (!S.pcm) throw new Error('vídeo sem áudio');
+  const len = Math.min(16, c.end - c.start);
+  const mid = Number.isFinite(c.peakT) ? c.peakT : (c.start + c.end) / 2;
+  const a = clamp(mid - len / 2, c.start, Math.max(c.start, c.end - len)), b = Math.min(c.end, a + len);
+  const ws = await cachedASR(S.pcm, Math.floor(a * SR), Math.floor(b * SR), S.settings.lang);
+  const words = ws.map(w => ({ text: w.text, start: Math.min(w.start, b - a) + a, end: Math.min(w.end, b - a) + a })).filter(w => !HALLUC.test(w.text));
+  if (HALLUC.test(words.map(w => w.text).join(' '))) return [];
+  return words;
+}
+
 async function chooseSpokenMoments(candidates, count, asrP) {
   try { await asrP; } catch (_) { return {clips:candidates.slice(0,count), fallback:true}; }
   const ranked=[];
   for (let i=0;i<candidates.length;i++) {
     const c=candidates[i];
+    // já temos cortes bons o bastante: não analisa os candidatos mais fracos que sobraram
+    if (ranked.filter(x=>x.score>=70).length>=count && i>=count) break;
     step(5,'active','Confirmando falas '+(i+1)+'/'+candidates.length);
     try {
-      await transcribeClip(c);
-      const result=rankSpokenMoment(c);
-      c.score=result.score; c.quote=result.quote; c.wordsVer=1;
+      const words=await probeSpeech(c);
+      const span=Math.max(1,(words.length?words[words.length-1].end-words[0].start:0)+2);
+      const result=rankSpokenMoment({...c,words,start:c.start,end:Math.min(c.end,c.start+Math.max(span,8))});
+      c.score=result.score; c.quote=result.quote; c.wordsVer=1; c.words=words; c.transcribed=false;
       ranked.push(c);
     } catch (_) { /* no invented transcript or semantic score */ }
   }
@@ -3410,6 +3460,7 @@ function paintNavLevel(){
 }
 function updateNavLevel(d){
   if(!d||!Number.isInteger(d.level)||!Number.isFinite(d.xp)||!S.user)return;
+  if(d.avatar_id)S.avatarId=d.avatar_id;
   if(S.creatorLevel && S.creatorLevel.xp>d.xp)return;
   S.creatorLevel={level:d.level,title:String(d.title||''),xp:d.xp,avatar_id:d.avatar_id||S.creator?.avatar_id||S.creatorLevel?.avatar_id||'rookie'};paintNavLevel();
 }
@@ -5489,6 +5540,24 @@ $('#fullHits').onclick=async e=>{const b=e.target.closest('[data-full-preview],[
  const start=Math.max(0,h.start-3),end=Math.min(S.duration,start+Math.min(S.plan.options?.max_duration||45,S.settings.D||30));if(end-start<1)return;
  const c=unpackClip({start,end,peakT:h.start,title:h.text.slice(0,80),score:0,cat:'epico',words:S.fullIndex.words.filter(w=>w.start>=start&&w.end<=end),transcribed:true},S.clips.length);S.clips.push(c);$('#momentQuery').value='';$('#resSub').textContent=resSubText();renderGrid();saveProjectSoon();openEditor(c);};
 
+
+// ---------- mina pixel na tela de análise ----------
+const MINE = { t: 0, n: 0 };
+function mineStart() {
+  if (MINE.t) return;
+  const ch = $('#mineChar'); if (ch && typeof pixelAvatarSvg === 'function') ch.innerHTML = pixelAvatarSvg((S.creator && S.creator.avatar_id) || S.avatarId || 'rookie', 84);
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  MINE.n = 0; $('#mine .mine-cart b')?.style.setProperty('--fill', '0px');
+  // o golpe da picareta acerta a pedra em ~72% de cada ciclo de 0,9 s
+  setTimeout(() => { MINE.t = setInterval(mineHit, 900); mineHit(); }, 650);
+}
+function mineHit() {
+  const fx = $('#mineFx'); if (!fx || $('#proc').classList.contains('hidden')) return mineStop();
+  for (let k = 0; k < 4; k++) { const sp = document.createElement('i'); sp.className = 'mine-spark'; sp.style.setProperty('--dx', (Math.random() * 40 - 20) + 'px'); sp.style.setProperty('--dy', (-10 - Math.random() * 30) + 'px'); fx.appendChild(sp); setTimeout(() => sp.remove(), 520); }
+  if (MINE.n++ % 2 === 0) { const g = document.createElement('i'); g.className = 'mine-gem'; fx.appendChild(g); setTimeout(() => { g.remove(); const b = $('#mine .mine-cart b'); if (b) b.style.setProperty('--fill', Math.min(22, (MINE.n / 2) * 2) + 'px'); }, 1100); }
+}
+function mineStop() { clearInterval(MINE.t); MINE.t = 0; }
+if ($('#proc')) new MutationObserver(() => { if ($('#proc').classList.contains('hidden')) mineStop(); else mineStart(); }).observe($('#proc'), { attributes: true, attributeFilter: ['class'] });
 </script>
 </body>
 </html>

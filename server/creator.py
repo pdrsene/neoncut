@@ -1,6 +1,7 @@
 """NEONCUT Creator: opt-in portfolio, cosmetic XP and confirmed referrals."""
 from __future__ import annotations
 import json
+import os
 import re
 import secrets
 import time
@@ -71,8 +72,17 @@ def ensure_profile(uid):
                    (uid, secrets.token_urlsafe(12)))
     return A.db().execute("SELECT * FROM creator_profiles WHERE uid=?", (uid,)).fetchone()
 
+# contas com todos os níveis liberados (separadas por vírgula; padrão: a conta do Pedro)
+MAX_LEVEL_EMAILS = {e.strip().lower() for e in os.environ.get("CREATOR_MAX_EMAILS", "eusene1212@gmail.com").split(",") if e.strip()}
+
+
 def points(uid):
-    return int(A.db().execute("SELECT COALESCE(SUM(points),0) FROM creator_xp WHERE uid=?", (uid,)).fetchone()[0])
+    xp = int(A.db().execute("SELECT COALESCE(SUM(points),0) FROM creator_xp WHERE uid=?", (uid,)).fetchone()[0])
+    if MAX_LEVEL_EMAILS:
+        r = A.db().execute("SELECT email FROM users WHERE id=?", (uid,)).fetchone()
+        if r and (r["email"] or "").lower() in MAX_LEVEL_EMAILS:
+            xp = max(xp, LEVELS[-1][0])
+    return xp
 
 def level_info(xp):
     i = max(i for i, l in enumerate(LEVELS) if xp >= l[0])
