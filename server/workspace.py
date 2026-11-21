@@ -128,7 +128,7 @@ def reserve_cloud(uid,plan,start,length,layout):
         # bound private volume even when many accounts create completed jobs
         if c.execute("SELECT COUNT(*) FROM cloud_exports WHERE status IN ('uploading','queued','running','done')").fetchone()[0]>=12 or shutil.disk_usage(CLOUD_DIR).free<350_000_000: raise HTTPException(503,"Armazenamento temporário ocupado.")
         jid=secrets.token_hex(16)
-        c.execute("INSERT INTO cloud_exports(id,uid,created,updated,status,start,length,layout,watermark) VALUES(?,?,?,?,?,?,?,?,?)",(jid,uid,now,now,"uploading",start,length,layout,int(plan=="free")))
+        c.execute("INSERT INTO cloud_exports(id,uid,created,updated,status,start,length,layout,watermark) VALUES(?,?,?,?,?,?,?,?,?)",(jid,uid,now,now,"uploading",start,length,layout,0))
         c.execute("COMMIT")
     except Exception: c.execute("ROLLBACK"); raise
     return jid
@@ -184,7 +184,7 @@ def run_cloud(row):
         video=next(x for x in meta["streams"] if x["codec_type"]=="video")
         if not math.isfinite(duration) or duration>645 or duration<row["start"]+row["length"]-0.15 or not 1<=video["width"]<=3840 or not 1<=video["height"]<=2160: raise ValueError("bounds")
         vf="scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280" if row["layout"]=="vertical" else "scale=1280:720:force_original_aspect_ratio=decrease:force_divisible_by=2"
-        if row["watermark"]: vf+=",drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text=NEONCUT:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.6:x=w-tw-12:y=h-th-12"
+        if False and row["watermark"]: vf+=",drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text=NEONCUT:fontsize=24:fontcolor=white:box=1:boxcolor=black@0.6:x=w-tw-12:y=h-th-12"
         cmd=["ffmpeg","-nostdin","-v","error","-y","-threads","1","-protocol_whitelist","file","-f","mov","-enable_drefs","0","-ss",str(row["start"]),"-i",str(src),"-t",str(row["length"]),"-map","0:v:0","-map","0:a:0?","-vf",vf,"-filter_threads","1","-threads","1","-r","30","-c:v","libx264","-preset","ultrafast","-b:v","1800k","-maxrate","2200k","-bufsize","4400k","-c:a","aac","-b:a","96k","-movflags","+faststart","-fs","18000000",str(out)]
         subprocess.run(cmd,capture_output=True,timeout=180,check=True)
         if not out.is_file() or out.stat().st_size<1024: raise ValueError("empty")
