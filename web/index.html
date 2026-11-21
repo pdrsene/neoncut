@@ -2499,7 +2499,7 @@ function showYoutubeImport(id,info=null) {
   S.link=null; S.ytRef='https://www.youtube.com/watch?v='+id;
   $('#linkInfo').classList.add('hidden'); showLinkErr('');
   $('#ytImportTitle').textContent=info?.title?'YouTube · '+info.title:'YouTube · importar arquivo';
-  $('#ytImportMessage').textContent=info?.import_message||'O YouTube não disponibilizou a importação direta neste momento. Envie o arquivo original de um vídeo próprio ou autorizado para continuar.';
+  $('#ytImportMessage').textContent=info?.import_message||'A importação direta por link está em testes. Para continuar agora, selecione o arquivo original de um vídeo seu ou autorizado. O link fica registrado como referência.';
   $('#ytWatch').href=S.ytRef; $('#ytImport').classList.remove('hidden'); updateGo();
 }
 $('#ytChoose').onclick=()=>{
@@ -2549,13 +2549,15 @@ $('#fetchInfo').onclick = async () => {
   const url = $('#url').value.trim(); if (!url) return;
   const yid=youtubeVideoId(url);
   if(isYoutubeHost(url)&&!yid){showLinkErr('Cole o link de um vídeo, Short ou live específica do YouTube, não de canal ou playlist.');return;}
-  if(yid&&!S.cfg.youtube){showLinkErr('YouTube: em breve. Use Twitch, Kick ou envie um arquivo de vídeo.');return;}
+  if(yid&&!S.cfg.youtube&&!S.user?.admin){showYoutubeImport(yid);track('youtube_file_fallback',{reason:'maintenance'});return;}
   if (!S.user) { toast('Para colar link, crie sua conta grátis. Sem cadastro, use "Enviar arquivo".', 5000); openAuth('signup', () => $('#fetchInfo').click()); return; }
   const btn = $('#fetchInfo'); btn.disabled = true; btn.textContent = 'Buscando…'; showLinkErr('');
   try {
+    if(yid)track('youtube_beta_attempt',{stage:'metadata'});
     const info = await api('/api/info', { url:yid?'https://www.youtube.com/watch?v='+yid:url });
     if($('#url').value.trim()!==url)return;
-    if(yid&&info.import_required){showYoutubeImport(yid,info);return;}
+    if(yid&&info.import_required){track('youtube_beta_failed',{stage:'metadata',reason:info.import_reason||'unavailable'});showYoutubeImport(yid,info);return;}
+    if(yid)track('youtube_beta_ready',{stage:'metadata'});
     S.link = info;
     $('#liThumb').src = info.thumbnail || ''; $('#liThumb').classList.toggle('hidden', !info.thumbnail); $('#linkInfo').style.gridTemplateColumns = info.thumbnail ? '' : '1fr';
     $('#liTitle').textContent = info.title;
@@ -2567,7 +2569,7 @@ $('#fetchInfo').onclick = async () => {
     $('#importQuality').value='720';
     [...$('#liMin').options].forEach(o => o.disabled = +o.value > info.max_live_minutes);
     $('#linkInfo').classList.remove('hidden');
-  } catch (e) { if($('#url').value.trim()===url){S.link = null; if(yid){showYoutubeImport(yid);}else showLinkErr(e.message);} }
+  } catch (e) { if($('#url').value.trim()===url){S.link = null; if(yid){track('youtube_beta_failed',{stage:'metadata',reason:'request'});showYoutubeImport(yid);}else showLinkErr(e.message);} }
   finally {btn.disabled = false; btn.textContent = 'Buscar'; updateGo();}
 };
 // ---------- seletor de tempo em rolagem (passos de 30 s) ----------
@@ -3253,6 +3255,7 @@ function renderPrices() {
 async function loadConfig() {
   try { S.cfg = Object.assign(S.cfg, await api('/api/config')); } catch { }
   document.body.classList.toggle('yt-off', !S.cfg.youtube);
+  const ytChip=document.querySelector('.ytchip .ytm');if(ytChip)ytChip.textContent=(S.cfg.youtube||S.user?.admin)?'Beta':'Em breve';
   renderPrices();
   document.querySelectorAll('[data-support]').forEach(el => el.textContent = S.cfg.support_email || 'pelo e-mail de suporte do site');
   $('#gBtn').classList.toggle('hidden', !S.cfg.google); $('#gOr').classList.toggle('hidden', !S.cfg.google);
@@ -3263,6 +3266,8 @@ async function loadMe() {
 function setUser(u) {
   const wasId = S.user && S.user.id;
   S.user = u;
+  const ytBeta=!!S.cfg.youtube || !!u?.admin;
+  const ytChip=document.querySelector('.ytchip .ytm');if(ytChip)ytChip.textContent=ytBeta?'Beta':'Em breve';
   if (!u || u.id !== wasId) S.remoteCache=null;
   if (!u || u.id !== wasId) { clearWorkspace(); S.creatorLevel = null; S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
@@ -4686,7 +4691,10 @@ function gotoCreate() { if (S.user || guestOk()) location.hash = '#criar'; else 
     if (!/^https?:\/\//i.test(v)) { err('Cole um link completo, começando com https://'); return; }
     const yid=youtubeVideoId(v);
     if(isYoutubeHost(v)&&!yid){err('Cole o link de um vídeo, Short ou live específica do YouTube.');return;}
-    if(yid&&!S.cfg.youtube){err('YouTube: em breve. Use Twitch, Kick ou envie um arquivo de vídeo.');return;}
+    if(yid&&!S.cfg.youtube&&!S.user?.admin){
+      track('youtube_file_fallback',{reason:'maintenance',lp:'hero'});
+      location.hash='#criar';setTimeout(()=>{document.querySelector('.tab[data-tab="link"]').click();$('#url').value=v;$('#fetchInfo').click();},120);return;
+    }
     if (!PLAT_RE.twitch.test(v) && !PLAT_RE.kick.test(v) && !PLAT_RE.youtube.test(v)) { err('Por enquanto aceitamos links da Twitch e da Kick. Você também pode enviar o arquivo do vídeo.'); return; }
     track('source_selected', { src: 'link', lp: 'hero' });
     const go = () => { location.hash = '#criar'; setTimeout(() => { document.querySelector('.tab[data-tab="link"]').click(); $('#url').value = v; $('#url').dispatchEvent(new Event('input')); $('#fetchInfo').click(); }, 120); };

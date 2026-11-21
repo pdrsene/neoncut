@@ -124,7 +124,7 @@ def youtube_reference(url: str) -> dict:
     return result
 
 
-def check_url(url: str) -> str:
+def check_url(url: str, allow_yt_beta: bool = False) -> str:
     url = (url or "").strip()
     if not re.match(r"^https?://", url):
         raise HTTPException(400, "Cole um link completo, começando com https://")
@@ -134,7 +134,7 @@ def check_url(url: str) -> str:
     if p == "youtube":
         if not youtube_canonical(url):
             raise HTTPException(400,"Cole um link de vídeo, Short ou live específica do YouTube.")
-        if not accounts.YT_ENABLED:
+        if not accounts.YT_ENABLED and not allow_yt_beta:
             raise HTTPException(400, accounts.YT_MAINT_MSG)
     return p or "outro"
 
@@ -308,7 +308,7 @@ class InfoReq(BaseModel):
 def info(body: InfoReq, req: Request):
     u = accounts.current_user(req)
     plan = accounts.plan_info(u)
-    plat = check_url(body.url)
+    plat = check_url(body.url, allow_yt_beta=u["email"].lower() in accounts.ADMINS)
     if plat=="youtube":
         body.url=youtube_canonical(body.url)
         with LOCK:
@@ -464,7 +464,7 @@ def create_job(body: JobReq, req: Request):
     u = accounts.current_user(req)
     plan = accounts.plan_info(u)
     max_min, max_live = min(MAX_MINUTES, plan["max_minutes"]), min(MAX_LIVE_MINUTES, plan["max_live_minutes"])
-    plat = check_url(body.url)
+    plat = check_url(body.url, allow_yt_beta=u["email"].lower() in accounts.ADMINS)
     if plat=="youtube":body.url=youtube_canonical(body.url)
     if body.quality not in (480,720) or not math.isfinite(body.start) or (body.end is not None and not math.isfinite(body.end)):
         raise HTTPException(400,"Qualidade ou trecho inválido.")
