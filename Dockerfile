@@ -18,7 +18,7 @@ RUN (npx -y html-minifier-terser@7 --collapse-whitespace --remove-comments --min
 FROM python:3.12-slim
 
 # ffmpeg corta e converte os vídeos
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates curl unzip fonts-dejavu-core \
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates curl unzip fonts-dejavu-core git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -26,7 +26,17 @@ COPY server/requirements.txt server/requirements.txt
 RUN pip install --no-cache-dir -r server/requirements.txt
 
 # deno é usado pelo yt-dlp no YouTube (se falhar, o resto funciona igual)
-RUN pip install --no-cache-dir deno || (curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh -s -- -y) || echo "deno nao instalado"
+RUN (curl -fsSL -o /tmp/deno-install.sh https://deno.land/install.sh \
+    && DENO_INSTALL=/usr/local sh /tmp/deno-install.sh -y) \
+    || pip install --no-cache-dir deno \
+    || echo "deno indisponivel (YouTube pode ter funcionalidade limitada)"
+RUN pip install --no-cache-dir "yt-dlp-ejs" "bgutil-ytdlp-pot-provider==2.0.2" \
+    || echo "Provider novo indisponivel: o provider anterior permanece como reserva"
+# Try current first-party maintained PO token provider; old Rust provider remains available.
+RUN (git clone -q --depth 1 --branch 2.0.2 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /app/yt-pot \
+    && cd /app/yt-pot/server \
+    && deno install --allow-scripts=npm:canvas --frozen) \
+    || (rm -rf /app/yt-pot && echo "Provider Deno indisponivel; usando fallback antigo")
 
 # provedor de "PO token" do YouTube (passa na verificação anti-robô em servidores de nuvem).
 # Binário pronto + plugin do yt-dlp. Se o download falhar, o resto funciona igual.
@@ -46,4 +56,10 @@ COPY --from=webmin /w/web web
 ENV DATA_DIR=/tmp/neoncut PORT=8000
 EXPOSE 8000
 # atualiza o yt-dlp a cada início (as plataformas mudam com frequência)
-CMD pip install -q -U "yt-dlp[default]" ; (command -v bgutil-pot >/dev/null && bgutil-pot server --host 127.0.0.1 --port 4416 >/tmp/bgutil.log 2>&1 &) ; uvicorn server.app:app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips="*"
+CMD pip install -q -U "yt-dlp[default]" "yt-dlp-ejs" || true ; \
+    (if test -f /app/yt-pot/server/src/main.ts && command -v deno >/dev/null; then \
+       cd /app/yt-pot/server/node_modules && deno run --allow-env --allow-net --allow-ffi=. --allow-read=. ../src/main.ts --port 4416 >/tmp/bgutil.log 2>&1; \
+     elif command -v bgutil-pot >/dev/null; then \
+       bgutil-pot server --host 127.0.0.1 --port 4416 >/tmp/bgutil.log 2>&1; \
+     fi) & \
+    uvicorn server.app:app --host 0.0.0.0 --port ${PORT} --proxy-headers --forwarded-allow-ips="*"

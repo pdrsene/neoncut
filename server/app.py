@@ -153,9 +153,12 @@ def is_bot_check(text: str) -> bool:
 
 
 def ytdlp_base(url: str = "", alt: bool | None = None) -> list[str]:
+    yt = bool(url and is_youtube(url))
+    # Conservative retry/concurrency on YouTube; the datacenter IP may be rate-limited.
     cmd = ["yt-dlp", "--no-playlist", "--no-warnings", "--ignore-config", "--force-ipv4",
-           "-N", "8",  # baixa até 8 pedaços em paralelo (Twitch/Kick/YouTube em HLS/DASH)
-           "--socket-timeout", "20", "--retries", "5", "--fragment-retries", "10"]
+           "-N", "2" if yt else "8",
+           "--socket-timeout", "20", "--retries", "2" if yt else "5",
+           "--fragment-retries", "3" if yt else "10"]
     if url and is_youtube(url) and (alt if alt is not None else time.time() < _yt_alt_until):
         cmd += ["--extractor-args", YT_ALT_CLIENTS]
     if Path("/app/yt-plugins").exists():  # plugin do provedor de PO token (YouTube)
@@ -206,6 +209,10 @@ app.include_router(workspace.router)
 @app.on_event('startup')
 def start_workspace():
     workspace.start_worker()
+    # One bounded, non-blocking YouTube import smoke test on every deployment.
+    # Results are diagnostic only; the public feature flag remains independent.
+    if os.environ.get('YT_SMOKE_TEST', '1') == '1':
+        threading.Thread(target=youtube_smoke_test, daemon=True, name='youtube-smoke-test').start()
 
 
 @app.middleware("http")
@@ -354,6 +361,54 @@ def info(body: InfoReq, req: Request):
         "max_minutes": min(MAX_MINUTES, plan["max_minutes"]),
         "max_live_minutes": min(MAX_LIVE_MINUTES, plan["max_live_minutes"]),
     }
+
+
+def youtube_smoke_test():
+    """Probe the production egress IP at startup without user data or an open diagnostic endpoint.
+
+    Tests public metadata and a tiny bounded media transfer. Never logs extractor output,
+    URLs, cookies or tokens; and never changes the YouTube feature flag automatically.
+    """
+    import logging
+    import tempfile
+    logger = logging.getLogger("uvicorn.error")
+    url = "https://www.youtube.com/watch?v=jNQXAC9IVRw"
+    time.sleep(8)  # let the local PO-token provider start
+    provider = False
+    try:
+        from urllib.request import urlopen
+        with urlopen("http://127.0.0.1:4416/ping", timeout=3) as res:
+            provider = res.status == 200
+    except Exception:
+        pass
+    runtime = bool(shutil.which("deno"))
+    for name, alt in (("default", False), ("alternative", True)):
+        try:
+            cmd = ytdlp_base(url, alt=alt) + ["--simulate", "--no-playlist",
+                                            "--print", "id", "-f", "b[height<=360]/b", url]
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=45)
+            ok = result.returncode == 0 and "jNQXAC9IVRw" in result.stdout
+            reason = "ok" if ok else youtube_failure_kind(result.stderr or result.stdout)
+            logger.info("YT_SMOKE metadata=%s client=%s provider=%s deno=%s", reason, name, provider, runtime)
+            if not ok:
+                continue
+            try:
+                with tempfile.TemporaryDirectory(prefix="yt-smoke-", dir=str(DATA)) as folder:
+                    # --test limits transferred bytes; no video is retained.
+                    dlcmd = ytdlp_base(url, alt=alt) + [
+                        "--test", "--no-playlist", "--max-filesize", "3000000",
+                        "-f", "b[height<=360]/b", "-o", str(Path(folder) / "test.%(ext)s"), url]
+                    download = subprocess.run(dlcmd, capture_output=True, text=True, timeout=70)
+                    got = any(f.is_file() and f.stat().st_size >= 1024 for f in Path(folder).iterdir())
+                    status = "ok" if download.returncode == 0 and got else youtube_failure_kind(download.stderr or download.stdout)
+                    logger.info("YT_SMOKE media=%s client=%s", status, name)
+            except (OSError, subprocess.TimeoutExpired):
+                logger.warning("YT_SMOKE media=timeout client=%s", name)
+            break
+        except subprocess.TimeoutExpired:
+            logger.warning("YT_SMOKE metadata=timeout client=%s", name)
+        except OSError:
+            logger.warning("YT_SMOKE metadata=extractor_unavailable client=%s", name)
 
 
 @app.get("/api/diag/yt")
