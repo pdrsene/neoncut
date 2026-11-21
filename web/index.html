@@ -1080,7 +1080,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     </div>
     <div class="fhint adv-only" id="focusHint">Ganchos curtos e virais — picos de emoção, reações e viradas.</div>
 
-    <p class="note quick-only" style="margin:16px 0 -8px">Personalize seus cortes: toque em qualquer configuração abaixo.</p>
+    <p class="note quick-only" style="margin:16px 0 -8px">Escolha os cortes, a duração e um dos três templates. Sem legendas e sem marca d’água.</p>
     <div class="autobox quick-only" id="autoBox"></div>
     <div class="secq adv-only"><i>⏱️</i> Duração de cada corte<span class="cnt" id="durEst"></span></div>
     <div class="durtabs adv-only" id="durTabs">
@@ -2696,6 +2696,7 @@ $('#go').onclick = async () => {
   go.disabled = false;
   const turbo = $('#upload').classList.contains('quick');
   $('#optModel').value=turbo?'none':'tiny';
+  if(!TEMPLATES.some(t=>t.id===$('#optTpl').value))$('#optTpl').value='stream';
   S.settings = { turbo, D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: !turbo && $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: turbo || ($('#optSilence') ? $('#optSilence').checked : true) };
   if (S.settings.tpl === 'raw') S.settings.model = 'none'; // formato original não renderiza legendas
   if (sample) { S.settings.N = S.sample.has_audio ? 2 : 3; S.settings.D = Math.min(S.sample.has_audio ? 12 : 30, S.settings.D); if (S.sample.builtin && !S.sample.has_audio) S.settings.model = 'none'; }
@@ -3059,7 +3060,7 @@ function renderTpls() {
   document.querySelectorAll('.tpl').forEach(b => { renderFrame(bx, pv, S.cur, pv.currentTime, b.dataset.t); b.querySelector('canvas').getContext('2d').drawImage(big, 0, 0, 135, 240); });
   $('#secCam').style.opacity = 1;
 }
-$('#tpls').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; if (!isPro() && !FREE_TPLS.includes(b.dataset.t)) { openUpgrade('O template ' + tplById(b.dataset.t).name + ' é do plano Pro.'); return; } S.cur.tpl = b.dataset.t; document.querySelectorAll('.tpl').forEach(x => x.classList.toggle('on', x === b)); drawPreview(); });
+$('#tpls').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; if (!isPro() && !FREE_TPLS.includes(b.dataset.t)) { openUpgrade('O template ' + tplById(b.dataset.t).name + ' é do plano Pro.'); return; } S.cur.tpl = b.dataset.t; S.cur.showTitle = b.dataset.t === 'stream'; $('#inShowTitle').checked=S.cur.showTitle; document.querySelectorAll('.tpl').forEach(x => x.classList.toggle('on', x === b)); drawPreview(); });
 $('#inTitle').oninput = e => { S.cur.title = e.target.value; drawPreview(); };
 let salt = 1; $('#newTitle').onclick = () => { S.cur.title = suggestTitle(S.cur, salt++); $('#inTitle').value = S.cur.title; drawPreview(); };
 $('#inShowTitle').onchange = e => { S.cur.showTitle = e.target.checked; drawPreview(); };
@@ -3680,8 +3681,7 @@ for (const id of ['#optDur', '#optN', '#optModel']) $(id).addEventListener('chan
 })();
 function applyKitToForm() {
   const bk = brandKit();
-  if (TEMPLATES.some(t => t.id === bk.tpl)) $('#optTpl').value = (isPro() || FREE_TPLS.includes(bk.tpl)) ? bk.tpl : 'stream';
-  else if (!isPro()) $('#optTpl').value = 'stream';
+  $('#optTpl').value = TEMPLATES.some(t=>t.id===bk.tpl)?bk.tpl:'stream';
   renderOpts();
   renderTplPick();
 }
@@ -3770,7 +3770,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnim
 document.addEventListener('pointerdown',()=>{for(const v of realPreviewMedia.values())if(v._ncBlocked){v._ncBlocked=false;}startPreviewLoop();},{passive:true});
 function renderTplPick() {
   const box = $('#tplPick'); if (!box) return;
-  const cur = $('#optTpl').value;
+  const cur = TEMPLATES.some(t=>t.id===$('#optTpl').value)?$('#optTpl').value:'stream';
   box.innerHTML = TEMPLATES.map(t => `<button type="button" data-pt="${t.id}" class="${t.id === cur ? 'on' : ''}"><canvas width="270" height="480"></canvas>${!isPro() && !FREE_TPLS.includes(t.id) ? '<span class="badge">🔒 PRO</span>' : ''}<span>${t.name}</span><small>${TPL_DESC[t.id] || ''}</small></button>`).join('');
   box.querySelectorAll('[data-pt]').forEach(b => paint(b.querySelector('canvas'), b.dataset.pt));
   if ($('#autoBox')?.dataset.ready) renderAutoBox();
@@ -4149,7 +4149,7 @@ $('#advPb').addEventListener('click', async e => {
   const sp = t.closest('.tr-text span[data-i]'); if (sp && !sp.querySelector('input')) { ADV.sel = +sp.dataset.i; advSeek(c.words[ADV.sel].start); document.querySelectorAll('#advPb .tr-text span.sel, #tlInner .tl-word.sel').forEach(x => x.classList.remove('sel')); sp.classList.add('sel'); document.querySelector(`#tlInner .tl-word[data-i="${ADV.sel}"]`)?.classList.add('sel'); return; }
   const sk = t.closest('[data-seek]'); if (sk) { advSeek(+sk.dataset.seek); return; }
   const dl = t.closest('[data-dl]'); if (dl && ADV._lines) { advPush(); const l = ADV._lines[+dl.dataset.dl]; c.words = c.words.filter(w => !l.words.includes(w)); advWordsChanged(); advRenderAll(); return; }
-  const tp = t.closest('[data-tp]'); if (tp) { if (!isPro() && !FREE_TPLS.includes(tp.dataset.tp)) return; advPush(); c.tpl = tp.dataset.tp; advPanel('templates'); advDraw(); return; }
+  const tp = t.closest('[data-tp]'); if (tp) { if (!isPro() && !FREE_TPLS.includes(tp.dataset.tp)) return; advPush(); c.tpl = tp.dataset.tp; c.showTitle = c.tpl==='stream'; advPanel('templates'); advDraw(); return; }
   if (t.id === 'advNewTitle') { advPush(); c.title = suggestTitle(c, Math.floor(Math.random() * 9) + 1); advRenderAll(); return; }
   if (t.id === 'advTrans' && (S.capRunning || S.fullScanning)) { toast('As legendas deste corte já estão sendo geradas…'); return; }
   if (t.id === 'advTrans') { t.disabled = true; t.textContent = '🎙 Legendando…'; try { if (!S.asrInfo) await loadASR(S.settings.model && S.settings.model !== 'none' ? S.settings.model : 'base'); advPush(); await transcribeClip(c); advWordsChanged(); advRenderAll(); } catch (err) { toast('Não consegui legendar: ' + err.message, 5000); t.disabled = false; t.textContent = '🎙 Gerar legendas'; } }
@@ -4799,7 +4799,7 @@ function syncQuickDuration() {
 function renderAutoBox() {
   const box = $('#autoBox'); if (!box) return;
   box.dataset.ready = '1';
-  const tpl = $('#optTpl').value, raw = tpl === 'raw', active = document.activeElement?.dataset.quick;
+  let tpl = $('#optTpl').value; if(!TEMPLATES.some(t=>t.id===tpl)){tpl='stream';$('#optTpl').value=tpl;} const raw=tpl==='raw',active=document.activeElement?.dataset.quick;
   if (!raw) S.quickVerticalTpl = tpl;
   const opts = (id, label) => [...$(id).options].map(o => [o.value, label(o)]);
   const item = (key, label, value, choices, disabled = false) => `<label><span>${label}</span><select data-quick="${key}" aria-label="${label}" ${disabled ? 'disabled' : ''}>${choices.map(([v, t]) => `<option value="${esc(v)}" ${v === value ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
