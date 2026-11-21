@@ -98,6 +98,7 @@ input[type=range]{accent-color:var(--pink)}
 .clip{background:var(--card2);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:.15s}
 .clip:hover{transform:translateY(-3px);border-color:var(--pink)}
 .clip .thumb{position:relative;aspect-ratio:9/16;background:#000}
+#upload label.f:has(#optModel),#upload label.f:has(#optLang),#modal .sec:has(#capInfo),#advTools [data-p="legendas"],#advTools [data-p="estilo"],#bkEmoji{display:none!important}
 .clip canvas{width:100%;height:100%;display:block}
 .clip .thumb-play{position:absolute;inset:0;background:transparent;border:0;display:grid;place-items:center;color:#fff;cursor:pointer;padding:0}
 .clip .thumb-play span{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid #ffffff70;font-size:23px}
@@ -911,7 +912,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       <div class="home-copy">
         <p class="kick"><span class="home-dot"></span> O estúdio de quem cria cortes</p>
         <h1 id="homeTitle">Sua próxima live.<br>Seus próximos <em>cortes.</em></h1>
-        <p class="lead">Transforme horas de gameplay em vídeos verticais com IA. Encontre momentos, personalize legendas e publique no seu ritmo.</p>
+        <p class="lead">Transforme vídeos longos em cortes prontos para postar. Três templates, prévia instantânea e vídeos sem marca d’água.</p>
         <div class="home-pills"><span>TikTok</span><span>Instagram Reels</span><span>YouTube Shorts</span></div>
         <form class="hx-form" id="hxForm" novalidate>
           <label for="hxUrl" class="sr">Link da live ou do vídeo</label>
@@ -955,7 +956,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       <div class="dgrid" id="demoGrid"><p class="note">Carregando exemplos…</p></div>
       <h3 style="margin:36px 0 6px;text-align:center">Os visuais disponíveis</h3>
       <p class="sub" style="text-align:center">Templates prontos. Ou use "Só o corte" para receber o trecho no formato original.</p>
-      <p class="note">Prévias de gameplay real · legendas ilustrativas.</p><div class="showcase" id="showcase"></div>
+      <p class="note">Três templates sem legendas.</p><div class="showcase" id="showcase"></div>
     </section>
 
     <section class="lp-sec" id="como">
@@ -1123,8 +1124,8 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       </div>
     </div>
 
-    <div class="stylehead adv-only"><i>🎨</i> Estilo da legenda e visual<span class="all" id="moreTplToggle"></span></div>
-    <p class="note adv-only">Prévias com gameplay real · texto de legenda ilustrativo.</p><div class="tplpick adv-only" id="tplPick"></div>
+    <div class="stylehead adv-only"><i>🎨</i> Estilo do corte e visual<span class="all" id="moreTplToggle"></span></div>
+    <p class="note adv-only">Três templates sem legendas ou marca d’água.</p><div class="tplpick adv-only" id="tplPick"></div>
     <input type="hidden" id="optTpl" value="stream">
     <p class="note adv-only" style="margin:8px 0 0">Dá para trocar e ajustar cada corte depois, no editor.</p>
 
@@ -1156,7 +1157,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 
   <section class="panel hidden" id="proc">
     <h2>Cortando seu gameplay…</h2>
-    <p class="sub">Deixe esta aba aberta. Na primeira vez, a IA de legendas é baixada e fica salva no navegador.</p>
+    <p class="sub">Procurando os momentos mais interessantes. Mantenha esta aba aberta durante a análise.</p>
     <p class="note" id="procDetail" role="status">Preparando a análise…</p><div class="steps" id="steps"></div>
     <div class="bar"><i id="pbar"></i></div>
   </section>
@@ -1281,7 +1282,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
   <main id="vTerms" class="view hidden legal">
     <h2>Termos de uso</h2>
     <p>Ao usar o NEONCUT você concorda com estes termos.</p>
-    <h4>1. O serviço</h4><p>O NEONCUT ajuda a criar cortes de vídeos: detecta momentos, gera legendas e exporta vídeos verticais. O processamento acontece no seu navegador. Downloads por link são feitos pelo nosso servidor apenas para entregar o vídeo a você.</p>
+    <h4>1. O serviço</h4><p>O NEONCUT ajuda a criar cortes de vídeos: detecta momentos e exporta cortes com templates simples, sem legendas nem marca d’água. O processamento acontece no seu navegador. Downloads por link são feitos pelo nosso servidor apenas para entregar o vídeo a você.</p>
     <h4>2. Seu conteúdo</h4><p>Você declara ter os direitos, ou a autorização do titular, sobre os vídeos que processa e publica. Não use o serviço para violar direitos autorais, termos de plataformas ou leis. Podemos suspender contas que fizerem uso abusivo.</p>
     <h4>3. Planos e pagamentos</h4><p>O plano Pro é pré-pago, por 30 ou 365 dias, via Mercado Pago, sem renovação automática. As cotas mensais renovam no dia 1 de cada mês. Pedidos de reembolso podem ser feitos em até 7 dias após a compra, conforme o Código de Defesa do Consumidor.</p>
     <h4>4. Disponibilidade</h4><p>Plataformas de vídeo podem bloquear downloads automáticos a qualquer momento. Não garantimos o funcionamento com todas as plataformas e links.</p>
@@ -1606,17 +1607,13 @@ const TITLE_KINDS = [
   { id: 'meme', name: 'MEME', css: 'font-family:Anton;color:#000;background:#fff;padding:2px 8px' },
   { id: 'clean', name: 'LIMPO', css: 'font-family:Anton;color:#fff;-webkit-text-stroke:1px #000;text-shadow:0 2px 0 #000' },
 ];
-const TPL_DESC = { neon: 'Fundo desfocado e legenda neon', fuga: 'Tela cheia com faixa de alerta', stream: 'Facecam em cima, jogo embaixo, com título', stream_nt: 'Facecam em cima, jogo embaixo, sem título', cinema: 'Faixas de cinema e legenda limpa', meme: 'Faixa branca de meme', raw: 'Formato original, sem edição' };
+const TPL_DESC = { stream:'Webcam em cima e gameplay embaixo, com título',stream_nt:'Webcam em cima e gameplay embaixo, sem título',raw:'Vídeo original, sem título e sem edição' };
 const TEMPLATES = [
-  { id: 'neon',   name: 'Neon Sunset',   layout: 'blur',    caption: 'neon',    title: 'sunset', progress: true,  punch: true },
-  { id: 'fuga',   name: 'Fuga 5 Estrelas', layout: 'full',  caption: 'shorts',  title: 'alert',  progress: true,  punch: true },
-  { id: 'stream', name: 'Webcam do Streamer', layout: 'facecam', caption: 'shorts',  title: 'sunset', progress: true,  punch: false },
-  { id: 'stream_nt', name: 'Webcam sem título', layout: 'facecam', caption: 'shorts', title: 'none', progress: true,  punch: false },
-  { id: 'cinema', name: 'Cinema',        layout: 'cinema',  caption: 'minimal', title: 'cinema', progress: false, punch: false },
-  { id: 'meme',   name: 'Meme Bruto',    layout: 'blur',    caption: 'meme',    title: 'meme',   progress: false, punch: true },
-  { id: 'raw',    name: 'Só o corte',    layout: 'raw',     caption: 'shorts',  title: 'none',   progress: false, punch: false },
+ {id:'stream',name:'Webcam + Gameplay + Título',layout:'facecam',caption:'shorts',title:'sunset',progress:true,punch:false},
+ {id:'stream_nt',name:'Webcam + Gameplay',layout:'facecam',caption:'shorts',title:'none',progress:true,punch:false},
+ {id:'raw',name:'Vídeo original',layout:'raw',caption:'shorts',title:'none',progress:false,punch:false}
 ];
-const FREE_TPLS_EARLY = ['raw', 'stream', 'stream_nt'];
+const FREE_TPLS_EARLY=['stream','stream_nt','raw'];
 const tplById = id => TEMPLATES.find(t => t.id === id) || TEMPLATES[0];
 
 // ---------------- Títulos ----------------
@@ -2226,7 +2223,7 @@ function renderFrame(ctx, v, clip, t, tplId) {
     const fh = W * vh / vw, y = (H - fh) / 2; ctx.drawImage(v, 0, 0, vw, vh, 0, y, W, fh);
     ctx.font = '700 44px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.6)';
     ctx.fillText('Formato original · sem edição', W / 2, y + fh + 90);
-    if (S.plan && S.plan.watermark && !S._preview) { ctx.font = '800 34px Inter, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillText('✂ Feito com NEONCUT', W / 2, y - 50); }
+    if (false && S.plan && S.plan.watermark && !S._preview) { ctx.font = '800 34px Inter, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillText('✂ Feito com NEONCUT', W / 2, y - 50); }
     ctx.restore(); return;
   }
   const z = punchZoom(clip, t, tpl), pan = (clip.pan || 0) / 100;
@@ -2259,9 +2256,9 @@ function renderFrame(ctx, v, clip, t, tplId) {
   }
   clip._bbTitle = null; clip._bbCap = null;
   if (clip.showTitle !== false && (clip.titleEnd == null || t - clip.start <= clip.titleEnd)) drawTitle(ctx, clip.title, clip.titleKind || tpl.title, t - clip.start, clip);
-  if (clip.showCaps !== false && clip.words.length) drawCaptions(ctx, clip, t, tpl, capY);
+  // Legendas desativadas na exportação e na prévia.
   if (clip.handle) { ctx.font = '700 38px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(clip.handle, W / 2, H - (S.plan && S.plan.watermark && !S._preview ? 200 : 120)); }
-  if (S.plan && S.plan.watermark && !S._preview) {
+  if (false && S.plan && S.plan.watermark && !S._preview) {
     ctx.save(); ctx.font = '800 34px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const tx = '✂ Feito com NEONCUT', tw = ctx.measureText(tx).width + 44, y = H - 120;
     ctx.fillStyle = 'rgba(13,6,24,.72)'; roundRect(ctx, W / 2 - tw / 2, y - 30, tw, 60, 30); ctx.fill();
@@ -2348,7 +2345,7 @@ async function fastExportClip(clip, onProg) {
             if(raw){
               ctx.setTransform(1,0,0,1,0,0);
               ctx.drawImage(fr,0,0,canvas.width,canvas.height);
-              if(S.plan?.watermark){
+              if(false && S.plan?.watermark){
                 const fs=Math.round(canvas.height*.035);
                 ctx.font='800 '+fs+'px Inter, sans-serif';ctx.textAlign='right';ctx.lineWidth=fs/6;
                 ctx.strokeStyle='rgba(0,0,0,.6)';ctx.strokeText('✂ NEONCUT',canvas.width-fs,canvas.height-fs);
@@ -2400,7 +2397,7 @@ async function exportClipRealtime(clip, onProg) {
     const k = short / Math.min(vw, vh); canvas.width = Math.round(vw * k / 2) * 2; canvas.height = Math.round(vh * k / 2) * 2;
     draw = t => {
       ctx.drawImage(ev, 0, 0, canvas.width, canvas.height);
-      if (S.plan && S.plan.watermark) { const fs = Math.round(canvas.height * .035); ctx.font = `800 ${fs}px Inter, sans-serif`; ctx.textAlign = 'right'; ctx.lineWidth = fs / 6; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText('✂ NEONCUT', canvas.width - fs, canvas.height - fs); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('✂ NEONCUT', canvas.width - fs, canvas.height - fs); }
+      if (false && S.plan && S.plan.watermark) { const fs = Math.round(canvas.height * .035); ctx.font = `800 ${fs}px Inter, sans-serif`; ctx.textAlign = 'right'; ctx.lineWidth = fs / 6; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeText('✂ NEONCUT', canvas.width - fs, canvas.height - fs); ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillText('✂ NEONCUT', canvas.width - fs, canvas.height - fs); }
     };
   } else {
     const sc = q / W; canvas.width = q; canvas.height = Math.round(H * sc); ctx.setTransform(sc, 0, 0, sc, 0, 0);
@@ -2698,6 +2695,7 @@ $('#go').onclick = async () => {
   catch (e) { go.disabled = false; track('generation_failed', { code: e.status ? 'http' + e.status : 'start', stage: 'inicio', msg: shortMsg(e), mode: S.mode }); if (e.status === 402) openUpgrade(e.message); else if (e.status !== 401) { if (S.mode === 'link') showLinkErr(e.message); else toast(e.message, 5000); } return; }
   go.disabled = false;
   const turbo = $('#upload').classList.contains('quick');
+  $('#optModel').value=turbo?'none':'tiny';
   S.settings = { turbo, D: +$('#optDur').value, N: +$('#optN').value, model: $('#optModel').value, lang: $('#optLang').value, tpl: $('#optTpl').value, visual: !turbo && $('#optVisual').checked, focus: S.focus || 'viral', hook: $('#optHook').checked, sens: +($('#optSens')?.value || 3), boostVoice: !!$('#optVoice')?.checked, snapSilence: turbo || ($('#optSilence') ? $('#optSilence').checked : true) };
   if (S.settings.tpl === 'raw') S.settings.model = 'none'; // formato original não renderiza legendas
   if (sample) { S.settings.N = S.sample.has_audio ? 2 : 3; S.settings.D = Math.min(S.sample.has_audio ? 12 : 30, S.settings.D); if (S.sample.builtin && !S.sample.has_audio) S.settings.model = 'none'; }
@@ -2741,7 +2739,7 @@ async function pipelineRun(skip) {
     : visualFeatures(av, S.duration, p => step(4, 'active', Math.round(p * 100) + '%'), S.file).then(v => { step(4, 'done'); mark('imagem'); lap.players = v && v.K; return v; });
   let [, V] = await Promise.all([audioJob, visJob]);
   if(S.settings.turbo && !S.pcm) { await ensureSrc(av,S.url); $('#st4')?.classList.remove('hidden'); step(4,'active'); V=await visualFeatures(av,S.duration,p=>step(4,'active',Math.round(p*100)+'%'),S.file); step(4,'done'); }
-  if(wantCaps && (lowMemory || S.settings.turbo)){onDl=capDlProgress;asrP=S.asrInfo&&S.asrInfo.size===S.settings.model?Promise.resolve(S.asrInfo):loadASR(S.settings.model);asrP.then(()=>step(6,'done'),()=>step(6,'done'));}
+  if(wantCaps && lowMemory && !S.settings.turbo){onDl=capDlProgress;asrP=S.asrInfo&&S.asrInfo.size===S.settings.model?Promise.resolve(S.asrInfo):loadASR(S.settings.model);asrP.then(()=>step(6,'done'),()=>step(6,'done'));}
   // momentos
   step(5, 'active');
   const D = Math.min(S.settings.D, S.duration);
@@ -2758,13 +2756,13 @@ async function pipelineRun(skip) {
     else if(S.clips.length<S.settings.N) selectionNote='Mostrando apenas momentos que atingiram 60 pontos.';
   }else S.clips=pool;
   const kit = brandKit();
-  const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { credit: _cr, hookOn: !S.settings.turbo, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
+  const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { credit: _cr, hookOn: false, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: S.settings.tpl==='stream', showCaps: false, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
   S.clips.sort((a, b) => b.score - a.score); S.clips.forEach((c, i) => c.idx = i);
   autoTitles(S.clips);
   step(5, 'done'); mark('momentos');
   // os cortes aparecem AGORA; as legendas vão entrando em cada card conforme ficam prontas
-  const capsNow = wantCaps && !!S.pcm && S.clips.some(c => !c.transcribed);
+  const capsNow = false; // Não gerar legenda; o modo avançado usa transcrição apenas para selecionar.
   S.capRunning = capsNow;
   if (capsNow) S.clips.forEach(c => { c._capDone = false; c._capP = new Promise(r => c._capR = r); });
   step(8, 'active');
@@ -2862,8 +2860,8 @@ function showResults(capErr) {
   requestAnimationFrame(() => { const r = $('#results'); if (!r) return; const top = r.getBoundingClientRect().top; if (top < 0 || top > innerHeight * .6) window.scrollTo({ top: Math.max(0, scrollY + top - 70), behavior: 'smooth' }); });
 }
 function resSubText() {
-  const asr = S.asrInfo ? ` · Legendas: ${S.asrInfo.device === 'webgpu' ? 'GPU' : 'CPU'}${S.asrInfo.wordMode ? ', palavra a palavra' : ''}` : '';
-  const provisional = S.capRunning && S.settings?.turbo;
+  const asr = '';
+  const provisional = false;
   return `${S.clips.length} cortes de ${fmt(S.duration)} de vídeo${provisional ? ' · sugestões por intensidade; legendando falas' : ' · nota estimada de viralização'}${asr}. Clique para ajustar.`;
 }
 // A single lazy preview player; the editor and export keep their own players.
@@ -2992,7 +2990,7 @@ async function exportWithUI(list, btn) {
 // ---------------- Editor ----------------
 let raf = 0;
 function openEditor(clip) {
-  stopCardPlayback();
+  stopCardPlayback();clip.showCaps=false;
   S.cur = clip; $('#modal').classList.remove('hidden'); document.body.style.overflow = 'hidden';
   $('#edScore').textContent = '🔥 ' + clip.score;
   $('#inTitle').value = clip.title; $('#inShowTitle').checked = clip.showTitle !== false; $('#inShowCaps').checked = clip.showCaps !== false;
@@ -3220,7 +3218,7 @@ const COLORS = ['#ffcf3c', '#ffe600', '#39ff14', '#29e0d0', '#ff3d8b', '#ff8a3c'
 S.cfg = { intro_months: 1, hd_free_uses: 0, prices: { pro: { intro: 12.9, regular: 19.9 }, proplus: { intro: 29.9, regular: 29.9 } }, limits: { free: { projects: 3, max_minutes: 30, live_minutes: 10, max_clips: 5, max_duration: 45, models: ['none', 'tiny', 'base'], hd: 0 }, pro: { projects: 100, max_minutes: 90, live_minutes: 30, max_clips: 12, max_duration: 60, models: ['none', 'tiny', 'base'], hd: null }, proplus: { projects: 250, max_minutes: 120, live_minutes: 60, max_clips: 20, max_duration: 120, models: ['none', 'tiny', 'base', 'small'], hd: null } } };
 S.exportQ = 720;
 S.user = null;
-S.plan = { plan: 'free', watermark: true, quality: 720, all_templates: false };
+S.plan = { plan: 'free', watermark:false, quality:720, all_templates:true };
 const money = v => Number(v).toFixed(2).replace('.', ',').replace(',00', '');
 const brandKit = () => Object.assign({ handle: '', tpl: isPro() ? 'neon' : 'stream', color: '', emojis: true, tags: '#gta6 #gtavi #gta #gameplay #cortes #viral #fyp' }, (S.user && S.user.settings) || {});
 const isPro = () => S.plan && S.plan.plan !== 'free';
@@ -3267,7 +3265,7 @@ function setUser(u) {
   if (!u || u.id !== wasId) S.remoteCache=null;
   if (!u || u.id !== wasId) { clearWorkspace(); S.creatorLevel = null; S.creator = null; $('#creatorStats').textContent = ''; $('#portfolioLinks').textContent = ''; $('#portfolioName').value=''; $('#portfolioBio').value=''; $('#creatorInvite').value=''; $('#creatorRefStats').textContent=''; $('#portfolioPublic').checked=false; $('#portfolioShare').classList.add('hidden'); }
   if (u && u.id && u.id !== wasId) setTimeout(() => { try { if (!S.demo && localStorage.getItem('nc_fref')) track('visit', { login: 1 }); } catch (e) { } }, 0); // liga a origem (ex.: tiktok) à conta
-  S.plan = u ? Object.assign({}, u) : { plan: 'free', watermark: true, all_templates: false, hd_left: 0, hd_unlimited: false };
+  S.plan = u ? Object.assign({}, u,{watermark:false,all_templates:true}) : { plan:'free', watermark:false,all_templates:true,hd_left:0,hd_unlimited:false };
   if (u && S.project && S.project.guest) setTimeout(claimGuest, 0);
   const gs = document.getElementById('guestSave'); if (gs) gs.classList.toggle('hidden', !!u || !(S.project && S.project.guest));
   if (S.plan.hd_unlimited) S.exportQ = 1080; else if (S.exportQ > 720 && !S.plan.hd_left) S.exportQ = 720;
@@ -3431,7 +3429,7 @@ async function startProject() {
   } else { source = S.file.name; title = S.file.name.replace(/\.[^.]+$/, ''); minutes = (await fileDuration(S.file)) / 60; }
   const r = await api('/api/projects', { source, kind, title, minutes, reuse_id: S.reuseId || null });
   S.project = { id: r.id, kind, source, title, range: S.mode === 'link' && !S.link.is_live ? [$('#liStart').value, $('#liEnd').value] : null, youtube_ref:kind==='file'?S.ytRef||null:null };
-  S.plan = Object.assign(S.plan, r.plan); S.reuseId = null; loadMe();
+  S.plan = Object.assign(S.plan, r.plan,{watermark:false,all_templates:true}); S.reuseId = null; loadMe();
   return r;
 }
 const CLIP_KEYS = ['credit', 'hookOn', 'hookTxt', 'title', 'score', 'cat', 'quote', 'tpl', 'corner', 'camSize', 'camRect', 'pan', 'showTitle', 'showCaps', 'handle', 'emojis', 'capColor', 'capY', 'capStyle', 'capScale', 'titleKind', 'titleY', 'titleScale', 'titleEnd', 'desc', 'transcribed', 'tags'];
@@ -3444,7 +3442,9 @@ function packClip(c) {
 }
 function unpackClip(o, i) {
   const kit = brandKit();
-  const c = Object.assign({ tpl: S.settings.tpl || 'stream', corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: '', capY: null, cat: 'epico', score: 0, title: '' }, o);
+  const c = Object.assign({ tpl:S.settings.tpl||'stream',corner:'br',camSize:25,pan:0,showTitle:true,showCaps:false,handle:kit.handle||'',emojis:false,capColor:'',capY:null,cat:'epico',score:0,title:'' },o);
+  if(!TEMPLATES.some(t=>t.id===c.tpl))c.tpl='stream';
+  c.showCaps=false;if(c.tpl==='stream_nt'||c.tpl==='raw')c.showTitle=false;
   c.idx = i; c.peakT = o.peakT ?? o.start; c.wordsVer = 1; c.lineCache = null;
   c.words = (o.words || []).map(w => Array.isArray(w) ? { text: w[0], start: w[1], end: w[2] } : w);
   if (!c.desc) c.desc = defaultDesc(c);
@@ -3989,7 +3989,7 @@ const advT = () => advPV().currentTime;
 function advWordsChanged() { const c = ADV.clip; c.words.sort((a, b) => a.start - b.start); c.wordsVer = (c.wordsVer || 0) + 1; c.lineCache = null; }
 
 function openAdvanced(clip) {
-  stopCardPlayback();
+  stopCardPlayback();clip.showCaps=false;ADV.panel='templates';
   if (!isPro()) { openUpgrade('O editor avançado com linha do tempo é do Pro e do Pro+.'); return; }
   if (S.cur) closeEditor();
   ADV.open = true; ADV.clip = clip; ADV.hist = []; ADV.fut = []; ADV.sel = -1; ADV.q = '';
@@ -4807,9 +4807,7 @@ function renderAutoBox() {
   box.innerHTML = item('n','Quantidade',$('#optN').value,opts('#optN',o=>o.value+' cortes'+suffix(o)))
     + item('dur','Duração',$('#optDur').value,opts('#optDur',o=>'até '+(+o.value>=60 ? (+o.value/60).toLocaleString('pt-BR')+' min' : o.value+' s')+suffix(o)))
     + item('format','Formato',raw?'raw':'vertical',[['vertical','Vertical 9:16'],['raw','Formato original']])
-    + item('model','Legendas',raw?'none':$('#optModel').value,raw?[['none','Sem legendas']]:opts('#optModel',o=>({none:'Sem legendas',tiny:'Rápidas',base:'Equilibradas',small:'Precisas'}[o.value]||o.textContent)+suffix(o)),raw)
     + item('tpl','Visual',tpl,TEMPLATES.map(t=>[t.id,t.name+(!isPro()&&!FREE_TPLS.includes(t.id)?' · Pro':'')]));
-  if (raw) box.querySelector('[data-quick="model"]').title = 'O formato original não aplica legendas ao vídeo. Escolha formato vertical para usar legendas.';
   if (active) box.querySelector('[data-quick="'+active+'"]')?.focus({preventScroll:true});
 }
 $('#autoBox').addEventListener('change', e => {
@@ -4831,14 +4829,14 @@ $('#autoBox').addEventListener('change', e => {
 function setMode(m, save) {
   const q = m !== 'adv', up = $('#upload'); if (!up) return;
   up.classList.toggle('quick', q);
-  $('#modeDescription').textContent = q ? 'Mais rápido · GTA, gameplays e lives. Seleção por picos de áudio, intensidade e sinais de reação; bordas ajustadas por pausas e legendas apenas nos cortes escolhidos.' : 'Mais detalhado · podcasts, entrevistas e debates. Analisa sinais visuais e falas dos candidatos, classifica os trechos e prioriza o contexto. Pode demorar mais.';
+  $('#modeDescription').textContent = q ? 'Mais rápido · GTA, gameplays e lives. Picos de áudio e reações; sem legendas nem marca d’água.' : 'Mais detalhado · podcasts, entrevistas e debates. Analisa sinais visuais e falas dos candidatos, classifica os trechos e prioriza o contexto. Pode demorar mais.';
   $('#optVisual').checked = !q;
-  if(q && !save && $('#optModel').querySelector('option[value="tiny"]')) $('#optModel').value='tiny';
+  $('#optModel').value=q?'none':'tiny';
   document.querySelectorAll('.modesw [data-mode]').forEach(b => { const on = (b.dataset.mode === 'quick') === q; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
   if (q && !save && !$('#autoBox').dataset.ready) {
     $('#optN').value = '3'; S.durTab = '60'; $('#optDur').value = '60'; $('#durCustomWrap').style.display = 'none';
     document.querySelectorAll('#durTabs [data-dur]').forEach(x => x.classList.toggle('on', x.dataset.dur === '60'));
-    if ([...$('#optModel').options].some(o => o.value === 'tiny')) $('#optModel').value = 'tiny';
+    $('#optModel').value='none';
     $('#optHook').checked = false; if ($('#optSens')) $('#optSens').value = 3; if ($('#optSilence')) $('#optSilence').checked = true;
     $('#optVisual').checked = false;
     renderOpts();
