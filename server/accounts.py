@@ -548,18 +548,61 @@ def update_project(pid: int, body: ProjectUpdate, req: Request):
     if body.clips is not None:
         db().execute("UPDATE projects SET clips=? WHERE id=?", (json.dumps(body.clips)[:800000], pid))
     if body.meta is not None:
-        db().execute("UPDATE projects SET meta=? WHERE id=?", (json.dumps(body.meta)[:20000], pid))
+        # Autosave must not overwrite library favorites/folders/archives changed in another tab.
+        previous = db().execute("SELECT meta FROM projects WHERE id=? AND user_id=?", (pid,u["id"])).fetchone()
+        prev_meta = json.loads(previous["meta"] or "{}") if previous else {}
+        new_meta = dict(body.meta)
+        if isinstance(prev_meta,dict):
+            if isinstance(prev_meta.get("library"),dict):
+                new_meta["library"] = prev_meta["library"]
+            if prev_meta.get("hidden"): new_meta["hidden"] = True
+        db().execute("UPDATE projects SET meta=? WHERE id=?", (json.dumps(new_meta)[:20000], pid))
     return {"ok": True}
 
 
 @router.get("/api/projects")
-def list_projects(req: Request):
+def list_projects(req: Request, limit: int = 60, offset: int = 0):
     u = current_user(req)
-    rows = db().execute("SELECT * FROM projects WHERE user_id=? ORDER BY created DESC LIMIT 60", (u["id"],)).fetchall()
+    limit = max(1,min(100,limit))
+    offset = max(0,min(10000,offset))
+    rows = db().execute("SELECT * FROM projects WHERE user_id=? ORDER BY created DESC,id DESC LIMIT ? OFFSET ?", (u["id"],limit,offset)).fetchall()
     return [{"id": r["id"], "created": r["created"], "source": r["source"], "kind": r["kind"], "title": r["title"],
              "duration": r["duration"], "meta": json.loads(r["meta"] or "{}"), "clips": json.loads(r["clips"] or "[]")}
             for r in rows]
 
+
+class ProjectLibraryUpdate(BaseModel):
+    favorite: bool | None = None
+    archived: bool | None = None
+    folder: str | None = None
+    title: str | None = None
+
+@router.patch("/api/projects/{pid}/library")
+def update_project_library(pid: int, body: ProjectLibraryUpdate, req: Request):
+    u = current_user(req)
+    c = db()
+    row = c.execute("SELECT meta,title FROM projects WHERE id=? AND user_id=?", (pid,u["id"])).fetchone()
+    if not row: raise HTTPException(404,"Projeto não encontrado.")
+    meta = json.loads(row["meta"] or "{}")
+    if not isinstance(meta,dict) or meta.get("hidden"): raise HTTPException(404,"Projeto indisponível.")
+    lib = meta.get("library") or {}
+    if not isinstance(lib,dict): lib = {}
+    if body.favorite is not None: lib["favorite"] = body.favorite
+    if body.archived is not None: lib["archived"] = body.archived
+    if body.folder is not None:
+        folder = body.folder.strip()
+        if len(folder) > 40 or folder not in ("Geral","Clientes","Gameplays","Podcasts","Testes"):
+            raise HTTPException(400,"Pasta inválida.")
+        lib["folder"] = folder
+    title = row["title"]
+    if body.title is not None:
+        title = body.title.strip()
+        if not title or len(title) > 160:
+            raise HTTPException(400,"Use um nome de 1 a 160 caracteres.")
+    meta["library"] = lib
+    c.execute("UPDATE projects SET title=?,meta=? WHERE id=? AND user_id=?",
+              (title,json.dumps(meta)[:20000],pid,u["id"]))
+    return {"ok":True,"title":title,"library":lib}
 
 @router.delete("/api/projects/{pid}")
 def delete_project(pid: int, req: Request):
