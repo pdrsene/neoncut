@@ -3,13 +3,14 @@
 FROM node:20-slim AS webmin
 WORKDIR /w
 COPY web/ web/
+COPY tests/test_web_ui.mjs tests/test_web_ui.mjs
 # Pinned browser-only renderer, served locally; failure leaves the recorder fallback available.
 RUN (npm pack mediabunny@1.66.0 --silent --pack-destination /tmp \
     && tar -xzf /tmp/mediabunny-1.66.0.tgz -C /tmp \
     && cp /tmp/package/dist/bundles/mediabunny.min.mjs web/vendor/mediabunny.min.mjs \
     && cp /tmp/package/LICENSE web/vendor/mediabunny.LICENSE.txt) \
     || (rm -f web/vendor/mediabunny.min.mjs && echo "WebCodecs renderer unavailable; recorder fallback")
-RUN node -e 'const fs=require("fs");const h=fs.readFileSync("web/index.html","utf8");const m=h.match(/<script type="module">([\s\S]*?)<\/script>/);if(!m)throw Error("missing module");fs.writeFileSync("/tmp/neoncut-check.mjs",m[1])' && node --check /tmp/neoncut-check.mjs
+RUN node -e 'const fs=require("fs");const h=fs.readFileSync("web/index.html","utf8");const m=h.match(/<script type="module">([\s\S]*?)<\/script>/);if(!m)throw Error("missing module");fs.writeFileSync("/tmp/neoncut-check.mjs",m[1])' && node --check /tmp/neoncut-check.mjs && node tests/test_web_ui.mjs
 RUN (npx -y html-minifier-terser@7 --collapse-whitespace --remove-comments --minify-css true \
       --minify-js '{"module":true,"compress":{"passes":2,"drop_console":true},"mangle":{"toplevel":true}}' \
       web/index.html -o web/index.min.html && mv web/index.min.html web/index.html) \
