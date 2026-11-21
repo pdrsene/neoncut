@@ -3575,52 +3575,179 @@ const VDB = {
 
 // ---------- projetos ----------
 let projList = [];
-function projAvail(p) {
-  const recent = Date.now() / 1000 - p.created < 7 * 86400;
-  if (VDB.has(p.id)) return { ok: true, how: 'aparelho' };
-  if (p.kind === 'link' && recent) return { ok: true, how: 'link' };
-  if (p.kind === 'file') return { ok: true, how: 'arquivo' };
-  return { ok: false, why: p.kind === 'live' ? 'O vídeo desta live não ficou salvo neste aparelho.' : 'Passou de 7 dias: o vídeo precisa ser enviado de novo.' };
+const projState = {loading:false,more:true,list:false,request:0};
+const projCovers = new Map(),projCoverPending = new Set();
+const projFolders = ['Geral','Clientes','Gameplays','Podcasts','Testes'];
+const pjLib = p => (p.meta && p.meta.library && typeof p.meta.library === 'object') ? p.meta.library : {};
+const pjFolder = p => projFolders.includes(pjLib(p).folder) ? pjLib(p).folder : 'Geral';
+function projAvail(p){
+  if(VDB.has(p.id))return {ok:true,how:'aparelho',label:'Salvo neste dispositivo'};
+  const recent=Date.now()/1000-p.created<7*86400;
+  const youtube=p.kind==='link' && /(?:youtube\.com|youtu\.be)/i.test(p.source||'');
+  if(p.kind==='link'&&recent&&!youtube)return {ok:true,how:'link',label:'Reabrir pelo link'};
+  return {ok:true,how:'arquivo',label:'Arquivo necessário'};
 }
-async function renderProjects() {
-  if (S.demo) { renderDemoProjects(); return; }
-  const box = $('#projList'); box.innerHTML = '<p class="note">Carregando…</p>';
-  try { projList = (await api('/api/projects')).filter(p => !(p.meta && p.meta.hidden)); } catch (e) { box.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
-  const list = projList;
-  if (!list.length) { box.innerHTML = '<div class="empty"><div style="font-size:40px">🎬</div><p>Nenhum projeto ainda.</p><a class="btn" href="#criar">Criar meus primeiros cortes</a></div>'; return; }
-  box.innerHTML = list.map(p => {
-    const d = new Date(p.created * 1000), recent = Date.now() / 1000 - p.created < 7 * 86400, n = (p.clips || []).length, av = projAvail(p);
-    const kind = { link: '🔗 Link', live: '🔴 Live', file: '📁 Arquivo' }[p.kind] || p.kind;
-    const top = (p.clips || []).slice(0, 3).map(c => `<span>🔥${c.score} ${esc(c.title || 'Corte')}</span>`).join('');
-    const dis = av.ok ? '' : `disabled title="${esc(av.why)}"`;
-    const acts = n
-      ? `<button class="btn small" data-edit="${p.id}" ${dis}>✏️ Editar</button><button class="btn ghost small" data-view="${p.id}">👁 Ver cortes</button><button class="btn ghost small" data-all="${p.id}" ${dis}>⬇ Baixar tudo</button>`
-      : (p.kind === 'link' && recent ? `<button class="btn small" data-reopen="${p.id}">↻ Gerar de novo</button>` : '');
-    const clips = (p.clips || []).map((c, i) => `<button type="button" data-clip="${p.id}:${i}" ${dis}><span class="sc">🔥${c.score}</span><span style="min-width:0">${esc(c.title || 'Corte ' + (i + 1))}<small>${fmt(c.start)} → ${fmt(c.end)} · ${Math.round(c.end - c.start)}s${c.words && c.words.length ? ' · 💬' : ''}</small></span></button>`).join('');
-    return `<div class="proj" id="pj${p.id}"><div class="pi" data-view="${p.id}"><div class="pt">${esc(p.title || p.source || 'Projeto')}</div>
-      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${n} cortes${p.duration ? ' · ' + fmtH(p.duration) : ''}${av.ok && av.how === 'aparelho' ? ' · 💾 salvo neste aparelho' : ''}</div>
-      <div class="chips">${top}</div>${!av.ok && n ? `<p class="note" style="margin:6px 0 0">⚠ ${esc(av.why)}</p>` : ''}</div>
-      <div class="acts">${acts}<button class="btn ghost small" data-hide="${p.id}" title="Remover da lista">🗑</button></div>
-      <div class="pclips hidden">${clips}</div></div>`;
+function projectFolderSelect(p) {
+  return '<select data-pj-folder="'+p.id+'" aria-label="Pasta do projeto '+esc(p.title||'')+'">'+
+    projFolders.map(f=>'<option value="'+f+'" '+(pjFolder(p)===f?'selected':'')+'>'+f+'</option>').join('')+'</select>';
+}
+function paintProjects(){
+  if(S.demo)return;
+  const box=$('#projList');if(!box)return;
+  const q=($('#projSearch').value||'').toLocaleLowerCase('pt-BR').trim(),f=$('#projFilter').value,folder=$('#projFolder').value,sort=$('#projSort').value;
+  const visible=projList.filter(p=>!(p.meta&&p.meta.hidden));
+  const list=visible.filter(p=>{
+    const lib=pjLib(p),archived=!!lib.archived,local=VDB.has(p.id);
+    if(f==='archived'?!archived:archived)return false;
+    if(f==='favorites'&&!lib.favorite||f==='local'&&!local||f==='links'&&!['link','live'].includes(p.kind))return false;
+    if(folder&&pjFolder(p)!==folder)return false;
+    if(q&&!([p.title,p.source,pjFolder(p)].concat((p.clips||[]).map(c=>c.title)).join(' ').toLocaleLowerCase('pt-BR').includes(q)))return false;
+    return true;
+  }).sort((a,b)=>sort==='old'?a.created-b.created:sort==='name'?String(a.title||'').localeCompare(String(b.title||''),'pt-BR'):sort==='clips'?(b.clips||[]).length-(a.clips||[]).length:b.created-a.created);
+  const stats={all:visible.filter(p=>!pjLib(p).archived).length,clips:visible.filter(p=>!pjLib(p).archived).reduce((n,p)=>n+(p.clips||[]).length,0),fav:visible.filter(p=>pjLib(p).favorite&&!pjLib(p).archived).length,local:visible.filter(p=>VDB.has(p.id)&&!pjLib(p).archived).length};
+  $('#projSummary').innerHTML=[
+    [stats.all,'Projetos ativos'],[stats.clips,'Cortes organizados'],[stats.fav,'Favoritos'],[stats.local,'Vídeos neste aparelho']
+  ].map(a=>'<div class="lib-kpi"><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
+  box.classList.toggle('list',projState.list);
+  $('#projLayout').setAttribute('aria-pressed',String(projState.list));
+  $('#projLayout').textContent=projState.list?'▦ Grade':'☰ Lista';
+  if(!list.length){
+    box.innerHTML='<div class="lib-empty"><div style="font-size:42px">▦</div><h3>'+(visible.length?'Nenhum projeto encontrado':'Sua biblioteca começa aqui')+'</h3><p>'+(visible.length?'Altere a busca ou os filtros para visualizar outros projetos.':'Crie seus primeiros cortes para organizar tudo neste espaço.')+'</p>'+(visible.length?'':'<a class="btn" href="#criar">Criar primeiro projeto</a>')+'</div>';
+  } else box.innerHTML=list.map(p=>{
+    const lib=pjLib(p),av=projAvail(p),n=(p.clips||[]).length,ds=new Date(p.created*1000);
+    const date=Number.isFinite(ds.getTime())?ds.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}):'Data indisponível';
+    const icon=p.kind==='live'?'◉':p.kind==='link'?'↗':'▶',category=p.kind==='live'?'Live':p.kind==='link'?'Link':'Upload';
+    const typ=['live','link'].includes(p.kind)?p.kind:'file';
+    const available=av.how==='aparelho',clipSummary=n+' corte'+(n===1?'':'s');
+    const items=(p.clips||[]).map((c,i)=>{
+      const start=Number(c.start)||0,end=Number(c.end)||0;
+      return '<button type="button" data-pj="clip" data-id="'+p.id+'" data-index="'+i+'"><span><b>'+esc(c.title||'Corte '+(i+1))+'</b><br><small>'+fmtH(start)+' – '+fmtH(end)+'</small></span><span class="lib-pill ok">▶ Abrir</span></button>';
+    }).join('');
+    return '<article class="lib-card" data-project="'+p.id+'">'+
+      '<div class="lib-art '+typ+'"><img class="lib-cover-img" data-pj-cover="'+p.id+'" alt="" loading="lazy">'+
+      '<span class="lib-poster-symbol" aria-hidden="true">'+icon+'</span>'+
+      '<div class="lib-float"><span class="lib-pill">'+category+'</span><span class="lib-pill '+(available?'ok':'dim')+'">'+(available?'✓ No dispositivo':av.how==='link'?'↗ Link disponível':'↻ Reenviar arquivo')+'</span></div>'+
+      '<button type="button" class="lib-star '+(lib.favorite?'on':'')+'" data-pj="favorite" data-id="'+p.id+'" aria-label="'+(lib.favorite?'Remover dos favoritos':'Adicionar aos favoritos')+'" title="Favoritos">'+(lib.favorite?'★':'☆')+'</button>'+
+      '<button type="button" class="lib-open" data-pj="open" data-id="'+p.id+'">▶ Abrir cortes</button></div>'+
+      '<div class="lib-body"><div><h3 class="lib-card-title">'+esc(p.title||p.source||'Projeto '+p.id)+'</h3><div class="lib-date">'+date+' · '+clipSummary+'</div></div>'+
+      '<div class="lib-stats"><span>✂ '+n+' cortes</span><span>◷ '+(p.duration?fmtH(p.duration):'Sem duração')+'</span>'+(lib.archived?'<span>Arquivado</span>':'')+'</div>'+
+      '<div class="lib-note">'+(available?'Vídeo disponível neste dispositivo para editar e exportar.':av.how==='link'?'O arquivo pode ser recuperado novamente pelo link.':'Selecione o vídeo original ao reabrir. Os ajustes foram preservados.')+'</div>'+
+      '<div class="lib-acts"><button type="button" class="btn small" data-pj="open" data-id="'+p.id+'">▶ Continuar</button>'+
+      '<button type="button" class="btn ghost small" data-pj="clips" data-id="'+p.id+'" aria-expanded="'+projState['expand-'+p.id]+'">Ver '+clipSummary+'</button>'+
+      (n?'<button type="button" class="btn ghost small wide" data-pj="download" data-id="'+p.id+'">⬇ Baixar todos os cortes</button>':'<button type="button" class="btn ghost small wide" data-pj="regenerate" data-id="'+p.id+'">↻ Criar novos cortes</button>')+
+      '</div><div class="lib-folders">'+projectFolderSelect(p)+'<div><button type="button" data-pj="rename" data-id="'+p.id+'" title="Renomear projeto">Renomear</button><button type="button" data-pj="archive" data-id="'+p.id+'" title="'+(lib.archived?'Restaurar':'Arquivar')+'">'+(lib.archived?'Restaurar':'Arquivar')+'</button><button type="button" data-pj="delete" data-id="'+p.id+'" title="Remover definitivamente">Excluir</button></div></div></div>'+
+      '<div class="lib-clips '+(projState['expand-'+p.id]?'':'hidden')+'">'+(items||'<p class="note">Este projeto ainda não tem cortes. Use Continuar para gerar.</p>')+'</div></article>';
   }).join('');
-  observeReveal(box);
+  $('#projMore').classList.toggle('hidden',!projState.more);
+  $('#projStatus').textContent=list.length+' projeto'+(list.length===1?'':'s')+' exibido'+(list.length===1?'':'s')+' · '+visible.length+' carregado'+(visible.length===1?'':'s')+(projState.more?' · há mais projetos no histórico':'');
+  queueProjectCovers();
 }
-$('#projList').addEventListener('click', async e => {
-  const g = a => e.target.closest('[' + a + ']'), find = id => projList.find(x => x.id == id);
-  const ro = g('data-reopen'), hd = g('data-hide'), ed = g('data-edit'), vw = g('data-view'), al = g('data-all'), cl = g('data-clip');
-  if (hd) { if (!confirm('Remover este projeto da lista?')) return; await api('/api/projects/' + hd.dataset.hide, null, 'DELETE'); renderProjects(); return; }
-  if (vw) { const el = $('#pj' + vw.dataset.view + ' .pclips'); if (el && el.children.length) el.classList.toggle('hidden'); return; }
-  if (ed) return openProject(find(ed.dataset.edit), 'edit');
-  if (al) return openProject(find(al.dataset.all), 'all');
-  if (cl) { const [id, i] = cl.dataset.clip.split(':'); return openProject(find(id), +i); }
-  if (ro) {
-    const p = find(ro.dataset.reopen);
-    location.hash = '#criar'; S.reuseId = p.id;
-    document.querySelector('[data-tab="link"]').click();
-    $('#url').value = p.source; $('#fetchInfo').click();
-    const wait = setInterval(() => { if (S.link) { clearInterval(wait); if (p.meta && p.meta.range) { $('#liStart').value = p.meta.range[0]; $('#liEnd').value = p.meta.range[1]; } toast('Projeto reaberto: confira o trecho e clique em Gerar cortes (não gasta cota).', 5000); } }, 300);
-    setTimeout(() => clearInterval(wait), 30000);
+async function queueProjectCovers(){
+  const cards=[...document.querySelectorAll('#projList [data-pj-cover]')].filter(im=>VDB.has(im.dataset.pjCover));
+  for(const im of cards){
+    const id=Number(im.dataset.pjCover);
+    if(projCovers.has(id)){im.src=projCovers.get(id);im.parentElement?.classList.add('has-cover');continue;}
+    if(projCoverPending.has(id))continue;
+    projCoverPending.add(id);
+    try{
+      const file=await VDB.get(id);
+      if(!file)continue;
+      const vid=document.createElement('video'),url=URL.createObjectURL(file);
+      vid.muted=true;vid.playsInline=true;vid.preload='metadata';
+      try{
+        await Promise.race([loadMeta(vid,url),sleep(9000).then(()=>{throw Error('thumbnail timeout')})]);
+        await Promise.race([seek(vid,Math.max(.05,Math.min(1.1,vid.duration*.2))),sleep(8000).then(()=>{throw Error('seek timeout')})]);
+        const cv=document.createElement('canvas');cv.width=320;cv.height=180;
+        const ctx=cv.getContext('2d');if(!ctx)continue;
+        ctx.fillStyle='#0c0c11';ctx.fillRect(0,0,320,180);ctx.drawImage(vid,0,0,320,180);
+        projCovers.set(id,cv.toDataURL('image/jpeg',.68));
+      }finally{vid.pause();vid.removeAttribute('src');vid.load();URL.revokeObjectURL(url);}
+    }catch(e){/* Cover is optional; cards still work without a thumbnail. */}
+    finally{projCoverPending.delete(id);}
+    const current=document.querySelector('#projList [data-pj-cover="'+id+'"]');
+    if(current&&projCovers.has(id)){current.src=projCovers.get(id);current.parentElement?.classList.add('has-cover');}
   }
+}
+async function loadProjectPage(reset=false){
+  if(projState.loading)return;
+  projState.loading=true;
+  const request=++projState.request,uid=S.user?.id;
+  if(reset){projList=[];projState.more=true;$('#projList').innerHTML='<p class="note">Carregando biblioteca…</p>';}
+  try{
+    const batch=await api('/api/projects?limit=60&offset='+projList.length);
+    if(request!==projState.request||uid!==S.user?.id)return;
+    const seen=new Set(projList.map(p=>p.id));
+    projList.push(...batch.filter(p=>!seen.has(p.id)));
+    projState.more=batch.length===60;
+    paintProjects();
+  }catch(e){
+    $('#projStatus').textContent='Falha ao carregar: '+e.message;
+    if(!projList.length)$('#projList').innerHTML='<div class="lib-empty"><h3>Não foi possível carregar.</h3><p>Tente atualizar sua biblioteca.</p><button class="btn ghost" id="projRetry" type="button">Tentar novamente</button></div>';
+  }finally{projState.loading=false;$('#projMore').disabled=false;$('#projRefresh').disabled=false;}
+}
+async function renderProjects(){
+  if(S.demo){$('#projToolbar').classList.add('hidden');renderDemoProjects();return;}
+  $('#projToolbar').classList.remove('hidden');
+  $('#projRefresh').disabled=true;
+  await loadProjectPage(true);
+}
+for(const id of ['#projSearch','#projFilter','#projFolder','#projSort'])$(id).addEventListener(id==='#projSearch'?'input':'change',paintProjects);
+$('#projLayout').onclick=()=>{projState.list=!projState.list;paintProjects();};
+$('#projMore').onclick=async()=>{if(projState.loading)return;$('#projMore').disabled=true;await loadProjectPage(false);};
+$('#projRefresh').onclick=()=>renderProjects();
+$('#projList').addEventListener('click',async e=>{
+  if(S.demo)return;
+  if(e.target.id==='projRetry'){renderProjects();return;}
+  const btn=e.target.closest('[data-pj]');if(!btn)return;
+  const id=Number(btn.dataset.id),p=projList.find(x=>x.id===id),act=btn.dataset.pj;
+  if(!p)return;
+  if(act==='open'||act==='download')return openProject(p,act==='download'?'all':'view');
+  if(act==='clip')return openProject(p,Number(btn.dataset.index));
+  if(act==='clips'){projState['expand-'+id]=!projState['expand-'+id];paintProjects();return;}
+  if(act==='regenerate'){
+    if(p.kind==='link'&&p.source&&Date.now()/1000-p.created<7*86400){
+      location.hash='#criar';S.reuseId=p.id;
+      document.querySelector('[data-tab="link"]').click();$('#url').value=p.source;$('#fetchInfo').click();
+      return;
+    }
+    return openProject(p,'view');
+  }
+  if(act==='rename'){
+    const card=btn.closest('.lib-card'),target=card?.querySelector('.lib-card-title');
+    if(!target||card.querySelector('.lib-rename'))return;
+    const form=document.createElement('form');form.className='lib-rename';
+    form.innerHTML='<label class="sr" for="rename-'+id+'">Novo nome</label><input id="rename-'+id+'" maxlength="160" required aria-label="Nome do projeto"><div class="row" style="margin-top:7px"><button class="btn small" type="submit">Salvar nome</button><button type="button" class="btn ghost small" data-cancel>Cancelar</button></div>';
+    const inp=form.querySelector('input');inp.value=p.title||'';target.after(form);inp.focus();inp.select();
+    form.querySelector('[data-cancel]').onclick=()=>form.remove();
+    form.onsubmit=async ev=>{ev.preventDefault();const name=inp.value.trim();if(!name)return;const b=form.querySelector('[type=submit]');b.disabled=true;
+      try{const r=await api('/api/projects/'+id+'/library',{title:name},'PATCH');p.title=r.title;paintProjects();toast('Projeto renomeado.');}
+      catch(err){b.disabled=false;toast(err.message,4000);}
+    };
+    return;
+  }
+  if(act==='delete'){
+    if(!confirm('Excluir "'+(p.title||'Projeto')+'"? Os cortes salvos serão apagados e a cota usada não volta.'))return;
+    btn.disabled=true;
+    try{
+      await api('/api/projects/'+id,null,'DELETE');
+      if(VDB.has(id)){await VDB.tx('readwrite',st=>st.delete(String(id))).catch(()=>{});localStorage.setItem('nc_vids',JSON.stringify(VDB.ids().filter(x=>x!==String(id))));}
+      projList=projList.filter(x=>x.id!==id);projCovers.delete(id);paintProjects();toast('Projeto removido.');
+    }catch(err){btn.disabled=false;toast(err.message,4000);}
+    return;
+  }
+  if(act==='favorite'||act==='archive'){
+    btn.disabled=true;
+    const data=act==='favorite'?{favorite:!pjLib(p).favorite}:{archived:!pjLib(p).archived};
+    try{const res=await api('/api/projects/'+id+'/library',data,'PATCH');p.meta=p.meta||{};p.meta.library=res.library;paintProjects();toast(act==='favorite'?'Favoritos atualizados.':'Biblioteca atualizada.');}
+    catch(err){btn.disabled=false;toast(err.message,4000);}
+  }
+});
+$('#projList').addEventListener('change',async e=>{
+  const sel=e.target.closest('[data-pj-folder]');if(!sel||S.demo)return;
+  const id=Number(sel.dataset.pjFolder),p=projList.find(p=>p.id===id);if(!p)return;
+  sel.disabled=true;
+  try{const res=await api('/api/projects/'+id+'/library',{folder:sel.value},'PATCH');p.meta=p.meta||{};p.meta.library=res.library;paintProjects();toast('Projeto movido para '+sel.value+'.');}
+  catch(err){sel.disabled=false;sel.value=pjFolder(p);toast(err.message,4000);}
 });
 function pickFile() {
   return new Promise(res => { const i = document.createElement('input'); i.type = 'file'; i.accept = 'video/*'; i.onchange = () => res(i.files[0] || null); i.click(); });
