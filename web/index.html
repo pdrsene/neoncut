@@ -983,14 +983,14 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
           </div>
           <input type="file" id="hxFileIn" accept="video/*" hidden>
           <div class="hx-links"><button type="button" data-demo-open-list>Ver exemplo de corte sem esperar</button></div>
-          <div class="hx-trust"><span>Primeiro corte Full HD grátis</span><span>Sem cartão para testar</span></div>
+          <div class="hx-trust"><span>Primeiro corte Full HD grátis</span><span>Sem cartão para testar</span><span>Sem marca d’água</span></div>
         </form>
       </div>
       <div class="home-preview"><div class="home-preview-head"><span><i></i><i></i><i></i></span><span>NEONCUT / PREVIEW</span><b>DEMO</b></div>
         <div class="hx-vis" aria-label="Demonstração de gameplay real original e corte vertical">
           <figure><figcaption>01 / ORIGINAL · 16:9</figcaption><video class="hx-orig" id="hxOrig" src="demo/robbery-web.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video><div class="home-wave" aria-hidden="true"><i style="--h:17px"></i><i style="--h:38px"></i><i style="--h:26px"></i><i style="--h:18px"></i><i style="--h:36px"></i><i style="--h:45px"></i><i style="--h:22px"></i><i style="--h:24px"></i><i style="--h:27px"></i><i style="--h:25px"></i><i style="--h:36px"></i><i style="--h:41px"></i><i style="--h:21px"></i><i style="--h:23px"></i><i style="--h:42px"></i><i style="--h:32px"></i><i style="--h:28px"></i><i style="--h:26px"></i><i style="--h:23px"></i><i style="--h:26px"></i><i style="--h:46px"></i><i style="--h:33px"></i><i style="--h:20px"></i><i style="--h:27px"></i><i style="--h:36px"></i><i style="--h:22px"></i><i style="--h:39px"></i><i style="--h:24px"></i><i style="--h:18px"></i><i style="--h:39px"></i><i style="--h:43px"></i><i style="--h:19px"></i><i style="--h:24px"></i><i style="--h:27px"></i></div><span class="home-preview-text">Gameplay de exemplo</span></figure>
           <span class="hx-arrow" aria-hidden="true">→</span>
-          <figure><figcaption>02 / CORTE · 9:16</figcaption><canvas class="hx-cut" id="hxCut" width="360" height="640" role="img" aria-label="Prévia de gameplay no template Neon Sunset"></canvas><span class="home-preview-text">Neon Sunset</span></figure>
+          <figure><figcaption>02 / CORTE · 9:16</figcaption><canvas class="hx-cut" id="hxCut" width="360" height="640" role="img" aria-label="Prévia de gameplay no template Webcam + Gameplay"></canvas><span class="home-preview-text">Webcam + Gameplay</span></figure>
         </div><div class="home-preview-foot"><span><span class="home-dot"></span> Renderização de exemplo</span><span>9:16 · sem áudio</span></div>
       </div>
       <p class="hx-cap">Prévia de gameplay real renderizada no navegador pelo motor de templates da NEONCUT. Não é uma análise automática.</p>
@@ -1264,6 +1264,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <p class="note" id="projStatus" role="status" style="margin:0 0 12px"></p>
     <div id="projList" class="lib-library"></div>
     <div class="lib-foot"><button type="button" class="btn ghost hidden" id="projMore">Carregar mais projetos</button></div>
+    <div class="panel hidden" id="projUpgrade" style="margin:18px 0;padding:18px;background:linear-gradient(105deg,#1a2919,#14141a);border-color:rgba(163,230,53,.28)"><div class="row" style="gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:190px"><small style="font-weight:800;letter-spacing:.12em;color:#a3e635">QUANDO PRECISAR DE MAIS</small><h3 style="margin:5px 0">Seus cortes em Full HD, sem limite de exportação.</h3><p class="note">O Pro oferece exportação 1080p ilimitada e mais vídeos por mês. Sem cobrança automática.</p></div><a class="btn" href="#precos">Conhecer o Pro →</a></div></div>
     <p class="note">Por privacidade, o vídeo original não fica armazenado permanentemente na nuvem. Os dados dos cortes são salvos na conta; para reabrir um arquivo antigo, talvez seja necessário selecioná-lo novamente. Remover um projeto não devolve a cota utilizada.</p>
   </main>
 
@@ -3328,8 +3329,8 @@ function planCard(plan, opts = {}) {
     <button class="btn ghost" data-cta style="width:100%">Começar grátis</button></div>`;
   const now = priceFor(plan), promo = now < P.regular;
   const feats = plan === 'pro'
-    ? [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, clip, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Todos os templates', "Sem marca d'água", 'Kit da sua marca']
-    : [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, `<b>${clip}</b>`, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Seleção avançada por análise das falas', 'Os 3 templates', "Sem marca d'água", 'Kit da sua marca'];
+    ? [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, clip, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Editor avançado com linha do tempo', 'Sem marca d’água']
+    : [`${L.projects} vídeos por mês`, `Até ${Math.round(L.max_minutes)} min por vídeo`, `<b>${clip}</b>`, `Lives de até ${Math.round(L.live_minutes)} min`, '<b>1080p ilimitado</b>', 'Seleção avançada por análise das falas', 'Editor avançado com linha do tempo', 'Sem marca d’água'];
   const cur = S.user && S.plan.plan === plan;
   return `<div class="price ${plan === 'pro' && !opts.compact ? 'hot' : ''}">${plan === 'pro' && !opts.compact ? '<div class="tag">RECOMENDADO</div>' : ''}
     <h3>${plan === 'pro' ? 'Pro' : 'Pro+'}</h3>
@@ -3607,6 +3608,7 @@ function paintProjects(){
     return true;
   }).sort((a,b)=>sort==='old'?a.created-b.created:sort==='name'?String(a.title||'').localeCompare(String(b.title||''),'pt-BR'):sort==='clips'?(b.clips||[]).length-(a.clips||[]).length:b.created-a.created);
   const stats={all:visible.filter(p=>!pjLib(p).archived).length,clips:visible.filter(p=>!pjLib(p).archived).reduce((n,p)=>n+(p.clips||[]).length,0),fav:visible.filter(p=>pjLib(p).favorite&&!pjLib(p).archived).length,local:visible.filter(p=>VDB.has(p.id)&&!pjLib(p).archived).length};
+  $('#projUpgrade').classList.toggle('hidden',S.plan?.plan!=='free');
   $('#projSummary').innerHTML=[
     [stats.all,'Projetos ativos'],[stats.clips,'Cortes organizados'],[stats.fav,'Favoritos'],[stats.local,'Vídeos neste aparelho']
   ].map(a=>'<div class="lib-kpi"><b>'+a[0]+'</b><span>'+a[1]+'</span></div>').join('');
@@ -3808,6 +3810,7 @@ async function openProject(p,action='view'){
     if(!p.clips||!p.clips.length){
       location.hash='#criar';
       S.reuseId=p.id;
+      document.querySelector('.tab[data-tab="file"]')?.click();
       setFile(file);
       toast('Arquivo carregado. Configure e gere seus cortes.',3500);
       return;
@@ -4588,7 +4591,7 @@ function demoUser() {
     used: 7, limit: 250, max_minutes: 120, max_live_minutes: 60, watermark: false,
     hd_unlimited: true, hd_left: null, hd_total: null, all_templates: true,
     next_price: { pro: 19.9, proplus: 29.9 }, intro_left: { pro: 0, proplus: 0 },
-    settings: { handle: DEMO_HANDLE, tpl: 'neon', color: '', emojis: true, tags: '#gta6 #gtavi #gameplay #cortes #viral #fyp' } };
+    settings: { handle: DEMO_HANDLE, tpl: 'stream', color: '', emojis: true, tags: '#gta6 #gtavi #gameplay #cortes #viral #fyp' } };
 }
 function renderDemoProjects() {
   const now = Date.now() / 1000;
@@ -4983,7 +4986,7 @@ function gotoCreate() { if (S.user || guestOk()) location.hash = '#criar'; else 
 })();
 const HERO = { raf: 0, vis: false, clip: null };
 function heroClip() {
-  return { idx: 0, start: 0, end: 100, peakT: 0, words: [], title: 'MAIS CORTES, MENOS EDIÇÃO', showTitle: true, showCaps: false, tpl: 'neon', corner: 'br', camSize: 25, pan: 0,
+  return { idx: 0, start: 0, end: 100, peakT: 0, words: [], title: 'MAIS CORTES, MENOS EDIÇÃO', showTitle: true, showCaps: false, tpl: 'stream', corner: 'br', camSize: 25, pan: 0,
     handle: '@seucanal', emojis: false, capColor: '', capY: null, titleKind: null, titleY: .2, titleEnd: null, hookOn: false, score: 90, cat: 'epico', wordsVer: 0 };
 }
 function heroDraw() {
