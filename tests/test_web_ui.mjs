@@ -6,9 +6,10 @@ const markup=html.split('<script type="module">')[0];
 const ids=[...markup.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
 for(const id of ['vProjects','projSummary','projSearch','projFilter','projFolder','projSort',
   'projLayout','projList','projMore','projUpgrade','vCreator','creatorStats','creatorPixels',
-  'pixelSelected','pixelGrid','navLevel','vApp','results','grid','exportAll']){
+  'pixelSelected','pixelGrid','vApp','results','grid','exportAll']){
   assert(ids.includes(id), 'Missing important UI element: '+id);
 }
+assert(html.includes('id="navLevel"'),'Dynamic navigation level badge missing');
 const seen=new Set();
 for(const id of ids){assert(!seen.has(id),'Duplicate markup id: '+id);seen.add(id);}
 const part=html.match(/const TEMPLATES\s*=\s*\[([\s\S]*?)\];/);
