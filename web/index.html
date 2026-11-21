@@ -2664,6 +2664,7 @@ async function downloadJob(body, title, isLive) {
   const total = +r.headers.get('Content-Length') || job.size || 0, rd = r.body.getReader(), parts = []; let got = 0;
   for (;;) { const { done, value } = await rd.read(); if (done) break; parts.push(value); got += value.length; step(1, 'active', total ? `${(got / 1e6).toFixed(0)}/${(total / 1e6).toFixed(0)} MB` : `${(got / 1e6).toFixed(0)} MB`); }
   step(1, 'done'); $('#procDetail').textContent='Vídeo recebido. Analisando os melhores momentos…';
+  if(body.url&&youtubeVideoId(body.url))track('youtube_beta_ready',{stage:'download'});
   return new File(parts, slug(title || 'video') + '.mp4', { type: 'video/mp4' });
 }
 
@@ -2693,7 +2694,12 @@ $('#go').onclick = async () => {
   if (!isPro() && !FREE_TPLS.includes($('#optTpl').value)) { openUpgrade('O template ' + tplById($('#optTpl').value).name + ' é do plano Pro.'); return; }
   const go = $('#go'); go.disabled = true;
   S._genT0 = performance.now();
-  try { if (sample) S.project = { id: null, sample: true, guest: false, kind: 'file', source: S.file.name, title: S.sample.title }; else await startProject(); }
+  const ytAdminBeta=!sample&&S.mode==='link'&&S.link?.platform==='youtube'&&S.user?.admin&&!S.cfg.youtube;
+  try {
+    if(sample)S.project={id:null,sample:true,guest:false,kind:'file',source:S.file.name,title:S.sample.title};
+    else if(ytAdminBeta)S.project=null; // never consume a project quota on a failed YouTube beta download
+    else await startProject();
+  }
   catch (e) { go.disabled = false; track('generation_failed', { code: e.status ? 'http' + e.status : 'start', stage: 'inicio', msg: shortMsg(e), mode: S.mode }); if (e.status === 402) openUpgrade(e.message); else if (e.status !== 401) { if (S.mode === 'link') showLinkErr(e.message); else toast(e.message, 5000); } return; }
   go.disabled = false;
   const turbo = $('#upload').classList.contains('quick');
@@ -2724,7 +2730,11 @@ async function pipelineRun(skip) {
   let asrP = null;
   if (wantCaps && !lowMemory && !S.settings.turbo) { onDl = capDlProgress; asrP = S.asrInfo && S.asrInfo.size === S.settings.model ? Promise.resolve(S.asrInfo) : loadASR(S.settings.model); asrP.then(() => step(6, 'done'), () => step(6, 'done')); }
   const st7 = $('#st7'); if (st7) st7.classList.add('hidden'); // legendar agora acontece depois, com os cortes já na tela
-  if (S.mode === 'link') { let f;try{f=await fetchRemote();}catch(e){e.ncRemoteFailure=true;throw e;} S.file = f; if (S.url) URL.revokeObjectURL(S.url); S.url = URL.createObjectURL(f); mark('download'); }
+  if (S.mode === 'link') {
+    let f;try{f=await fetchRemote();}catch(e){e.ncRemoteFailure=true;throw e;}
+    S.file=f;if(S.url)URL.revokeObjectURL(S.url);S.url=URL.createObjectURL(f);mark('download');
+    if(S.link?.platform==='youtube'&&S.user?.admin&&!S.cfg.youtube&&!S.project)await startProject();
+  }
   const pv = $('#pv'), ev = $('#ev'), av = $('#av');
   await loadMeta(pv, S.url); // load other players only on demand, reducing initial decoder contention
   if(!skip.includes(4))await loadMeta(av,S.url);
