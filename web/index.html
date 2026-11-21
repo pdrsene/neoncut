@@ -4593,28 +4593,34 @@ function demoUser() {
     next_price: { pro: 19.9, proplus: 29.9 }, intro_left: { pro: 0, proplus: 0 },
     settings: { handle: DEMO_HANDLE, tpl: 'stream', color: '', emojis: true, tags: '#gta6 #gtavi #gameplay #cortes #viral #fyp' } };
 }
-function renderDemoProjects() {
-  const now = Date.now() / 1000;
-  const list = [
-    { title: 'Live de ontem — Vice City RP', kind: 'live', created: now - 3600, dur: 1920, clips: DEMO_CLIPS.map(c => ({ score: c.score, title: c.title, s: c.s, e: c.e })) },
-    { title: 'twitch.tv/seucanal — VOD 4h', kind: 'link', created: now - 2 * 86400, dur: 3600, clips: [{ score: 93, title: 'PERSEGUIÇÃO INSANA 🚓', s: 754, e: 812 }, { score: 88, title: 'MOMENTO ÉPICO 🌴', s: 1930, e: 1975 }, { score: 81, title: 'ASSALTO AO BANCO 💰', s: 2410, e: 2466 }] },
-    { title: 'gameplay-ontem.mp4', kind: 'file', created: now - 5 * 86400, dur: 1260, clips: [{ score: 91, title: 'VELOCIDADE MÁXIMA 🏎️', s: 300, e: 342 }, { score: 80, title: 'O GRITO KKKKK 💀', s: 905, e: 931 }] },
+function renderDemoProjects(){
+  const templates=[
+    {id:'stream',title:'Webcam + Gameplay + Título',desc:'Gameplay vertical com webcam e título'},
+    {id:'stream_nt',title:'Webcam + Gameplay',desc:'Gameplay vertical sem texto sobreposto'},
+    {id:'raw',title:'Vídeo original',desc:'Sem alterar o enquadramento do vídeo'}
   ];
-  $('#projList').innerHTML = list.map((p, k) => {
-    const d = new Date(p.created * 1000), kind = { link: '🔗 Link', live: '🔴 Live', file: '📁 Arquivo' }[p.kind];
-    const top = p.clips.slice(0, 3).map(c => `<span>🔥${c.score} ${esc(c.title)}</span>`).join('');
-    const clips = p.clips.map((c, i) => `<button type="button" data-demo-clip="${k}:${i}"><span class="sc">🔥${c.score}</span><span style="min-width:0">${esc(c.title)}<small>${fmt(c.s)} → ${fmt(c.e)} · ${Math.round(c.e - c.s)}s · 💬</small></span></button>`).join('');
-    return `<div class="proj"><div class="pi" data-demo-view><div class="pt">${esc(p.title)}</div>
-      <div class="note">${kind} · ${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${p.clips.length} cortes · ${fmtH(p.dur)} · 💾 salvo neste aparelho</div>
-      <div class="chips">${top}</div></div>
-      <div class="acts"><button class="btn small" data-demo-open>✏️ Editar</button><button class="btn ghost small" data-demo-view>👁 Ver cortes</button><button class="btn ghost small" data-demo-all>⬇ Baixar tudo</button><button class="btn ghost small" title="Remover da lista">🗑</button></div>
-      <div class="pclips hidden">${clips}</div></div>`;
-  }).join('');
-  $('#projList').onclick = e => {
-    const g = a => e.target.closest('[' + a + ']');
-    if (g('data-demo-view')) { const pc = g('data-demo-view').closest('.proj').querySelector('.pclips'); pc.classList.toggle('hidden'); return; }
-    if (g('data-demo-all')) { toast('⬇ Baixando todos os cortes em 1080p…', 3000); return; }
-    if (g('data-demo-open') || g('data-demo-clip')) location.hash = '#criar';
+  $('#projSummary').innerHTML=[
+    [3,'Templates de demonstração'],[S.clips.length,'Cortes para experimentar'],[0,'Projetos reais'],['Livre','Teste sem cadastro']
+  ].map(x=>'<div class="lib-kpi"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>').join('');
+  $('#projUpgrade').classList.add('hidden');
+  $('#projMore').classList.add('hidden');
+  $('#projStatus').textContent='Ambiente de demonstração · estes exemplos não são projetos salvos na sua conta.';
+  $('#projList').className='lib-library';
+  $('#projList').innerHTML=templates.map((t,i)=>'<article class="lib-card"><div class="lib-art file">'+
+    '<span class="lib-poster-symbol" aria-hidden="true">'+(i===0?'▣':i===1?'▶':'◧')+'</span>'+
+    '<div class="lib-float"><span class="lib-pill ok">DEMONSTRAÇÃO</span><span class="lib-pill">Sem marca d’água</span></div>'+
+    '<button class="lib-open" type="button" data-demo-tpl="'+t.id+'">▶ Experimentar</button></div>'+
+    '<div class="lib-body"><h3 class="lib-card-title">'+t.title+'</h3><p class="lib-note">'+t.desc+'</p>'+
+    '<div class="lib-stats"><span>3 estilos disponíveis</span><span>Sem legendas</span></div>'+
+    '<button type="button" class="btn" data-demo-tpl="'+t.id+'">Abrir exemplo de corte →</button></div></article>').join('');
+  $('#projList').onclick=e=>{
+    const btn=e.target.closest('[data-demo-tpl]');if(!btn)return;
+    const tpl=btn.dataset.demoTpl;
+    S.settings.tpl=tpl;
+    S.clips.forEach(c=>{c.tpl=tpl;c.showTitle=tpl==='stream';c.showCaps=false;});
+    location.hash='#criar';
+    toast('Template '+tplById(tpl).name+' selecionado. Clique ▶ para assistir ao corte.',3500);
+    renderGrid();
   };
 }
 async function enterDemo() {
@@ -4627,15 +4633,15 @@ async function enterDemo() {
   catch (e) { toast('Não consegui carregar o vídeo de exemplo.', 4000); return; }
   S.url = DEMO_VIDEO; S.duration = $('#pv').duration || 22; S.vw = $('#pv').videoWidth || 1280; S.vh = $('#pv').videoHeight || 720;
   S.feats = synthFeats(S.duration);
-  S.settings = { D: 30, N: 6, model: 'base', lang: 'portuguese', tpl: 'neon', visual: true, focus: 'viral', hook: false, sens: 3, boostVoice: false, snapSilence: true };
+  S.settings = { D: 30, N: 6, model: 'none', lang: 'portuguese', tpl: 'stream', visual: false, focus: 'viral', hook: false, sens: 3, boostVoice: false, snapSilence: true };
   S.project = { id: 'demo', kind: 'live', title: 'Live de ontem — Vice City RP', range: null };
   S.asrInfo = { device: 'webgpu', wordMode: true };
   const kit = brandKit();
   S.clips = DEMO_CLIPS.map((c, i) => ({
     idx: i, start: c.s, end: Math.min(S.duration, c.e), peakT: Math.min(c.peak, S.duration - .2),
-    score: c.score, cat: c.cat, tpl: c.tpl, words: demoWords(c.cap, c.s, Math.min(S.duration, c.e)),
+    score: c.score, cat: c.cat, tpl: i%2?'stream_nt':'stream', words: demoWords(c.cap, c.s, Math.min(S.duration, c.e)),
     quote: null, transcribed: true, wordsVer: 1, title: c.title, capStyle: c.capStyle || null, titleKind: c.titleKind || null, titleY: .2,
-    corner: 'br', camSize: 25, pan: 0, showTitle: true, showCaps: true,
+    corner: 'br', camSize: 25, pan: 0, showTitle: i%2===0, showCaps: false,
     handle: kit.handle || DEMO_HANDLE, emojis: true, capColor: '', capY: null, titleEnd: null, src: DEMO_SRC[c.src || c.tpl] || DEMO_VIDEO,
     desc: c.title.replace(/["]/g, '') + '\n\n#gta6 #gtavi #gameplay #cortes #viral #fyp',
   }));
