@@ -237,6 +237,50 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 .sw{display:flex;gap:8px;flex-wrap:wrap}
 .sw button{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer}
 .sw button.on{border-color:#fff;box-shadow:0 0 0 2px var(--pink)}
+
+/* Library redesign — fast search, real availability indicators and responsive cards. */
+.lib-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:18px 0 18px}
+.lib-head .eyebrow{display:inline-flex;gap:6px;align-items:center;color:var(--accent);font-weight:800;text-transform:uppercase;font-size:11px;letter-spacing:.12em}
+.lib-head h2{font-size:clamp(28px,4vw,40px);margin:5px 0 6px}.lib-head .sub{max-width:660px;line-height:1.6}
+.lib-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.lib-kpi{background:linear-gradient(145deg,#19191f,#101012);border:1px solid #34343b;border-radius:15px;padding:15px}
+.lib-kpi b{display:block;font-size:clamp(20px,3vw,27px);font-weight:900;color:#f4f4f5}.lib-kpi span{display:block;font-size:11px;color:#a1a1aa;margin-top:3px}
+.lib-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;padding:13px;background:#17171b;border:1px solid #32323a;border-radius:15px;margin-bottom:18px}
+.lib-toolbar input{flex:1 1 220px;min-width:160px}.lib-toolbar select{flex:0 1 154px;max-width:100%;min-width:130px}
+.lib-toolbar input,.lib-toolbar select{min-height:42px;border:1px solid #36363d;border-radius:10px;background:#101013;padding:10px;color:var(--text)}
+.lib-toolbar input:focus,.lib-toolbar select:focus{outline:2px solid #a3e635;outline-offset:0}
+.lib-library{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:16px;margin:0 0 20px}
+.lib-card{background:linear-gradient(145deg,#1c1c22,#101013);border:1px solid #34343d;border-radius:18px;overflow:hidden;min-width:0;display:flex;flex-direction:column;transition:border-color .2s,transform .2s,box-shadow .2s}
+.lib-card:hover{border-color:#656573;transform:translateY(-2px);box-shadow:0 14px 40px #0004}
+.lib-art{position:relative;aspect-ratio:16/9;background:radial-gradient(circle at 72% 35%,rgba(163,230,53,.28),transparent 43%),linear-gradient(130deg,#1b332a,#10131e);overflow:hidden;display:grid;place-items:center}
+.lib-art.link{background:radial-gradient(circle at 30% 35%,#36486a80,transparent 55%),linear-gradient(135deg,#1e2235,#101014)}
+.lib-art.live{background:radial-gradient(circle at 70% 20%,#ca3b4280,transparent 50%),linear-gradient(135deg,#321522,#0c111c)}
+.lib-art .lib-poster-symbol{font-size:76px;font-weight:900;filter:drop-shadow(0 10px 24px #0007);opacity:.75}
+.lib-art .lib-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.lib-art.has-cover .lib-cover-img{display:block}.lib-art.has-cover:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 48%,#0009);pointer-events:none}
+.lib-art .lib-float{position:absolute;top:12px;left:12px;z-index:1;display:flex;gap:5px;flex-wrap:wrap}
+.lib-pill{background:#0b0d12d9;border:1px solid #ffffff36;border-radius:8px;padding:5px 8px;font-size:11px;color:#f4f4f5;font-weight:700}
+.lib-pill.ok{color:#a3e635}.lib-pill.dim{color:#e0e7ff}
+.lib-open{position:absolute;z-index:2;display:flex;align-items:center;gap:8px;bottom:12px;left:12px;padding:9px 12px;border:1px solid #a3e63580;border-radius:10px;color:#fff;background:#080a0bce;font-weight:800;cursor:pointer}
+.lib-open:hover,.lib-open:focus-visible{background:#a3e635;color:#10120b}
+.lib-star{position:absolute;top:10px;right:12px;z-index:2;width:36px;height:36px;border:1px solid #ffffff4b;border-radius:10px;background:#080809b9;color:#facc15;font-size:22px;cursor:pointer}
+.lib-star:hover,.lib-star.on{background:#facc15;color:#161616}
+.lib-body{padding:16px;display:flex;flex-direction:column;gap:11px;flex:1}
+.lib-card-title{font-size:17px;font-weight:800;line-height:1.3;word-break:break-word;margin:0}
+.lib-date{font-size:12px;color:var(--muted)}
+.lib-stats{display:flex;gap:6px;flex-wrap:wrap}.lib-stats span{background:#26262e;border-radius:7px;padding:5px 7px;font-size:11px;font-weight:700}
+.lib-note{font-size:12px;color:#a1a1aa;line-height:1.5;min-height:18px}
+.lib-acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lib-acts button{min-width:0;min-height:40px;font-size:12px;white-space:normal}
+.lib-acts .wide{grid-column:1/-1}
+.lib-folders{display:flex;gap:7px;align-items:center;justify-content:space-between;border-top:1px solid #ffffff13;padding-top:9px}
+.lib-folders select{min-width:0;max-width:138px;background:#101013;color:#a1a1aa;border:1px solid #37373f;padding:7px;border-radius:8px}
+.lib-folders button{border:0;background:transparent;padding:6px;color:#a1a1aa;cursor:pointer;font-size:12px}.lib-folders button:hover{color:#fff}
+.lib-clips{display:grid;gap:7px;background:#111115;border-top:1px solid #ffffff20;padding:12px}
+.lib-clips button{display:flex;text-align:left;justify-content:space-between;align-items:center;gap:10px;min-width:0;padding:10px;background:#222229;border:1px solid #383840;border-radius:9px;color:#f5f5f6;cursor:pointer}
+.lib-clips button:hover{border-color:var(--accent)}.lib-clips b{font-size:12px}.lib-clips small{color:#a1a1aa;font-size:11px}
+.lib-foot{text-align:center;padding:10px 0 24px}.lib-empty{padding:50px 16px;text-align:center;border:1px dashed #44444e;border-radius:16px;background:#17171a}.lib-empty h3{margin:8px 0}.lib-empty p{max-width:380px;margin:0 auto 14px;color:var(--muted)}
+.lib-library.list{grid-template-columns:1fr}.lib-library.list .lib-card{display:grid;grid-template-columns:minmax(200px,29%) minmax(0,1fr)}.lib-library.list .lib-art{height:100%;min-height:184px;aspect-ratio:auto}.lib-library.list .lib-clips{grid-column:1/-1}
+@media(max-width:700px){.lib-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.lib-library{grid-template-columns:1fr}.lib-library.list .lib-card{display:block}.lib-library.list .lib-art{aspect-ratio:16/9;height:auto;min-height:0}.lib-toolbar input{flex-basis:100%}}
 .projs{display:grid;gap:12px;margin-top:16px}
 .proj{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;flex-wrap:wrap}
 .proj .pi{flex:1;min-width:220px}
@@ -1205,8 +1249,22 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 
   <!-- ===================== PROJETOS ===================== -->
   <main id="vProjects" class="view hidden">
-    <div class="apphead"><div><h2>Meus projetos</h2><p class="sub" style="margin:4px 0 0">Seus vídeos processados recentemente. Projetos de link podem ser reabertos por 7 dias sem gastar cota.</p></div><div class="spacer"></div><a class="btn small" href="#criar">+ Novo corte</a></div>
-    <div id="projList" class="projs"></div>
+    <header class="lib-head"><div><div class="eyebrow">▦ Biblioteca NEONCUT</div><h2>Seus projetos, organizados.</h2><p class="sub">Encontre seus cortes, continue editando e volte a postar. Favoritos, pastas e histórico em um único lugar.</p></div><a class="btn" href="#criar">＋ Criar novos cortes</a></header>
+    <div class="lib-kpis" id="projSummary" aria-live="polite">
+      <div class="lib-kpi"><b>—</b><span>Projetos</span></div><div class="lib-kpi"><b>—</b><span>Cortes</span></div><div class="lib-kpi"><b>—</b><span>Favoritos</span></div><div class="lib-kpi"><b>—</b><span>Disponíveis aqui</span></div>
+    </div>
+    <div class="lib-toolbar" id="projToolbar">
+      <input id="projSearch" type="search" maxlength="160" placeholder="Buscar vídeo, título ou corte…" aria-label="Buscar projetos">
+      <select id="projFilter" aria-label="Filtrar projetos"><option value="all">Todos os projetos</option><option value="favorites">★ Favoritos</option><option value="local">Neste dispositivo</option><option value="links">Links / lives</option><option value="archived">Arquivados</option></select>
+      <select id="projFolder" aria-label="Filtrar pasta"><option value="">Todas as pastas</option><option>Geral</option><option>Clientes</option><option>Gameplays</option><option>Podcasts</option><option>Testes</option></select>
+      <select id="projSort" aria-label="Ordenar projetos"><option value="new">Mais recentes</option><option value="old">Mais antigos</option><option value="name">Nome A–Z</option><option value="clips">Mais cortes</option></select>
+      <button type="button" class="btn ghost small" id="projLayout" aria-label="Alternar visualização" aria-pressed="false">☰ Lista</button>
+      <button type="button" class="btn ghost small" id="projRefresh" aria-label="Atualizar biblioteca">↻</button>
+    </div>
+    <p class="note" id="projStatus" role="status" style="margin:0 0 12px"></p>
+    <div id="projList" class="lib-library"></div>
+    <div class="lib-foot"><button type="button" class="btn ghost hidden" id="projMore">Carregar mais projetos</button></div>
+    <p class="note">Por privacidade, o vídeo original não fica armazenado permanentemente na nuvem. Os dados dos cortes são salvos na conta; para reabrir um arquivo antigo, talvez seja necessário selecioná-lo novamente. Remover um projeto não devolve a cota utilizada.</p>
   </main>
 
   <main id="vCreator" class="view hidden">
