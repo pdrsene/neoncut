@@ -3760,6 +3760,7 @@ function pickFile(){
     input.onchange=()=>finish(input.files?.[0]);
     // Cancel is supported when available (modern browsers).
     input.addEventListener('cancel',()=>finish(null),{once:true});
+    window.addEventListener('focus',()=>setTimeout(()=>{if(!input.files?.length)finish(null);},700),{once:true});
     input.click();
   });
 }
@@ -5395,7 +5396,7 @@ function creatorCopy(text) { if(navigator.clipboard)navigator.clipboard.writeTex
 function creatorUrl(token,invite=false){return location.origin+'/?'+(invite?'invite=':'portfolio=')+encodeURIComponent(token)+(invite?'':'#portfolio')}
 function drawCreator(d) {
   const pct=d.next?Math.min(100,100*(d.xp-d.floor)/(d.next-d.floor)):100;
-  $('#creatorStats').innerHTML='<div class="row"><div><p class="note">Nível '+d.level+'</p><h2>'+esc(d.title)+'</h2></div><div class="spacer"></div><div class="creatorxp">'+d.xp+' XP</div></div><div class="bar"><i style="width:'+pct+'%"></i></div><p class="note">'+(d.next?(d.next-d.xp)+' XP para o próximo nível':'Nível máximo alcançado')+' · +10 XP por corte exportado de projeto salvo, até 20 cortes a cada 24 h. Não conta demonstração nem repetição do mesmo corte.</p><div class="creatorlevels">'+d.levels.map(l=>'<div class="creatorlevel '+(d.xp>=l.xp?'unlocked':'')+'"><small>Nível '+l.level+' · '+l.xp+' XP</small><b>'+esc(l.title)+'</b><small>'+esc(l.reward)+'</small></div>').join('')+'</div>';
+  $('#creatorStats').innerHTML='<div class="row"><div><p class="note">Nível '+d.level+'</p><h2>'+esc(d.title)+'</h2></div><div class="spacer"></div><div class="creatorxp">'+d.xp+' XP</div></div><div class="bar"><i style="width:'+pct+'%"></i></div><p class="note">'+(d.next?(d.next-d.xp)+' XP para o próximo nível':'Nível máximo alcançado')+' · +10 XP por corte exportado de projeto salvo, até 20 cortes a cada 24 h. Não conta demonstração nem repetição do mesmo corte.</p><div class="creatorlevels">'+d.levels.map(l=>'<div class="creatorlevel '+(d.xp>=l.xp?'unlocked':'')+'">'+pixelAvatarSvg((PX_CHARACTERS.find(x=>x[2]===l.level)||PX_CHARACTERS[0])[0],46)+'<small>Nível '+l.level+' · '+l.xp+' XP</small><b>'+esc(l.title)+'</b><small>'+esc(l.reward)+'</small></div>').join('')+'</div>';
   renderPixelRoster(d);
   $('#creatorInvite').value=creatorUrl(d.token,true);
   $('#creatorRefStats').textContent=d.invited+' cadastro(s) atribuídos · '+d.qualified+' indicação(ões) premiadas.';
