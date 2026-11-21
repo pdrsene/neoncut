@@ -807,6 +807,20 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 .autobox select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .autobox select:disabled{cursor:not-allowed;opacity:.65}
 @media(max-width:760px){.autobox{grid-template-columns:repeat(2,minmax(0,1fr))}.autobox select{min-height:35px;font-size:16px}.autobox label:last-child{grid-column:1/-1}}
+
+.pxart{image-rendering:pixelated;display:block;flex:none}
+.pixel-hero{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:18px;background:linear-gradient(120deg,#171f16,#111113 65%);border:1px solid rgba(163,230,53,.25);border-radius:16px;margin:14px 0}
+.pixel-hero .px-portrait{padding:10px;border-radius:14px;background:#0b0f0e;border:1px solid rgba(163,230,53,.3)}
+.pixel-hero h3{margin:0 0 4px}.pixel-hero .sub{margin:0;font-size:13px;line-height:1.5}
+.pixel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:10px;margin:16px 0 4px}
+.pixel-card{min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:13px 7px;border:1px solid var(--line);border-radius:15px;background:#151519;color:var(--text);cursor:pointer;text-align:center;transition:border-color .16s,background .16s,transform .16s}
+.pixel-card:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent)}.pixel-card[aria-pressed=true]{border-color:var(--accent);background:rgba(163,230,53,.09);box-shadow:0 0 0 1px rgba(163,230,53,.14)}
+.pixel-card:disabled{opacity:.43;cursor:not-allowed}.pixel-card b{font-size:12px;line-height:1.3}.pixel-card small{font-size:11px;color:var(--muted)}
+.pixel-card .pxart{width:76px;height:76px;background:radial-gradient(circle,#292c25,#0e0e12);border-radius:12px}
+.creatorlevel .pxart{margin-bottom:8px;width:46px;height:46px}
+.nav-character{display:inline-flex;align-items:center}.nav-character .pxart{width:25px;height:25px}
+.px-public{display:flex;align-items:center;gap:12px;margin-bottom:10px}.px-public .pxart{width:78px;height:78px;background:#14191a;border-radius:12px}
+@media(max-width:480px){.pixel-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.pixel-card{padding:10px 4px}.pixel-card .pxart{width:62px;height:62px}}
 .creatorform{display:grid;gap:16px;margin-top:14px}.creatorform .f{min-width:0}.creatorform textarea{width:100%}.creatorlink{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;gap:8px;margin:8px 0}.creatorlink input{min-width:0;width:100%}.creatorlevels{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:14px}.creatorlevel{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px}.creatorlevel.unlocked{border-color:var(--accent)}.creatorlevel b,.creatorlevel small{display:block}.creatorlevel small{color:var(--muted)}.creatorxp{font-size:32px;color:var(--accent);font-weight:900}.portworks{display:grid;gap:10px;margin-top:20px}.portworks a{display:block;padding:14px;border:1px solid var(--line);border-radius:12px;overflow-wrap:anywhere;color:var(--text)}.porttheme-neon{border-color:#a3e635!important}.porttheme-gold{border-color:#facc15!important;box-shadow:inset 0 3px #facc15}.porttheme-legend{border-color:#a78bfa!important;box-shadow:inset 0 3px #a78bfa}.momentsearch{display:grid;gap:8px;margin:14px 0 0}.momentsearch .note{margin:0}.radar-tools{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}.radar-tools input[type=search]{flex:1;min-width:150px}.radar-tools select{max-width:100%}.radar-growth{color:var(--accent);font-size:12px;display:block;margin-top:4px}
 @media(max-width:600px){.creatorlink{grid-template-columns:1fr auto}.creatorlink input:first-child{grid-column:1/-1}.radar-tools input[type=search]{flex-basis:100%}}
 /* navegador interno (Instagram/TikTok) */
@@ -1196,7 +1210,13 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 
   <main id="vCreator" class="view hidden">
     <div class="apphead"><div><h2>Creator Hub</h2><p class="sub">Evolua com seus cortes, indique amigos e mostre seu trabalho.</p></div><a class="btn small" href="#criar">Criar cortes</a></div>
-    <div id="creatorStats" class="panel"><p class="note">Carregando…</p></div><div class="row" style="flex-wrap:wrap;margin:14px 0"><a class="btn ghost small" href="#oportunidades">Oportunidades</a><a class="btn ghost small" href="#nuvem">Fila em nuvem</a></div><div class="panel"><h3>Missões e conquistas</h3><p class="note">Bônus de XP cosmético, semana de segunda a domingo (UTC). Os mesmos cortes não pontuam duas vezes.</p><div id="missionList"></div></div>
+    <div id="creatorStats" class="panel"><p class="note">Carregando…</p></div>
+    <section id="creatorPixels" class="panel" style="margin-top:16px" aria-labelledby="pixelTitle">
+      <h3 id="pixelTitle">Sua coleção Pixel</h3><p class="note">10 personagens · 5 níveis · escolha quem representa você na NEONCUT.</p>
+      <div id="pixelSelected" class="pixel-hero"><p class="note">Carregando personagens…</p></div>
+      <div id="pixelGrid" class="pixel-grid"></div>
+      <p class="note" style="margin-top:12px">Personagens cosméticos são liberados conforme você evolui; seus cortes e planos não mudam.</p>
+    </section><div class="row" style="flex-wrap:wrap;margin:14px 0"><a class="btn ghost small" href="#oportunidades">Oportunidades</a><a class="btn ghost small" href="#nuvem">Fila em nuvem</a></div><div class="panel"><h3>Missões e conquistas</h3><p class="note">Bônus de XP cosmético, semana de segunda a domingo (UTC). Os mesmos cortes não pontuam duas vezes.</p><div id="missionList"></div></div>
     <div class="panel" style="margin-top:16px"><h3>Indique e evolua</h3><p class="note">Ganhe 100 XP por amigo que fizer sua primeira compra aprovada e completar 7 dias. Até 20 indicações premiadas. Não vale autoindicação; XP não é dinheiro, desconto ou crédito de processamento.</p><div class="row"><input id="creatorInvite" readonly aria-label="Link de indicação" style="flex:1;min-width:0"><button class="btn small" id="copyInvite">Copiar link</button></div><p class="note" id="creatorRefStats"></p></div>
     <div class="panel" style="margin-top:16px"><h3>Seu portfólio</h3><p class="note">Mostre somente trabalhos próprios ou autorizados. Seu perfil começa privado; seu e-mail, vídeos e projetos não serão publicados.</p>
       <form id="portfolioForm" class="creatorform"><label class="f">Nome público<input id="portfolioName" maxlength="60" required></label><label class="f">Sobre seu trabalho<textarea id="portfolioBio" maxlength="280" rows="3"></textarea></label><label class="f">Tema<select id="portfolioTheme"></select></label><div id="portfolioLinks"></div><button class="btn ghost small" id="portfolioAdd" type="button">+ Adicionar trabalho</button><label class="check"><input type="checkbox" id="portfolioPublic"> Tornar meu portfólio público</label><button type="submit" class="btn">Salvar portfólio</button></form><div id="portfolioShare" class="row hidden" style="margin-top:12px"><a id="portfolioOpen" class="btn ghost small" target="_blank" rel="noopener">Ver perfil público</a><button class="btn ghost small" id="portfolioCopy">Copiar link</button></div><p id="portfolioMsg" class="note" role="status"></p></div>
@@ -3298,7 +3318,7 @@ function renderNav() {
   const T = (href, ic, txt, extra) => `<a href="${href}" ${extra || ''} class="${h === href ? 'on' : ''}"><i>${ic}</i><span>${txt}</span></a>`;
   $('#tabbar').innerHTML = u ? T('#criar', '✂️', 'Criar') + T('#projetos', '📁', 'Projetos') + T('#creator', '🏆', 'Creator') + T('#estudio', '🎬', 'Estúdio') + T('#precos', '💎', 'Planos') + (u.admin ? T('#metricas', '📊', 'Métricas') : T('#', '📘', 'Tutorial', 'data-tutorial')) : '';
   $('#navRight').innerHTML = u
-    ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' || !sawResult() ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a id="navLevel" class="navlevel hidden" href="#creator" aria-label="Seu nível no Creator Hub"><b></b><small></small></a><a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
+    ? `<span class="planpill ${S.plan.plan}">${PLAN_LABEL[S.plan.plan]}</span>${S.plan.plan === 'proplus' || !sawResult() ? '' : `<button class="btn small hide-sm" data-up>${isPro() ? 'Seja Pro+' : 'Seja Pro'}</button>`}<a id="navLevel" class="navlevel hidden" href="#creator" aria-label="Seu nível no Creator Hub"><span class="nav-character"></span><b></b><small></small></a><a class="avatar" href="#conta" title="Minha conta">${u.avatar ? `<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">` : esc((u.name || u.email)[0].toUpperCase())}</a>`
     : `<button class="btn ghost small" data-auth-open="login">Entrar</button><button class="btn small" data-cta>Começar grátis</button>`;
   paintNavLevel();
   renderHome();
@@ -3322,13 +3342,14 @@ function paintNavLevel(){
   const el=$('#navLevel'),d=S.creatorLevel;if(!el)return;
   el.classList.toggle('hidden',!d);if(!d)return;
   el.dataset.level=String(d.level);el.querySelector('b').textContent='NV. '+d.level;
+  const ch=el.querySelector('.nav-character');if(ch)ch.innerHTML=pixelAvatarSvg(d.avatar_id||'rookie',25);
   el.querySelector('small').textContent=d.title;
   el.title=d.title+' · '+d.xp+' XP — Creator Hub';el.setAttribute('aria-label',el.title);
 }
 function updateNavLevel(d){
   if(!d||!Number.isInteger(d.level)||!Number.isFinite(d.xp)||!S.user)return;
   if(S.creatorLevel && S.creatorLevel.xp>d.xp)return;
-  S.creatorLevel={level:d.level,title:String(d.title||''),xp:d.xp};paintNavLevel();
+  S.creatorLevel={level:d.level,title:String(d.title||''),xp:d.xp,avatar_id:d.avatar_id||S.creator?.avatar_id||S.creatorLevel?.avatar_id||'rookie'};paintNavLevel();
 }
 async function refreshNavLevel(uid){
   try{const r=await fetch(API+'/api/creator/me',{credentials:'include'});if(!r.ok)return;const d=await r.json();if(S.user?.id===uid)updateNavLevel(d);}catch(e){}
@@ -5068,11 +5089,74 @@ try {
  const inv=new URLSearchParams(location.search).get('invite');
  if(inv&&/^[A-Za-z0-9_-]{12,40}$/.test(inv)&&!document.cookie.includes('nc_invite='))document.cookie='nc_invite='+inv+'; Max-Age=604800; Path=/; SameSite=Lax'+(location.protocol==='https:'?'; Secure':'');
 } catch(e){}
+
+const PX_CHARACTERS=[
+ ['rookie','Pixel Rookie',1,'#a3e635','#567f30','#d8aa82','#30291b'],
+ ['fox','Raposa Neon',1,'#fb923c','#9f4f27','#ecc29b','#582f20'],
+ ['scout','Clip Scout',2,'#38bdf8','#1859ae','#c99478','#172a4b'],
+ ['ninja','Ninja do Corte',2,'#ef4444','#871b37','#d9ab85','#12121c'],
+ ['bot','Cyber Bot',3,'#22d3ee','#087b88','#8be5ee','#1b3657'],
+ ['mage','Mago dos Clipes',3,'#a78bfa','#5947b4','#ebc19c','#422254'],
+ ['knight','Cavaleiro XP',4,'#facc15','#a67b12','#edc19b','#303d4b'],
+ ['racer','Piloto Neon',4,'#f97316','#c12e54','#dfb38c','#171727'],
+ ['ghost','Fantasma Viral',5,'#c084fc','#644bbf','#efefff','#332a55'],
+ ['dragon','Dragão Pixel',5,'#4ade80','#22724b','#a3e0b3','#123b32']
+];
+function pixelAvatarSvg(id,size=76){
+ const p=PX_CHARACTERS.find(x=>x[0]===id)||PX_CHARACTERS[0],name=p[1],c=p[3],dark=p[4],skin=p[5],hair=p[6];
+ const R=(x,y,w,h,col)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+col+'"/>';
+ let art=R(3,2,18,20,'#0b0d11')+R(4,3,16,18,'#1c2028');
+ art+=R(7,5,10,8,'#0b0b16')+R(8,6,8,6,skin)+R(8,4,8,3,hair)+R(7,5,2,4,hair)+R(15,5,2,4,hair);
+ art+=R(9,9,2,1,'#171722')+R(14,9,2,1,'#171722')+R(11,11,3,1,'#9a6257');
+ art+=R(7,13,10,6,'#090b11')+R(8,14,8,4,dark)+R(9,14,6,2,c);
+ art+=R(5,14,3,4,'#0b1019')+R(6,15,2,3,dark)+R(16,14,3,4,'#0b1019')+R(16,15,2,3,dark);
+ art+=R(9,18,3,3,'#101318')+R(13,18,3,3,'#101318')+R(9,18,3,1,c)+R(13,18,3,1,c);
+ const W='#f8fafc',B='#0b101a';
+ const extras={
+ rookie:[[7,3,10,2,c],[6,6,2,5,c],[16,6,2,5,c],[10,15,4,1,W]],
+ fox:[[7,2,3,4,c],[15,2,3,4,c],[8,3,1,2,skin],[16,3,1,2,skin],[11,11,3,2,W],[19,16,2,4,c]],
+ scout:[[6,4,12,3,c],[11,2,6,3,dark],[5,7,2,2,W],[17,7,2,2,W],[9,14,6,1,W]],
+ ninja:[[7,3,10,4,B],[7,8,10,4,B],[8,7,8,2,c],[17,6,4,2,c],[10,9,2,1,W],[14,9,2,1,W]],
+ bot:[[7,4,10,9,'#122238'],[8,5,8,5,c],[9,7,2,2,W],[14,7,2,2,W],[11,2,2,3,c],[11,1,2,1,W]],
+ mage:[[6,4,12,2,c],[8,2,8,2,dark],[10,0,4,2,c],[12,2,1,2,W],[18,14,2,7,W],[17,11,4,2,c]],
+ knight:[[7,3,10,8,'#64748b'],[8,4,8,3,W],[7,8,10,3,'#1e293b'],[9,9,2,1,c],[14,9,2,1,c],[11,2,3,2,c]],
+ racer:[[6,4,12,8,c],[8,7,8,3,B],[9,8,7,1,'#c4e8fc'],[12,3,3,3,W],[9,14,6,2,W]],
+ ghost:[[7,2,10,5,c],[6,5,12,10,'#9b80db'],[7,7,10,8,W],[9,9,2,2,B],[14,9,2,2,B],[7,18,2,2,W],[12,18,2,3,W],[16,18,2,2,W]],
+ dragon:[[6,3,3,5,c],[16,2,3,6,c],[7,5,10,7,'#237a4b'],[8,6,8,6,'#4ade80'],[10,9,2,1,B],[15,9,2,1,B],[4,14,3,6,c],[18,13,3,7,c]]
+ };
+ for(const [x,y,w,h,col] of extras[id]||extras.rookie)art+=R(x,y,w,h,col);
+ art+=R(3,8,2,2,c)+R(20,5,2,2,c)+R(2,19,2,2,dark);
+ return '<svg class="pxart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="'+size+'" height="'+size+'" shape-rendering="crispEdges" role="img" aria-label="'+name+'">'+art+'</svg>';
+}
+function renderPixelRoster(d){
+ const collection=d.avatars||PX_CHARACTERS.map(x=>({id:x[0],name:x[1],tier:x[2]}));
+ const selected=collection.find(a=>a.id===d.avatar_id)||collection[0];
+ $('#pixelSelected').innerHTML='<div class="px-portrait">'+pixelAvatarSvg(selected.id,110)+'</div><div><small class="note">SEU PERSONAGEM · NÍVEL '+d.level+'</small><h3>'+esc(selected.name)+'</h3><p class="sub">Nível '+d.level+' · '+esc(d.title)+' · '+d.xp+' XP. Aparece ao lado do nível e no portfólio público, quando publicado.</p></div>';
+ $('#pixelGrid').innerHTML=collection.map(a=>{
+   const ok=d.level>=a.tier, chosen=selected.id===a.id;
+   return '<button type="button" class="pixel-card" data-pixel="'+esc(a.id)+'" aria-pressed="'+chosen+'" '+(ok?'':'disabled title="Desbloqueie no nível '+a.tier+'"')+'>'+pixelAvatarSvg(a.id,76)+'<b>'+esc(a.name)+'</b><small>'+(chosen?'✓ Em uso':ok?'Nível '+a.tier+' · disponível':'🔒 Nível '+a.tier)+'</small></button>';
+ }).join('');
+}
+$('#pixelGrid').addEventListener('click',async e=>{
+ const b=e.target.closest('[data-pixel]');if(!b||b.disabled||!S.creator||!S.user)return;
+ const a=(S.creator.avatars||[]).find(x=>x.id===b.dataset.pixel);
+ if(!a||a.tier>S.creator.level){toast('Esse personagem ainda não foi desbloqueado.');return;}
+ if(S.creator.avatar_id===a.id)return;
+ b.disabled=true;
+ try{const d=await api('/api/creator/avatar',{avatar_id:a.id});
+   if(!S.creator||!S.user)return;
+   S.creator.avatar_id=d.avatar_id;
+   S.creatorLevel=Object.assign({},S.creatorLevel,{avatar_id:d.avatar_id});
+   paintNavLevel();renderPixelRoster(S.creator);toast('Personagem selecionado: '+a.name,2800);
+ }catch(err){toast(err.message||'Não foi possível salvar o personagem.',3800);b.disabled=false;}
+});
+
 function creatorCopy(text) { if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>toast('Link copiado!'),()=>prompt('Copie o link:',text));else prompt('Copie o link:',text); }
 function creatorUrl(token,invite=false){return location.origin+'/?'+(invite?'invite=':'portfolio=')+encodeURIComponent(token)+(invite?'':'#portfolio')}
 function drawCreator(d) {
   const pct=d.next?Math.min(100,100*(d.xp-d.floor)/(d.next-d.floor)):100;
   $('#creatorStats').innerHTML='<div class="row"><div><p class="note">Nível '+d.level+'</p><h2>'+esc(d.title)+'</h2></div><div class="spacer"></div><div class="creatorxp">'+d.xp+' XP</div></div><div class="bar"><i style="width:'+pct+'%"></i></div><p class="note">'+(d.next?(d.next-d.xp)+' XP para o próximo nível':'Nível máximo alcançado')+' · +10 XP por corte exportado de projeto salvo, até 20 cortes a cada 24 h. Não conta demonstração nem repetição do mesmo corte.</p><div class="creatorlevels">'+d.levels.map(l=>'<div class="creatorlevel '+(d.xp>=l.xp?'unlocked':'')+'"><small>Nível '+l.level+' · '+l.xp+' XP</small><b>'+esc(l.title)+'</b><small>'+esc(l.reward)+'</small></div>').join('')+'</div>';
+  renderPixelRoster(d);
   $('#creatorInvite').value=creatorUrl(d.token,true);
   $('#creatorRefStats').textContent=d.invited+' cadastro(s) atribuídos · '+d.qualified+' indicação(ões) premiadas.';
 }
