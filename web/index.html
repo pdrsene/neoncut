@@ -1036,7 +1036,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       <p class="sub" style="text-align:center">Escolha um vídeo de exemplo e veja a NEONCUT cortar de verdade, aqui no navegador. Sem cadastro e sem gastar a sua cota.</p>
       <div class="instant-demo">
         <div><span class="dbadge">PRÉVIA INSTANTÂNEA</span><h3>Veja um exemplo antes de criar</h3><p class="sub">Assista a uma amostra visual do template, sem enviar arquivos, criar conta ou carregar a IA. Quando estiver pronto, teste a criação real com um vídeo de exemplo.</p><div class="row"><button type="button" class="btn" data-demo-try>Testar a criação real</button><button type="button" class="btn ghost" data-cta>Usar meu vídeo</button></div><p class="note">Amostra ilustrativa de template; não representa uma análise feita agora nem garante resultados de audiência.</p></div>
-        <video id="instantPreview" controls playsinline preload="metadata" aria-label="Gameplay real com webcam, exemplo de enquadramento"><source src="demo/stream-web.mp4#t=0.1" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
+        <video id="instantPreview" autoplay muted loop playsinline preload="auto" data-autoplay aria-label="Gameplay real com webcam, exemplo de enquadramento"><source src="demo/stream-web.mp4#t=0.1" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
       </div>
       <div class="demo-section-head"><div><span class="home-overline">EXPERIMENTE NA PRÁTICA</span><h3>Escolha um gameplay</h3><p class="note">Vídeos de demonstração para testar a geração real de cortes, sem gastar sua cota.</p></div><span class="demo-free-label">TESTE GRATUITO</span></div>
       <div class="dgrid" id="demoGrid"><p class="note">Carregando exemplos…</p></div>
@@ -2305,6 +2305,20 @@ function drawCaptions(ctx, clip, t, tpl, yOverride) {
   ctx.restore();
 }
 
+function drawCleanTitle(ctx, text, clip) {
+  if (!text) return;
+  const t = String(text).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim(); if (!t) return;
+  ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  let s = 64; const f = n => `800 ${n}px Inter, system-ui, sans-serif`; ctx.font = f(s);
+  const wrap = () => { const ws = t.split(' '), rows = ['']; for (const w of ws) { const tr = (rows[rows.length - 1] + ' ' + w).trim(); if (ctx.measureText(tr).width > 940 && rows[rows.length - 1]) rows.push(w); else rows[rows.length - 1] = tr; } return rows; };
+  let rows = wrap(); while (rows.length > 2 && s > 44) { s -= 4; ctx.font = f(s); rows = wrap(); }
+  rows = rows.slice(0, 3);
+  const lh = s * 1.18, y = clip && clip.titleY != null ? clip.titleY * H : 170;
+  if (clip) clip._bbTitle = { y0: y - rows.length * lh / 2, y1: y + rows.length * lh / 2 };
+  ctx.lineJoin = 'round'; ctx.lineWidth = s * .16; ctx.strokeStyle = 'rgba(0,0,0,.85)'; ctx.fillStyle = '#fff';
+  rows.forEach((r, i) => { const yy = y - (rows.length - 1) * lh / 2 + i * lh; ctx.strokeText(r, W / 2, yy); ctx.fillText(r, W / 2, yy); });
+  ctx.restore();
+}
 function drawTitle(ctx, text, kind, t, clip) {
   if (!text || kind === 'none') return;
   const maxW = 920, TS = (clip && clip.titleScale) || 1, TY = clip && clip.titleY != null ? clip.titleY * H : null;
@@ -2349,15 +2363,13 @@ function drawTitle(ctx, text, kind, t, clip) {
 function renderFrame(ctx, v, clip, t, tplId) {
   const tpl = tplById(tplId), vw = v.videoWidth || v.width || S.vw, vh = v.videoHeight || v.height || S.vh;
   if (tpl.layout === 'raw') {
-    ctx.save(); ctx.fillStyle = '#0d0618'; ctx.fillRect(0, 0, W, H);
+    ctx.save(); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
     const fh = W * vh / vw, y = (H - fh) / 2; ctx.drawImage(v, 0, 0, vw, vh, 0, y, W, fh);
-    ctx.font = '700 44px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.6)';
-    ctx.fillText('Formato original · sem edição', W / 2, y + fh + 90);
     if (false && S.plan && S.plan.watermark && !S._preview) { ctx.font = '800 34px Inter, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.fillText('✂ Feito com NEONCUT', W / 2, y - 50); }
     ctx.restore(); return;
   }
   const z = punchZoom(clip, t, tpl), pan = (clip.pan || 0) / 100;
-  ctx.save(); ctx.fillStyle = '#0d0618'; ctx.fillRect(0, 0, W, H);
+  ctx.save(); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
   let capY = null;
   if (tpl.layout === 'full') {
     ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, W, H, pan, 1.0 * z), 0, 0, W, H);
@@ -2369,14 +2381,19 @@ function renderFrame(ctx, v, clip, t, tplId) {
     ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, fw, fh, pan, z), 0, y, fw, fh);
     capY = Math.min(H * .80, y + fh + 150);
   } else if (tpl.layout === 'facecam') {
-    const topH = Math.round(H * .4), botH = H - topH;
-    let cw = vw * (clip.camSize || 25) / 100, ch = cw * 9 / 16;
-    let cx = (clip.corner || 'br')[1] === 'l' ? 0 : vw - cw, cy = (clip.corner || 'br')[0] === 't' ? 0 : vh - ch;
-    if (clip.camRect) { cx = clip.camRect.x * vw; cy = clip.camRect.y * vh; cw = clip.camRect.w * vw; ch = clip.camRect.h * vh; }
-    ctx.drawImage(v, ...srcRectCover(cx, cy, cw, ch, W, topH, 0, 1), 0, 0, W, topH);
-    ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, W, botH, pan, z), 0, topH, W, botH);
-    const g = ctx.createLinearGradient(0, 0, W, 0); g.addColorStop(0, '#ff3d8b'); g.addColorStop(1, '#ffb03c'); ctx.fillStyle = g; ctx.fillRect(0, topH - 5, W, 10);
-    capY = topH + 10;
+    const cam = clip.camRect || (clip.camAuto === undefined ? S.camAuto : clip.camAuto);
+    if (cam === false) {
+      // vídeo sem webcam sobreposta (ex.: só a câmera, ou só o jogo): enquadra o vídeo inteiro na vertical
+      ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, W, H, pan, z), 0, 0, W, H);
+    } else {
+      const topH = Math.round(H * .4), botH = H - topH;
+      let cw = vw * (clip.camSize || 25) / 100, ch = cw * 9 / 16;
+      let cx = (clip.corner || 'br')[1] === 'l' ? 0 : vw - cw, cy = (clip.corner || 'br')[0] === 't' ? 0 : vh - ch;
+      if (cam) { cx = cam.x * vw; cy = cam.y * vh; cw = cam.w * vw; ch = cam.h * vh; }
+      ctx.drawImage(v, ...srcRectCover(cx, cy, cw, ch, W, topH, 0, 1), 0, 0, W, topH);
+      ctx.drawImage(v, ...srcRectCover(0, 0, vw, vh, W, botH, pan, z), 0, topH, W, botH);
+      ctx.fillStyle = '#000'; ctx.fillRect(0, topH - 2, W, 4);
+    }
     capY = H * .74;
   } else if (tpl.layout === 'cinema') {
     const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#1a0a33'); g.addColorStop(.5, '#0d0618'); g.addColorStop(1, '#2a0a2a'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -2385,16 +2402,16 @@ function renderFrame(ctx, v, clip, t, tplId) {
     capY = y + fh + 140;
   }
   clip._bbTitle = null; clip._bbCap = null;
-  if (tpl.id !== 'stream_nt' && clip.showTitle !== false && (clip.titleEnd == null || t - clip.start <= clip.titleEnd)) drawTitle(ctx, clip.title, clip.titleKind || tpl.title, t - clip.start, clip);
+  if (tpl.id !== 'stream_nt' && clip.showTitle !== false && (clip.titleEnd == null || t - clip.start <= clip.titleEnd)) drawCleanTitle(ctx, clip.title, clip);
   // Legendas desativadas na exportação e na prévia.
-  if (clip.handle) { ctx.font = '700 38px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(clip.handle, W / 2, H - (S.plan && S.plan.watermark && !S._preview ? 200 : 120)); }
+  if (false && clip.handle) { ctx.font = '700 38px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.fillText(clip.handle, W / 2, H - (S.plan && S.plan.watermark && !S._preview ? 200 : 120)); }
   if (false && S.plan && S.plan.watermark && !S._preview) {
     ctx.save(); ctx.font = '800 34px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const tx = '✂ Feito com NEONCUT', tw = ctx.measureText(tx).width + 44, y = H - 120;
     ctx.fillStyle = 'rgba(13,6,24,.72)'; roundRect(ctx, W / 2 - tw / 2, y - 30, tw, 60, 30); ctx.fill();
     ctx.fillStyle = '#ffffff'; ctx.fillText(tx, W / 2, y + 2); ctx.restore();
   }
-  if (tpl.progress) {
+  if (false && tpl.progress) {
     const p = clamp((t - clip.start) / Math.max(.1, clip.end - clip.start), 0, 1);
     ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(0, H - 14, W, 14);
     const g = ctx.createLinearGradient(0, 0, W, 0); g.addColorStop(0, '#ff3d8b'); g.addColorStop(1, '#ffb03c'); ctx.fillStyle = g; ctx.fillRect(0, H - 14, W * p, 14);
@@ -2899,8 +2916,10 @@ async function pipelineRun(skip) {
     else if(!S.clips.length) selectionNote='Nenhum momento passou de 60 pontos na análise das falas. Tente outro trecho ou foco.';
     else if(S.clips.length<S.settings.N) selectionNote='Mostrando apenas momentos que atingiram 60 pontos.';
   }else S.clips=pool;
+  // enquadramento automático: onde está a webcam (ou se o vídeo inteiro é câmera/jogo)
+  try { step(5,'active','Enquadrando a webcam'); if (!av.videoWidth && S.url) await ensureSrc(av, S.url); S.camAuto = await Promise.race([detectCam(av, S.clips), sleep(6000).then(() => undefined)]); } catch (e) { S.camAuto = undefined; }
   const kit = brandKit();
-  const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { credit: _cr, hookOn: false, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: S.settings.tpl==='stream', showCaps: false, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
+  const _cr = streamerCredit(); S.clips.forEach((c, i) => Object.assign(c, { camAuto: S.camAuto, credit: _cr, hookOn: false, hookTxt: HOOK_TXTS[i % HOOK_TXTS.length], tpl: S.settings.tpl, corner: 'br', camSize: 25, pan: 0, showTitle: S.settings.tpl==='stream', showCaps: false, handle: kit.handle || '', emojis: kit.emojis !== false, capColor: kit.color || '', capY: null, wordsVer: 0 }));
   if (S.settings.hook) S.clips.forEach(c => { c.start = Math.max(0, c.start - 1.2); });
   S.clips.sort((a, b) => b.score - a.score); S.clips.forEach((c, i) => c.idx = i);
   autoTitles(S.clips);
@@ -3200,8 +3219,7 @@ $('#inStart').onchange = setRange; $('#inEnd').onchange = setRange;
 
 function renderTpls() {
   $('#tpls').innerHTML = TEMPLATES.map(t => `<button class="tpl ${S.cur.tpl === t.id ? 'on' : ''}" data-t="${t.id}"><canvas width="135" height="240"></canvas>${t.name}${!isPro() && !FREE_TPLS.includes(t.id) ? ' <span class="lock">🔒 PRO</span>' : ''}</button>`).join('');
-  const pv = $('#pv'), big = document.createElement('canvas'); big.width = W; big.height = H; const bx = big.getContext('2d');
-  document.querySelectorAll('.tpl').forEach(b => { renderFrame(bx, pv, S.cur, pv.currentTime, b.dataset.t); b.querySelector('canvas').getContext('2d').drawImage(big, 0, 0, 135, 240); });
+  document.querySelectorAll('#tpls .tpl').forEach(b => paint(b.querySelector('canvas'), b.dataset.t)); // prévia animada com gameplay real
   $('#secCam').style.opacity = 1;
 }
 $('#tpls').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (!b) return; if (!isPro() && !FREE_TPLS.includes(b.dataset.t)) { openUpgrade('O template ' + tplById(b.dataset.t).name + ' é do plano Pro.'); return; } S.cur.tpl = b.dataset.t; S.cur.showTitle = b.dataset.t === 'stream'; $('#inShowTitle').checked=S.cur.showTitle; document.querySelectorAll('.tpl').forEach(x => x.classList.toggle('on', x === b)); drawPreview(); });
@@ -3228,8 +3246,8 @@ $('#saveKit').onclick = async () => {
   if (!isPro() && !FREE_TPLS.includes(s.tpl)) s.tpl = brandKit().tpl;
   try { await api('/api/me/settings', { settings: s }); S.user.settings = s; toast('Salvo como padrão ⭐'); } catch (e) { toast(e.message); }
 };
-$('#inCorner').onchange = e => { S.cur.corner = e.target.value; S.cur.camRect = null; if (S.cur.tpl !== 'stream' && (isPro() || FREE_TPLS.includes('stream'))) { S.cur.tpl = 'stream'; renderTpls(); } drawPreview(); };
-$('#inCamSize').oninput = e => { S.cur.camSize = +e.target.value; S.cur.camRect = null; drawPreview(); };
+$('#inCorner').onchange = e => { S.cur.corner = e.target.value; S.cur.camRect = null; S.cur.camAuto = null; if (S.cur.tpl !== 'stream' && (isPro() || FREE_TPLS.includes('stream'))) { S.cur.tpl = 'stream'; renderTpls(); } drawPreview(); };
+$('#inCamSize').oninput = e => { S.cur.camSize = +e.target.value; S.cur.camRect = null; S.cur.camAuto = null; drawPreview(); };
 $('#inPan').oninput = e => { S.cur.pan = +e.target.value; drawPreview(); };
 $('#inHandle').oninput = e => { S.cur.handle = e.target.value; drawPreview(); };
 
@@ -3292,7 +3310,7 @@ $('#exportOne').onclick = e => exportWithUI([S.cur], e.target);
 function renderStylePicks() {
   const c = S.cur; if (!c) return;
   $('#capStyles').innerHTML = CAP_PRESETS.map(p => `<button type="button" data-cs="${p.id}" class="${(c.capStyle || '') === p.id ? 'on' : ''}"><span style="${p.css}">${p.id ? 'Aa' : '⚙'}</span><small>${p.id ? p.name.charAt(0) + p.name.slice(1).toLowerCase() : p.name}</small></button>`).join('');
-  $('#titleStyles').innerHTML = TITLE_KINDS.map(p => `<button type="button" data-tk2="${p.id}" class="${(c.titleKind || '') === p.id ? 'on' : ''}"><span style="${p.css}">${p.id ? 'Título' : '⚙'}</span><small>${p.id ? p.name.charAt(0) + p.name.slice(1).toLowerCase() : p.name}</small></button>`).join('');
+  $('#titleStyles').classList.add('hidden'); if (false) $('#titleStyles').innerHTML = TITLE_KINDS.map(p => `<button type="button" data-tk2="${p.id}" class="${(c.titleKind || '') === p.id ? 'on' : ''}"><span style="${p.css}">${p.id ? 'Título' : '⚙'}</span><small>${p.id ? p.name.charAt(0) + p.name.slice(1).toLowerCase() : p.name}</small></button>`).join('');
 }
 $('#capStyles').addEventListener('click', e => { const b = e.target.closest('[data-cs]'); if (!b) return; S.cur.capStyle = b.dataset.cs || null; S.cur.lineCache = null; S.cur.showCaps = true; $('#inShowCaps').checked = true; renderStylePicks(); drawPreview(); });
 $('#titleStyles').addEventListener('click', e => { const b = e.target.closest('[data-tk2]'); if (!b) return; S.cur.titleKind = b.dataset.tk2 || null; S.cur.showTitle = true; $('#inShowTitle').checked = true; renderStylePicks(); drawPreview(); });
@@ -3582,7 +3600,7 @@ async function startProject() {
   S.plan = Object.assign(S.plan, r.plan,{watermark:false,all_templates:true}); S.reuseId = null; loadMe();
   return r;
 }
-const CLIP_KEYS = ['credit', 'hookOn', 'hookTxt', 'title', 'score', 'cat', 'quote', 'tpl', 'corner', 'camSize', 'camRect', 'pan', 'showTitle', 'showCaps', 'handle', 'emojis', 'capColor', 'capY', 'capStyle', 'capScale', 'titleKind', 'titleY', 'titleScale', 'titleEnd', 'desc', 'transcribed', 'tags'];
+const CLIP_KEYS = ['camAuto', 'credit', 'hookOn', 'hookTxt', 'title', 'score', 'cat', 'quote', 'tpl', 'corner', 'camSize', 'camRect', 'pan', 'showTitle', 'showCaps', 'handle', 'emojis', 'capColor', 'capY', 'capStyle', 'capScale', 'titleKind', 'titleY', 'titleScale', 'titleEnd', 'desc', 'transcribed', 'tags'];
 const r2 = x => Math.round(x * 100) / 100;
 function packClip(c) {
   const o = { start: r2(c.start), end: r2(c.end), peakT: r2(c.peakT ?? c.start) };
@@ -5079,7 +5097,7 @@ async function renderDemos() {
   const box = $('#demoGrid'); if (!box) return;
   const list = await loadDemos();
   if (!list.length) { box.innerHTML = '<p class="note" style="text-align:center">Exemplos em breve.</p>'; return; }
-  box.innerHTML = list.map(d => `<article class="dcard"><div class="demo-media"><video src="${esc(d.url)}#t=0.1" preload="metadata" playsinline controls aria-label="Vídeo: ${esc(d.title)}"></video><span class="demo-media-label">${d.duration ? esc(String(d.duration))+' s' : 'VÍDEO'}</span></div>
+  box.innerHTML = list.map(d => `<article class="dcard"><div class="demo-media"><video src="${esc(d.url)}" preload="auto" autoplay muted loop playsinline data-autoplay aria-label="Vídeo: ${esc(d.title)} (toque para ligar o som)"></video><span class="demo-media-label">${d.duration ? esc(String(d.duration))+' s' : 'VÍDEO'}</span></div>
     <div class="demo-card-body"><div class="demo-card-meta"><span class="demo-tag">DEMO</span><span>${esc(d.cat_name || 'Exemplo')}</span></div><h4>${esc(d.title)}</h4>
     <p class="note">${esc(d.description || d.credit || 'Vídeo de exemplo para experimentar a geração de cortes.')}</p>${d.description && d.credit ? `<small class="demo-credit">${esc(d.credit)}</small>` : ''}<button type="button" class="btn small" data-demo-run="${esc(d.id)}">Experimentar <span aria-hidden="true">→</span></button></div></article>`).join('');
 }
@@ -5558,6 +5576,81 @@ function mineHit() {
 }
 function mineStop() { clearInterval(MINE.t); MINE.t = 0; }
 if ($('#proc')) new MutationObserver(() => { if ($('#proc').classList.contains('hidden')) mineStop(); else mineStart(); }).observe($('#proc'), { attributes: true, attributeFilter: ['class'] });
+
+// ---------- detecção da webcam (tom de pele em quadros do vídeo) ----------
+async function detectCam(v, clips) {
+  // Procura a moldura retangular da webcam: bordas retas que ficam paradas em todos os quadros,
+  // com pele (rosto) dentro. Sem moldura: o vídeo inteiro vira corte vertical.
+  if (!v || !v.videoWidth) return undefined;
+  const CW = 192, CH = Math.max(60, Math.round(192 * v.videoHeight / v.videoWidth));
+  const cv = document.createElement('canvas'); cv.width = CW; cv.height = CH; const cx = cv.getContext('2d', { willReadFrequently: true });
+  const dur = v.duration || S.duration || 10;
+  const base = (clips || []).map(c => Number.isFinite(c.peakT) ? c.peakT : (c.start + c.end) / 2);
+  const times = [...base, ...[.15, .35, .55, .75, .9].map(f => f * dur)].slice(0, 7);
+  const N = CW * CH, edgeV = new Float32Array(N), edgeH = new Float32Array(N), skin = new Float32Array(N);
+  let n = 0;
+  const seek = t => new Promise(res => { let ok = false; const done = () => { if (ok) return; ok = true; v.removeEventListener('seeked', done); res(); }; v.addEventListener('seeked', done); v.currentTime = Math.min(Math.max(0, t), dur - .1); setTimeout(done, 1500); });
+  for (const t of times) {
+    await seek(t);
+    try { cx.drawImage(v, 0, 0, CW, CH); } catch (e) { return undefined; }
+    const d = cx.getImageData(0, 0, CW, CH).data, g = new Float32Array(N);
+    for (let i = 0, j = 0; j < N; i += 4, j++) {
+      const r = d[i], gg = d[i + 1], bb = d[i + 2]; g[j] = .3 * r + .59 * gg + .11 * bb;
+      const cb = 128 - .169 * r - .331 * gg + .5 * bb, cr = 128 + .5 * r - .419 * gg - .081 * bb;
+      if (cb > 77 && cb < 127 && cr > 137 && cr < 173 && r > 60) skin[j]++;
+    }
+    for (let y = 1; y < CH - 1; y++) for (let x = 1; x < CW - 1; x++) {
+      const j = y * CW + x;
+      if (Math.abs(g[j + 1] - g[j - 1]) > 22) edgeV[j]++;
+      if (Math.abs(g[j + CW] - g[j - CW]) > 22) edgeH[j]++;
+    }
+    n++;
+  }
+  if (n < 3) return undefined;
+  for (let j = 0; j < N; j++) skin[j] /= n;
+  // imagem integral da pele acumulada: o rosto da webcam fica parado, o jogo se mexe
+  const I = new Float32Array((CW + 1) * (CH + 1));
+  for (let y = 0; y < CH; y++) { let row = 0; for (let x = 0; x < CW; x++) { row += skin[y * CW + x]; I[(y + 1) * (CW + 1) + x + 1] = I[y * (CW + 1) + x + 1] + row; } }
+  const sum = (x0, y0, x1, y1) => I[y1 * (CW + 1) + x1] - I[y0 * (CW + 1) + x1] - I[y1 * (CW + 1) + x0] + I[y0 * (CW + 1) + x0];
+  const pxAR = (v.videoWidth / CW) / (v.videoHeight / CH);
+  let face = null;
+  for (const fw of [.05, .07, .1, .14, .2, .28]) {
+    const w = Math.max(4, Math.round(fw * CW)), h = Math.max(4, Math.round(w * pxAR * 1.2));
+    if (h >= CH) continue;
+    let bestD = 0, bx = 0, by = 0;
+    for (let y = 0; y + h <= CH; y += 2) for (let x = 0; x + w <= CW; x += 2) {
+      const d = sum(x, y, x + w, y + h) / (w * h); if (d <= bestD) continue;
+      // rosto é uma mancha compacta: o anel em volta precisa ter bem menos pele (descarta asfalto, areia, paredes)
+      const X0 = Math.max(0, x - w), Y0 = Math.max(0, y - h / 2 | 0), X1 = Math.min(CW, x + 2 * w), Y1 = Math.min(CH, y + h + (h / 2 | 0));
+      const ringA = (X1 - X0) * (Y1 - Y0) - w * h, ring = ringA > 0 ? (sum(X0, Y0, X1, Y1) - d * w * h) / ringA : 0;
+      if (ring > .22 || ring > d * .45) continue;
+      bestD = d; bx = x; by = y;
+    }
+    if (bestD >= .45) face = { fw, x: bx, y: by, w, h, d: bestD };
+  }
+  if (!face) return false;                 // nenhum rosto parado: corte vertical do vídeo inteiro
+  if (face.fw >= .2) return false;          // rosto grande: o vídeo inteiro já é a câmera
+  // moldura da webcam em volta do rosto (16:9)
+  let cw = clamp(face.w / CW * 3.4, .16, .42), ch = cw * (v.videoWidth / v.videoHeight) * 9 / 16;
+  let x = (face.x + face.w / 2) / CW - cw / 2, y = (face.y + face.h * .55) / CH - ch * .45;
+  x = clamp(x, 0, 1 - cw); y = clamp(y, 0, 1 - ch);
+  if (x < .03) x = 0; if (x + cw > .97) x = 1 - cw; if (y < .03) y = 0; if (y + ch > .97) y = 1 - ch;
+  return { x, y, w: cw, h: ch };
+}
+
+// ---------- vídeos de exemplo sempre animados (sem som; toque liga/desliga o som) ----------
+function kickAutoplay(root) {
+  (root || document).querySelectorAll('video[data-autoplay]').forEach(v => {
+    v.muted = true; v.setAttribute('muted', '');
+    if (!v._ncTap) { v._ncTap = true; v.addEventListener('click', () => { v.muted = !v.muted; if (v.paused) v.play().catch(() => {}); }); v.style.cursor = 'pointer'; }
+    if (v.paused && !matchMedia('(prefers-reduced-motion: reduce)').matches) v.play().catch(() => {});
+  });
+}
+new MutationObserver(() => kickAutoplay()).observe(document.body, { childList: true, subtree: true });
+document.addEventListener('pointerdown', () => kickAutoplay(), { once: true, passive: true });
+setTimeout(kickAutoplay, 500);
+
+window.__nc = { state: () => S };
 </script>
 </body>
 </html>
