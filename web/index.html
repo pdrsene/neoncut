@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#09090B">
 <title>NEONCUT: a ferramenta de quem trabalha com cortes de GTA</title>
 <meta name="description" content="NEONCUT cria cortes de gameplays e lives com três templates simples. Prévia antes de editar, exportação sem legendas e sem marca d’água.">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff3d8b'/%3E%3Cstop offset='1' stop-color='%23ffb03c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='20' cy='20' r='19' fill='url(%23g)'/%3E%3Crect x='2' y='22' width='36' height='2.6' fill='%230d0618'/%3E%3Crect x='4' y='27' width='32' height='2.6' fill='%230d0618'/%3E%3Crect x='7' y='32' width='26' height='2.6' fill='%230d0618'/%3E%3Cpath d='M21 34C21 26 22 18 24 12M24 12C19 9 14 10 11 13M24 12C28 8 33 9 35 12M24 12C22 7 18 5 15 5M24 12C27 6 31 5 33 6' stroke='%230d0618' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="/icons/favicon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="manifest" href="/manifest.webmanifest">
 <meta name="theme-color" content="#09090B">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -968,6 +968,16 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 @keyframes mineSpark{to{transform:translate(var(--dx),var(--dy));opacity:0}}
 @media (max-width:360px){.mine-stage{transform:translateX(-50%) scale(.9)}}
 @media (prefers-reduced-motion:reduce){.mine-char,.mine-pick,.mine-rock,.mine-rock .clap-top{animation:none}}
+
+.nc-proofs{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:22px auto 0;max-width:900px}.nc-proofs span{font-size:12.5px;padding:8px 12px;border:1px solid #2b2b30;border-radius:999px;background:#111214;color:var(--text)}
+.nc-count{text-align:center;color:var(--accent);font-weight:700;margin:12px 0 0}
+.nc-guarantee{text-align:center;margin:8px auto 18px;font-size:14px;color:var(--text)}
+.nc-pervid{font-size:12px;color:var(--accent);font-weight:700;margin:4px 0 8px}
+.nc-compare{max-width:760px;margin:18px auto 0;border:1px solid #2b2b30;border-radius:14px;overflow:hidden}.nc-row{display:grid;grid-template-columns:1.1fr 1.2fr 1fr;gap:10px;padding:12px 14px;font-size:13px;border-top:1px solid #222226;align-items:center}.nc-row:first-child{border-top:0}.nc-row>span{color:var(--muted)}.nc-row>b{color:var(--accent)}.nc-head{background:#141416}.nc-head b{font-size:14px}
+@media(max-width:560px){.nc-row{font-size:11.5px;padding:10px}}
+.nc-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-bottom:12px}
+.nc-sticky{display:none}
+@media(max-width:760px){body.nc-landing .nc-sticky{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(5,8,10,.96) 35%)}.nc-sticky .btn{width:100%}body.nc-landing footer{padding-bottom:90px}body.nc-landing #supportFab{bottom:84px!important}}
 </style>
 </head>
 <body class="yt-off">
@@ -1000,9 +1010,9 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     </section>
     <section class="hx home-hero" aria-labelledby="homeTitle">
       <div class="home-copy">
-        <p class="kick"><span class="home-dot"></span> O estúdio de quem cria cortes</p>
-        <h1 id="homeTitle">Sua próxima live.<br>Seus próximos <em>cortes.</em></h1>
-        <p class="lead">Transforme vídeos longos em cortes prontos para postar. Três templates, prévia instantânea e vídeos sem marca d’água.</p>
+        <p class="kick"><span class="home-dot"></span> Feito para cortes de GTA RP</p>
+        <h1 id="homeTitle">O cortador feito<br>para <em>GTA RP.</em></h1>
+        <p class="lead">Cole o link da live: a IA acha os melhores momentos e entrega o corte com a webcam em cima e o jogo embaixo. Preço em reais, sem marca d’água.</p>
         <div class="home-pills"><span>TikTok</span><span>Instagram Reels</span><span>YouTube Shorts</span></div>
         <form class="hx-form" id="hxForm" novalidate>
           <label for="hxUrl" class="sr">Link da live ou do vídeo</label>
@@ -1024,22 +1034,23 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
           <figure><figcaption>02 / CORTE · 9:16</figcaption><canvas class="hx-cut" id="hxCut" width="360" height="640" role="img" aria-label="Prévia de gameplay no template Webcam + Gameplay"></canvas><span class="home-preview-text">Webcam + Gameplay</span></figure>
         </div><div class="home-preview-foot"><span><span class="home-dot"></span> Renderização de exemplo</span><span>9:16 · sem áudio</span></div>
       </div>
-      <p class="hx-cap">Prévia de gameplay real renderizada no navegador pelo motor de templates da NEONCUT. Não é uma análise automática.</p>
+      <p class="hx-cap">Prévia de gameplay real renderizada no navegador pelo motor de templates da NEONCUT.</p>
     </section>
     <section class="home-launch" aria-label="Acessos rápidos">
       <a href="#criar" class="home-launch-card"><span class="home-icon" aria-hidden="true">✂</span><span><b>Criar cortes</b><small>Comece com um vídeo ou link</small></span><i>↗</i></a>
       <a href="#projetos" class="home-launch-card home-member hidden"><span class="home-icon" aria-hidden="true">▤</span><span><b>Meus projetos</b><small>Continue suas edições</small></span><i>↗</i></a>
       <a href="#creator" class="home-launch-card"><span class="home-icon" aria-hidden="true">◇</span><span><b>Creator Hub</b><small>XP, portfólio e conquistas</small></span><i>↗</i></a>
-      <a href="#oportunidades" class="home-launch-card home-member hidden"><span class="home-icon" aria-hidden="true">◎</span><span><b>Oportunidades</b><small>Explore vagas cadastradas</small></span><i>↗</i></a>
       <a href="#precos" class="home-launch-card home-visitor"><span class="home-icon" aria-hidden="true">↗</span><span><b>Conheça os planos</b><small>Full HD ilimitado no Pro</small></span><i>↗</i></a>
-      <a href="#nuvem" class="home-launch-card home-member hidden"><span class="home-icon" aria-hidden="true">☁</span><span><b>Fila em nuvem</b><small>Recortes manuais · beta</small></span><i>↗</i></a>
     </section>
+
+    <div class="nc-proofs" aria-label="Destaques"><span>🎯 Webcam enquadrada sozinha</span><span>🏷️ Crédito do streamer automático</span><span>🚫 Sem marca d’água até no grátis</span><span>🇧🇷 PIX e preço em reais</span></div>
+    <p class="nc-count hidden" id="ncCount"></p>
 
     <section class="lp-sec" id="demos">
       <h2 class="lp-h">Demonstrações reais</h2>
       <p class="sub" style="text-align:center">Escolha um vídeo de exemplo e veja a NEONCUT cortar de verdade, aqui no navegador. Sem cadastro e sem gastar a sua cota.</p>
       <div class="instant-demo">
-        <div><span class="dbadge">PRÉVIA INSTANTÂNEA</span><h3>Veja um exemplo antes de criar</h3><p class="sub">Assista a uma amostra visual do template, sem enviar arquivos, criar conta ou carregar a IA. Quando estiver pronto, teste a criação real com um vídeo de exemplo.</p><div class="row"><button type="button" class="btn" data-demo-try>Testar a criação real</button><button type="button" class="btn ghost" data-cta>Usar meu vídeo</button></div><p class="note">Amostra ilustrativa de template; não representa uma análise feita agora nem garante resultados de audiência.</p></div>
+        <div><span class="dbadge">PRÉVIA INSTANTÂNEA</span><h3>Veja um exemplo antes de criar</h3><p class="sub">Assista a uma amostra visual do template, sem enviar arquivos, criar conta ou carregar a IA. Quando estiver pronto, teste a criação real com um vídeo de exemplo.</p><div class="row"><button type="button" class="btn" data-demo-try>Testar a criação real</button><button type="button" class="btn ghost" data-cta>Usar meu vídeo</button></div></div>
         <video id="instantPreview" autoplay muted loop playsinline preload="auto" data-autoplay aria-label="Gameplay real com webcam, exemplo de enquadramento"><source src="demo/stream-web.mp4#t=0.1" type="video/mp4">Seu navegador não suporta vídeo incorporado.</video>
       </div>
       <div class="demo-section-head"><div><span class="home-overline">EXPERIMENTE NA PRÁTICA</span><h3>Escolha um gameplay</h3><p class="note">Vídeos de demonstração para testar a geração real de cortes, sem gastar sua cota.</p></div><span class="demo-free-label">TESTE GRATUITO</span></div>
@@ -1058,6 +1069,8 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       </div>
     </section>
 
+    <div class="row" style="justify-content:center;margin:22px 0 0"><button class="btn big" data-cta>Gostou? Faça com a sua live →</button></div>
+
     <section class="lp-sec" id="diferenciais">
       <span class="home-overline home-center">FERRAMENTAS DO CRIADOR</span><h2 class="lp-h">Tudo para o seu próximo corte</h2>
       <div class="diffs">
@@ -1066,13 +1079,27 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <div><small>TEMPLATES</small><b>Três estilos simples</b><p>Webcam com gameplay, com ou sem título, ou vídeo original. Sem legendas ou marca d’água.</p></div>
         <div><small>CORTADORES</small><b>Radar de lives</b><p>As lives de GTA RP em português mais assistidas agora, num lugar só (com conta).</p></div>
         <div><small>CRÉDITOS</small><b>Crédito do streamer</b><p>Cortou por link? A descrição já sai com o crédito e o link do canal.</p></div>
-        <div><small>BUSCA</small><b>Encontre falas específicas</b><p>Indexe toda a gravação no navegador e busque palavras e expressões relacionadas.</p></div><div><small>CREATOR HUB</small><b>Evolua a cada corte</b><p>Ganhe XP, conquiste níveis e monte seu portfólio público.</p></div><div><small>NUVEM · BETA</small><b>Exporte sem manter a aba aberta</b><p>Recortes manuais em 720p de arquivos pequenos, com fila e expiração de 24 horas.</p></div><div><small>BRASIL</small><b>PIX e preço em reais</b><p>Pagamento único por PIX ou cartão, sem renovação automática.</p></div>
+        <div><small>BUSCA</small><b>Encontre falas específicas</b><p>Indexe toda a gravação no navegador e busque palavras e expressões relacionadas.</p></div><div><small>CREATOR HUB</small><b>Evolua a cada corte</b><p>Ganhe XP, conquiste níveis e monte seu portfólio público.</p></div><div><small>BRASIL</small><b>PIX e preço em reais</b><p>PIX ou cartão, 30 dias de acesso, sem fidelidade e sem renovação automática.</p></div>
       </div>
+    </section>
+
+    <section class="lp-sec" id="custo-beneficio">
+      <span class="home-overline home-center">CUSTO-BENEFÍCIO</span><h2 class="lp-h">Por que a NEONCUT vale mais</h2>
+      <div class="nc-compare" role="table">
+        <div class="nc-row nc-head" role="row"><span role="columnheader"></span><b role="columnheader">NEONCUT</b><span role="columnheader">Ferramentas gringas</span></div>
+        <div class="nc-row" role="row"><span>Preço</span><b>Em reais, a partir de R$ 0</b><span>Em dólar, sujeito ao câmbio</span></div>
+        <div class="nc-row" role="row"><span>Pagamento</span><b>PIX ou cartão, sem fidelidade</b><span>Cartão internacional, assinatura</span></div>
+        <div class="nc-row" role="row"><span>Marca d’água no grátis</span><b>Não tem</b><span>Geralmente tem</span></div>
+        <div class="nc-row" role="row"><span>Feito para GTA RP e lives</span><b>Sim: webcam + jogo automático</b><span>Feitas para vídeos em geral</span></div>
+        <div class="nc-row" role="row"><span>Para testar</span><b>Sem cartão</b><span>Costumam pedir cadastro</span></div>
+      </div>
+      <div class="row" style="justify-content:center;margin-top:18px"><button class="btn big" data-cta>Começar grátis agora →</button></div>
     </section>
 
     <section class="lp-sec" id="precos-sec">
       <h2 class="lp-h">Planos e preços</h2>
-      <p class="sub" style="text-align:center">Teste grátis primeiro. Pague com PIX ou cartão pelo Mercado Pago, sem renovação automática.</p>
+      <p class="sub" style="text-align:center">Teste grátis primeiro. Pague com PIX ou cartão pelo Mercado Pago: 30 dias de acesso, sem fidelidade e sem cobrança automática.</p>
+      <p class="nc-guarantee">🛡️ <b>7 dias de garantia:</b> não gostou, devolvemos 100% do valor.</p>
       <div class="prices" id="priceCards"></div>
     </section>
 
@@ -1091,14 +1118,14 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <details><summary>O que é o Gancho Turbo?</summary><p>A IA encontra o momento mais forte do corte e mostra ele nos 2 primeiros segundos, com um texto como "ESPERA O FINAL". Depois o vídeo volta para o começo. Você pode trocar o texto ou desligar no editor.</p></details>
         <details><summary>Quais plataformas funcionam por link?</summary><p>Twitch e Kick (VODs, vídeos e lives ao vivo). Importação por link do YouTube: em breve. Por enquanto, você pode enviar um arquivo original ou autorizado.</p></details>
         <details><summary>Meus vídeos ficam salvos no servidor?</summary><p>No editor padrão, seleção e exportação acontecem no navegador. Arquivos importados por link ficam temporariamente no servidor. Se você usar a fila em nuvem (beta), os arquivos restantes expiram em até 24 horas.</p></details>
-        <details><summary>Como funciona o pagamento?</summary><p>Pagamento único por PIX ou cartão pelo Mercado Pago, que libera o plano por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
+        <details><summary>Como funciona o pagamento?</summary><p>Você paga por PIX ou cartão pelo Mercado Pago e o plano fica liberado por 30 dias. Não existe cobrança automática: quando acabar, você renova se quiser.</p></details>
         <details><summary>Posso cortar live de outros streamers?</summary><p>Só com autorização do streamer. Combine com ele e mantenha os créditos (quando você corta por link, o NEONCUT coloca o crédito do canal na descrição). Você é responsável pelo que publica.</p></details>
       </div>
     </section>
 
     <section class="lp-sec lp-final">
-      <h2 class="lp-h">Faça o seu primeiro corte agora</h2>
-      <p class="sub" style="text-align:center">Leva poucos minutos e não precisa de cartão.</p>
+      <h2 class="lp-h">Sua próxima live merece virar 10 cortes.</h2>
+      <p class="sub" style="text-align:center">Comece grátis: leva poucos minutos e não precisa de cartão.</p>
       <div class="row" style="justify-content:center"><button class="btn big" data-cta>Criar meu corte grátis</button><button class="btn ghost big" type="button" data-demo-open-list>Testar com vídeo de exemplo</button></div>
     </section>
   </main>
@@ -1418,10 +1445,13 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
     <p class="note">Contato: <span data-support></span></p>
   </main>
   <footer>
+    <div class="nc-foot"><span>🔒 Pagamento seguro Mercado Pago</span><span>✉️ <a href="mailto:suporteneoncut@gmail.com">suporteneoncut@gmail.com</a></span><a href="https://instagram.com/neoncut.br" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@neoncut.br" target="_blank" rel="noopener">TikTok</a></div>
     <div class="row" style="justify-content:center;gap:18px;margin-bottom:10px"><a href="#termos">Termos de uso</a><a href="#privacidade">Privacidade</a><a href="#precos">Preços</a><a href="#faq">Dúvidas</a></div>
     NEONCUT é um projeto independente, sem afiliação com a Rockstar Games, a Take-Two Interactive ou as plataformas citadas. Arquivos enviados do seu computador são processados no seu navegador.
   </footer>
 </div>
+
+<div class="nc-sticky" id="ncSticky"><button class="btn" data-cta>Criar meu corte grátis →</button></div>
 
 <!-- EDITOR -->
 <div class="modal hidden" id="modal">
@@ -3408,8 +3438,9 @@ function planCard(plan, opts = {}) {
   const cur = S.user && S.plan.plan === plan;
   return `<div class="price ${plan === 'pro' && !opts.compact ? 'hot' : ''}">${plan === 'pro' && !opts.compact ? '<div class="tag">RECOMENDADO</div>' : ''}
     <h3>${plan === 'pro' ? 'Pro' : 'Pro+'}</h3>
-    <div class="amt">R$ ${money(now)}<small>/mês</small></div>
-    <div class="old">${promo ? `${(n => n > 1 ? `nos ${n} primeiros meses` : 'no 1º mês')(S.user ? (S.plan.intro_left ? S.plan.intro_left[plan] : m) : m)}, depois R$ ${money(P.regular)}/mês` : 'por 30 dias'}</div>
+    <div class="amt">R$ ${money(now)}<small>/30 dias</small></div>
+    <div class="old">${promo ? `${(n => n > 1 ? `nos ${n} primeiros meses` : 'no 1º mês')(S.user ? (S.plan.intro_left ? S.plan.intro_left[plan] : m) : m)}, depois R$ ${money(P.regular)} a cada 30 dias` : 'por 30 dias'}</div>
+    <div class="nc-pervid">Menos de R$ ${money(Math.ceil(now / L.projects * 100) / 100)} por vídeo</div>
     <ul>${feats.filter(Boolean).map(f => `<li>${f}</li>`).join('')}<li>${plan==='pro'?3:5} exportações em nuvem/24h (beta, 720p)</li></ul>
     <button class="btn ${plan === 'pro' ? '' : 'teal'}" data-buy="${plan}" style="width:100%">${cur ? 'Renovar +30 dias' : 'Assinar ' + (plan === 'pro' ? 'Pro' : 'Pro+')}</button></div>`;
 }
@@ -5657,6 +5688,14 @@ document.addEventListener('pointerdown', () => kickAutoplay(), { once: true, pas
 setTimeout(kickAutoplay, 500);
 
 window.__nc = { state: () => S };
+</script>
+
+<script>
+(function(){
+  function upd(){var l=document.getElementById('vLanding');document.body.classList.toggle('nc-landing',!!l&&!l.classList.contains('hidden')&&!document.querySelector('.modal:not(.hidden)'));}
+  setInterval(upd,700);window.addEventListener('hashchange',upd);upd();
+  fetch('/api/stats/public').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d||!(d.clips>=500))return;var e=document.getElementById('ncCount');e.textContent='+'+d.clips.toLocaleString('pt-BR')+' cortes já criados na NEONCUT';e.classList.remove('hidden');}).catch(function(){});
+})();
 </script>
 </body>
 </html>

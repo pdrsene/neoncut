@@ -353,6 +353,21 @@ def public_config():
                            "hd": HD_USES[k]} for k, v in LIMITS.items()}}
 
 
+_PUBLIC_STATS = {"t": 0.0, "v": {"clips": 0}}
+
+
+@router.get("/api/stats/public")
+def public_stats():
+    """Contador da página inicial: cortes baixados (sem dados pessoais), em cache por 10 min."""
+    if time.time() - _PUBLIC_STATS["t"] > 600:
+        try:
+            n = db().execute("SELECT COUNT(*) FROM events WHERE kind='download_completed'").fetchone()[0]
+        except Exception:
+            n = 0
+        _PUBLIC_STATS.update(t=time.time(), v={"clips": int(n or 0)})
+    return _PUBLIC_STATS["v"]
+
+
 # ---------------------------------------------------------------- auth
 class SignupReq(BaseModel):
     email: str
