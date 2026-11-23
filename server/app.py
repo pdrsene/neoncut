@@ -453,7 +453,7 @@ class JobReq(BaseModel):
 
 def import_format(quality: int) -> str:
     # Explicitly requested 480p has no silent higher-resolution fallback.
-    return f"bv*[height<={quality}][vcodec^=avc1]+ba[ext=m4a]/b[height<={quality}][vcodec^=avc1]/bv*[height<={quality}]+ba/b[height<={quality}]" + ("/bv*+ba/b" if quality==720 else "")
+    return f"bv*[height<={quality}][vcodec^=avc1]+ba[ext=m4a]/b[height<={quality}][vcodec^=avc1]/bv*[height<={quality}]+ba/b[height<={quality}]" + ("/bv*+ba/b" if quality>=720 else "")
 
 
 def whole_download_allowed(duration, start, end):
@@ -471,7 +471,9 @@ def create_job(body: JobReq, req: Request):
     max_min, max_live = min(MAX_MINUTES, plan["max_minutes"]), min(MAX_LIVE_MINUTES, plan["max_live_minutes"])
     plat = check_url(body.url, allow_yt_beta=u["email"].lower() in accounts.ADMINS)
     if plat=="youtube":body.url=youtube_canonical(body.url)
-    if body.quality not in (480,720) or not math.isfinite(body.start) or (body.end is not None and not math.isfinite(body.end)):
+    if body.quality==1080 and plan.get("plan","free")=="free":
+        raise HTTPException(403,"Importação em 1080p é dos planos Pro e Pro+.")
+    if body.quality not in (480,720,1080) or not math.isfinite(body.start) or (body.end is not None and not math.isfinite(body.end)):
         raise HTTPException(400,"Qualidade ou trecho inválido.")
     if body.live_minutes is not None:
         if not (0.5 <= body.live_minutes <= max_live):
@@ -666,7 +668,7 @@ def run_job(job: dict):
             fmt=import_format(quality)
             if r.get("live_minutes"):
                 secs = r["live_minutes"] * 60
-                g = subprocess.run(ytdlp_base(job["url"]) + ["-g", "-f", f"b[height<={quality}]"+("/b" if quality==720 else ""), job["url"]],
+                g = subprocess.run(ytdlp_base(job["url"]) + ["-g", "-f", f"b[height<={quality}]"+("/b" if quality>=720 else ""), job["url"]],
                                    capture_output=True, text=True, timeout=60)
                 if g.returncode != 0 or not g.stdout.strip():
                     raise RuntimeError(friendly_error(g.stderr or g.stdout))
