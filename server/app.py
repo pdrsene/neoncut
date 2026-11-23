@@ -140,6 +140,11 @@ def check_url(url: str, allow_yt_beta: bool = False) -> str:
 
 
 YT_ALT_CLIENTS = "youtube:player_client=tv,web_safari,mweb"
+try:  # provider novo (pip bgutil-ytdlp-pot-provider). Carregar os dois juntos quebra o yt-dlp
+    import importlib.util as _ilu
+    _PIP_POT = _ilu.find_spec("yt_dlp_plugins.extractor.getpot_bgutil") is not None
+except Exception:
+    _PIP_POT = False
 _yt_alt_until = 0.0  # quando os clientes alternativos do YouTube funcionaram, usa eles por um tempo
 
 
@@ -161,7 +166,7 @@ def ytdlp_base(url: str = "", alt: bool | None = None) -> list[str]:
            "--fragment-retries", "3" if yt else "10"]
     if url and is_youtube(url) and (alt if alt is not None else time.time() < _yt_alt_until):
         cmd += ["--extractor-args", YT_ALT_CLIENTS]
-    if Path("/app/yt-plugins").exists():  # plugin do provedor de PO token (YouTube)
+    if Path("/app/yt-plugins").exists() and not _PIP_POT:  # plugin antigo (Rust) só se o novo não estiver instalado
         cmd += ["--plugin-dirs", "/app/yt-plugins"]
     if COOKIES and Path(COOKIES).exists():
         cmd += ["--cookies", COOKIES]
