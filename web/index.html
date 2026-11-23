@@ -639,7 +639,8 @@ select option:disabled{color:#52525b}
 .mtabs{margin-left:auto;display:flex;gap:2px;flex-wrap:wrap}
 .mtabs button{background:none;border:1px solid transparent;color:var(--muted);font-size:11.5px;font-weight:700;padding:4px 8px;border-radius:8px;cursor:pointer;text-transform:none;letter-spacing:0}
 .mtabs button.on{border-color:rgba(163,230,53,.45);color:var(--text)}
-.mspark{width:100%;height:150px;display:block;margin-top:8px}
+.mmore{margin-top:6px}.mmore>summary{cursor:pointer;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);font-weight:800;margin-bottom:14px}.mmore>summary small{color:var(--muted);font-weight:600}
+.mspark{width:100%;height:200px;display:block;margin-top:8px}
 .mspark rect{fill:#A3E635;opacity:.85}.mspark rect:hover{opacity:1;fill:#A3E635}
 .mspark text{fill:var(--muted);font-size:10px}
 .mtable{overflow-x:auto;margin-top:4px}
@@ -4929,7 +4930,7 @@ const fmtN = n => Number(n || 0).toLocaleString('pt-BR');
 const pctOf = (a, b) => b ? Math.round(100 * a / b) + '%' : '—';
 const REF_LABEL = { direto: 'Direto / sem origem', tiktok: 'TikTok', instagram: 'Instagram', youtube: 'YouTube', twitch: 'Twitch', kick: 'Kick', x: 'X (Twitter)', facebook: 'Facebook', whatsapp: 'WhatsApp', discord: 'Discord', google: 'Google', busca: 'Outras buscas', reddit: 'Reddit', kwai: 'Kwai' };
 function mSpark(series, key, money) {
-  const W = 560, H = 120, n = series.length, max = Math.max(1, ...series.map(d => d[key]));
+  const W = 1100, H = 200, n = series.length, max = Math.max(1, ...series.map(d => d[key]));
   const bw = W / n;
   const bars = series.map((d, i) => { const h = Math.max(d[key] ? 3 : 0, (H - 18) * d[key] / max); const dd = d.day.slice(8, 10) + '/' + d.day.slice(5, 7);
     return `<rect x="${(i * bw + 1).toFixed(1)}" y="${(H - 14 - h).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${h.toFixed(1)}" rx="2"><title>${dd}: ${money ? 'R$ ' + money_(d[key]) : fmtN(d[key])}</title></rect>`; }).join('');
@@ -4945,19 +4946,8 @@ async function loadMetrics() {
   const kpi = (ic, lbl, val, sub, cls) => `<div class="mkpi ${cls || ''}"><span>${ic} ${lbl}</span><b>${val}</b><small>${sub || ''}</small></div>`;
   const fmax = Math.max(1, m.funnel[0][1]);
   const base = location.origin;
-  body.innerHTML = `
-    <div class="mtoday"><b>Hoje:</b> ${fmtN(td.visitors)} visitantes · ${fmtN(td.signups)} cadastros · ${fmtN(td.generated)} vídeos cortados · <b class="g">${fmtN(td.purchases)} compras · R$ ${money_(td.revenue)}</b></div>
-    <div class="mkpis">
-      ${kpi('👀', 'Visitantes', fmtN(t.visitors), per)}
-      ${kpi('🔗', 'Cliques no seu link', fmtN(t.link_clicks), 'links com ?ref= (bio, posts)')}
-      ${kpi('🙋', 'Cadastros', fmtN(t.signups), pctOf(t.signups, t.visitors) + ' dos visitantes')}
-      ${kpi('✂️', 'Vídeos cortados', fmtN(t.generated), fmtN(t.gen_users) + ' pessoas · ' + fmtN(t.exports) + ' cortes baixados')}
-      ${kpi('🛒', 'Clicaram em assinar', fmtN(t.checkout_users), fmtN(t.upgrade_open) + ' viram os planos')}
-      ${kpi('💳', 'Compraram', fmtN(t.buyers), fmtN(t.purchases) + ' pagamentos' + (t.pending ? ' · ' + t.pending + ' pendentes' : ''), 'hl')}
-      ${kpi('💰', 'Receita', 'R$ ' + money_(t.revenue), per, 'hl')}
-      ${kpi('⭐', 'Assinantes ativos', fmtN(t.pro_active + t.proplus_active), `${t.pro_active} Pro · ${t.proplus_active} Pro+ · ${fmtN(t.users_total)} contas`)}
-    </div>
-    <section class="panel" style="margin-top:16px">
+  const conv = pctOf(m.funnel[4][1], m.funnel[0][1]);
+  const ytBox = `<section class="panel">
       <h4 class="h4">YouTube · testes e importação</h4>
       <div class="row" style="gap:18px;flex-wrap:wrap">
         <span><b>${fmtN(m.youtube?.attempts||0)}</b> tentativas</span>
@@ -4965,36 +4955,48 @@ async function loadMetrics() {
         <span><b>${fmtN(m.youtube?.downloads_ready||0)}</b> vídeos importados</span>
         <span><b>${fmtN(m.youtube?.failed||0)}</b> falhas</span>
         <span><b>${fmtN(m.youtube?.file_fallback||0)}</b> importações por arquivo sugeridas</span>
-      </div>
-      <p class="note">O teste por link está disponível só para administradores até a importação ser validada. Esses eventos passam a ser contabilizados a partir desta versão.</p>
-    </section>
+      </div></section>`;
+  body.innerHTML = `
+    <div class="mtoday"><b>Hoje:</b> ${fmtN(td.visitors)} visitantes · ${fmtN(td.signups)} cadastros · ${fmtN(td.generated)} vídeos cortados · <b class="g">${fmtN(td.purchases)} compras · R$ ${money_(td.revenue)}</b></div>
+    <div class="mkpis">
+      ${kpi('👀', 'Visitantes', fmtN(t.visitors), per)}
+      ${kpi('🙋', 'Cadastros', fmtN(t.signups), pctOf(t.signups, t.visitors) + ' dos visitantes')}
+      ${kpi('✂️', 'Vídeos cortados', fmtN(t.generated), fmtN(t.gen_users) + ' pessoas · ' + fmtN(t.exports) + ' baixados')}
+      ${kpi('💰', 'Receita', 'R$ ' + money_(t.revenue), fmtN(t.buyers) + ' compraram · ' + fmtN(t.pro_active + t.proplus_active) + ' assinantes ativos', 'hl')}
+    </div>
+    <section class="panel"><h4 class="h4">Por dia <span class="mtabs" id="mSerTabs"><button data-k="visitors" class="on">Visitantes</button><button data-k="signups">Cadastros</button><button data-k="generated">Cortes</button><button data-k="purchases">Compras</button><button data-k="revenue">R$</button></span></h4>
+      <div id="mSer">${mSpark(m.series, 'visitors')}</div></section>
     <div class="mgrid">
       <section class="panel"><h4 class="h4">Funil ${per}</h4>
         <div class="mfunnel">${m.funnel.map(([l, v], i) => `<div class="mfrow"><span>${l}</span><div class="mfbar"><i style="width:${Math.max(v ? 2 : 0, 100 * v / fmax)}%"></i></div><b>${fmtN(v)}</b><small>${i ? pctOf(v, m.funnel[i - 1][1]) : ''}</small></div>`).join('')}</div>
-        <p class="note" style="margin-top:8px">A porcentagem é em relação à etapa anterior. Conversão total: <b>${pctOf(m.funnel[4][1], m.funnel[0][1])}</b> dos visitantes compram.</p>
+        <p class="note" style="margin-top:8px">% em relação à etapa anterior. <b>${conv}</b> dos visitantes compram.</p>
       </section>
-      <section class="panel"><h4 class="h4">Por dia <span class="mtabs" id="mSerTabs"><button data-k="visitors" class="on">Visitantes</button><button data-k="signups">Cadastros</button><button data-k="generated">Cortes</button><button data-k="purchases">Compras</button><button data-k="revenue">R$</button></span></h4>
-        <div id="mSer">${mSpark(m.series, 'visitors')}</div></section>
+      <section class="panel"><h4 class="h4">De onde vêm</h4>
+        <div class="mtable"><table><thead><tr><th>Origem</th><th>Visitantes</th><th>Cadastros</th><th>Compras</th><th>R$</th></tr></thead><tbody>
+        ${m.sources.length ? m.sources.slice(0, 6).map(r => `<tr><td>${esc(REF_LABEL[r.src] || r.src)}</td><td>${fmtN(r.visitors)}</td><td>${fmtN(r.signups)}</td><td>${fmtN(r.buyers)}</td><td>${money_(r.revenue)}</td></tr>`).join('') : '<tr><td colspan="5" class="note">Ainda sem visitas neste período.</td></tr>'}
+        </tbody></table></div>
+      </section>
     </div>
-    <section class="panel"><h4 class="h4">De onde vêm (origens)</h4>
-      <div class="mtable"><table><thead><tr><th>Origem</th><th>Cliques</th><th>Visitantes</th><th>Cadastros</th><th>Compraram</th><th>Receita</th></tr></thead><tbody>
-      ${m.sources.length ? m.sources.map(r => `<tr><td>${esc(REF_LABEL[r.src] || r.src)}</td><td>${fmtN(r.clicks)}</td><td>${fmtN(r.visitors)}</td><td>${fmtN(r.signups)}</td><td>${fmtN(r.buyers)}</td><td>R$ ${money_(r.revenue)}</td></tr>`).join('') : '<tr><td colspan="6" class="note">Ainda sem visitas registradas neste período.</td></tr>'}
-      </tbody></table></div>
-      <div class="mlinks"><b>Seus links rastreados</b> — use um em cada rede para saber de onde vêm as visitas e as compras:
+    <details class="mmore" id="mMore"><summary>Mais detalhes <small>(aparelhos, erros, retenção, feedback, compras, links, YouTube)</small></summary>
+    <div id="mMoreBody">
+    <div class="mgrid">
+      <section class="panel"><h4 class="h4">Últimas compras</h4>
+        <div class="mbuys">${m.purchases.length ? m.purchases.map(p => `<div><span class="st ${p.status === 'approved' ? 'ok' : ''}">${p.status === 'approved' ? '✅' : p.status === 'rejected' ? '❌' : '⏳'}</span><div><b>${esc(p.email)}</b><small>${p.plan === 'proplus' ? 'Pro+' : 'Pro'} · via ${esc(REF_LABEL[p.ref] || p.ref)} · ${new Date(p.ts * 1000).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small></div><b class="v">R$ ${money_(p.amount)}</b></div>`).join('') : '<p class="note">Nenhuma compra ainda.</p>'}</div>
+      </section>
+      <section class="panel"><h4 class="h4">Está gostando do app? <span class="note" style="text-transform:none;letter-spacing:0">${fb.n ? fmtN(fb.n) + ' respostas' : ''}</span></h4>
+        ${fb.n ? `<div class="mfbsum"><div><b>${String(fb.avg).replace('.', ',')}</b><small>nota média (1 a 5)</small></div><div><b>${fb.liked_pct}%</b><small>estão gostando (4 ou 5)</small></div><div><b>${pctOf(fb.n, fb.shown)}</b><small>responderam ao balão</small></div></div>
+        <div class="mdist">${[5, 4, 3, 2, 1].map(r => `<div><span>${['', '😖', '😕', '😐', '🙂', '😍'][r]}</span><div class="mfbar"><i style="width:${100 * (fb.dist[r] || 0) / Math.max(1, fb.n)}%"></i></div><b>${fb.dist[r] || 0}</b></div>`).join('')}</div>` : '<p class="note">Ninguém respondeu ainda.</p>'}
+        <div class="mfblist">${fb.list.map(f => `<div class="${f.rating <= 2 ? 'bad' : f.rating >= 4 ? 'good' : ''}"><span class="r">${['', '😖', '😕', '😐', '🙂', '😍'][f.rating]}</span><div><small>${esc(f.email)} · ${({ free: 'Grátis', pro: 'Pro', proplus: 'Pro+', anon: 'sem conta' })[f.plan] || esc(f.plan || '')} · ${new Date(f.ts * 1000).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small>${f.comment ? `<p>${esc(f.comment)}</p>` : ''}</div></div>`).join('')}</div>
+      </section>
+    </div>
+    <section class="panel"><h4 class="h4">Seus links rastreados</h4>
+      <div class="mlinks">Use um em cada rede para saber de onde vêm as visitas e as compras (cliques em links: <b>${fmtN(t.link_clicks)}</b>):
         ${['tiktok', 'instagram', 'youtube', 'twitch', 'kwai', 'whatsapp'].map(r => `<button class="mlink" data-copy="${base}/?ref=${r}"><span>${REF_LABEL[r]}</span><code>${base.replace(/^https?:\/\//, '')}/?ref=${r}</code><i>Copiar</i></button>`).join('')}
         <div class="row" style="margin-top:8px"><input type="text" id="mRefNew" placeholder="crie o seu: ex. parceria-joao" maxlength="40" style="flex:1"><button class="btn small ghost" id="mRefMake">Copiar link</button></div>
       </div>
     </section>
-    <div class="mgrid">
-      <section class="panel"><h4 class="h4">Está gostando do app? <span class="note" style="text-transform:none;letter-spacing:0">${fb.n ? fmtN(fb.n) + ' respostas ' + per : ''}</span></h4>
-        ${fb.n ? `<div class="mfbsum"><div><b>${String(fb.avg).replace('.', ',')}</b><small>nota média (1 a 5)</small></div><div><b>${fb.liked_pct}%</b><small>estão gostando (4 ou 5)</small></div><div><b>${pctOf(fb.n, fb.shown)}</b><small>responderam ao balão</small></div></div>
-        <div class="mdist">${[5, 4, 3, 2, 1].map(r => `<div><span>${['', '😖', '😕', '😐', '🙂', '😍'][r]}</span><div class="mfbar"><i style="width:${100 * (fb.dist[r] || 0) / Math.max(1, fb.n)}%"></i></div><b>${fb.dist[r] || 0}</b></div>`).join('')}</div>` : '<p class="note">Ninguém respondeu ainda. O balão aparece depois que a pessoa gera o primeiro corte.</p>'}
-        <div class="mfblist">${fb.list.map(f => `<div class="${f.rating <= 2 ? 'bad' : f.rating >= 4 ? 'good' : ''}"><span class="r">${['', '😖', '😕', '😐', '🙂', '😍'][f.rating]}</span><div><small>${esc(f.email)} · ${({ free: 'Grátis', pro: 'Pro', proplus: 'Pro+', anon: 'sem conta' })[f.plan] || esc(f.plan || '')} · ${new Date(f.ts * 1000).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small>${f.comment ? `<p>${esc(f.comment)}</p>` : ''}</div></div>`).join('')}</div>
-      </section>
-      <section class="panel"><h4 class="h4">Últimas compras</h4>
-        <div class="mbuys">${m.purchases.length ? m.purchases.map(p => `<div><span class="st ${p.status === 'approved' ? 'ok' : ''}">${p.status === 'approved' ? '✅' : p.status === 'rejected' ? '❌' : '⏳'}</span><div><b>${esc(p.email)}</b><small>${p.plan === 'proplus' ? 'Pro+' : 'Pro'} · via ${esc(REF_LABEL[p.ref] || p.ref)} · ${new Date(p.ts * 1000).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</small></div><b class="v">R$ ${money_(p.amount)}</b></div>`).join('') : '<p class="note">Nenhuma compra ainda. Elas aparecem aqui assim que o Mercado Pago confirmar.</p>'}</div>
-      </section>
-    </div>`;
+    ${ytBox}
+    </div></details>`;
   renderFunnel2();
   $('#mSerTabs').onclick = e => { const b = e.target.closest('[data-k]'); if (!b) return; $('#mSerTabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); $('#mSer').innerHTML = mSpark(m.series, b.dataset.k, b.dataset.k === 'revenue'); };
 }
@@ -5350,7 +5352,7 @@ const BR_LABEL = { chrome: 'Chrome', safari: 'Safari', edge: 'Edge', firefox: 'F
 const DEV_LABEL = { mobile: 'Celular', desktop: 'Computador', tablet: 'Tablet', '?': 'Sem dado' };
 const OS_LABEL = { android: 'Android', ios: 'iPhone/iPad', windows: 'Windows', mac: 'Mac', linux: 'Linux', outro: 'Outro', '?': 'Sem dado' };
 async function renderFunnel2() {
-  const body = $('#mBody'); if (!body) return;
+  const body = $('#mMoreBody') || $('#mBody'); if (!body) return;
   let f; try { f = await api('/api/admin/funnel?days=' + S.mDays); } catch (e) { body.insertAdjacentHTML('afterbegin', `<p class="err">Funil: ${esc(e.message)}</p>`); return; }
   document.getElementById('fun2')?.remove();
   const per = S.mDays === 1 ? 'hoje' : `nos últimos ${S.mDays} dias`, top = Math.max(1, f.funnel[0].n);
@@ -5360,14 +5362,7 @@ async function renderFunnel2() {
   const list = (rows) => rows.length ? `<ol class="mlist">${rows.map(r => `<li>${esc(r.k)} <b>(${r.n})</b></li>`).join('')}</ol>` : '<p class="note">Nenhum registrado.</p>';
   const g = f.generation, mo = f.money, rt = f.retention;
   const html = `<div id="fun2">
-    <div class="mkpis">
-      ${kpi('Visitantes', fmtN(f.visitors), fmtN(f.sessions) + ' sessões ' + per)}
-      ${kpi('Gerações concluídas', fmtN(g.completed), g.success_pct != null ? g.success_pct + '% de sucesso' : 'sem tentativas')}
-      ${kpi('Downloads', fmtN((f.funnel.find(x => x.step === 'download_completed') || {}).n), 'pessoas que baixaram')}
-      ${kpi('Checkouts', fmtN((f.funnel.find(x => x.step === 'begin_checkout') || {}).n), 'abriram o pagamento')}
-      ${kpi('Pagamentos aprovados', fmtN(mo.purchases), 'R$ ' + money_(mo.revenue))}
-      ${kpi('Tempo médio p/ gerar', g.avg_ms ? (g.avg_ms / 1000).toFixed(1).replace('.', ',') + ' s' : '—', g.median_ms ? 'mediana ' + (g.median_ms / 1000).toFixed(1).replace('.', ',') + ' s' : '')}
-    </div>
+    <p class="note">Tempo médio para gerar: <b>${g.avg_ms ? (g.avg_ms / 1000).toFixed(1).replace('.', ',') + ' s' : '—'}</b> · gerações com sucesso: <b>${g.success_pct != null ? g.success_pct + '%' : '—'}</b> · ${fmtN(f.sessions)} sessões</p>
     <section class="panel"><h4 class="h4">Conversão por etapa ${per} <span class="note" style="text-transform:none;letter-spacing:0">(pessoas únicas)</span></h4><div class="fun">${f.funnel.map(step).join('')}</div></section>
     <div class="mgrid">
       <section class="panel"><h4 class="h4">Por aparelho</h4>${seg(f.by_device, DEV_LABEL)}<h4 class="h4" style="margin-top:16px">Por sistema</h4>${seg(f.by_os, OS_LABEL)}</section>
@@ -5390,7 +5385,7 @@ async function renderFunnel2() {
       ${list(f.survey.answers)}
       ${f.survey.list.length ? `<div class="mfblist">${f.survey.list.map(r => `<div><span class="r">📝</span><div><b>${esc(r.reason)}</b>${r.comment ? ' — ' + esc(r.comment) : ''}<small class="note"> · ${esc(DEV_LABEL[r.dev] || r.dev || '')} ${esc(OS_LABEL[r.os] || r.os || '')} · ${esc(BR_LABEL[r.br] || r.br || '')} · ${esc(r.stage || '')} · ${new Date(r.ts * 1000).toLocaleString('pt-BR')}</small></div></div>`).join('')}</div>` : ''}
     </section>
-    <h3 style="margin:26px 0 6px">Visão anterior</h3></div>`;
+    </div>`;
   body.insertAdjacentHTML('afterbegin', html);
 }
 
