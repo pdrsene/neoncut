@@ -210,3 +210,23 @@ def public_profile(token: str):
     d=profile_data(row,points(row["uid"]))
     # No email, account ID, projects, or private video URLs.
     return {k:d[k] for k in ("name","bio","theme","links","title","level","avatar_id")}
+
+
+@router.get("/api/creator/ranking")
+def ranking():
+    """Ranking real dos clipadores: só quem deixou o portfólio público aparece (nome escolhido no perfil)."""
+    rows = A.db().execute("""
+        SELECT p.uid, p.name, p.token, p.avatar_id,
+               COALESCE(SUM(x.points),0) AS xp,
+               COALESCE(SUM(CASE WHEN x.kind='clip' THEN 1 ELSE 0 END),0) AS clips,
+               COALESCE(SUM(CASE WHEN x.kind='clip' AND x.created>=? THEN 1 ELSE 0 END),0) AS week
+        FROM creator_profiles p LEFT JOIN creator_xp x ON x.uid=p.uid
+        WHERE p.public=1 AND TRIM(p.name)<>''
+        GROUP BY p.uid HAVING xp>0 ORDER BY xp DESC, clips DESC LIMIT 20""", (time.time() - 7 * 86400,)).fetchall()
+    out = []
+    for r in rows:
+        lv = level_info(int(r["xp"]))
+        out.append({"name": r["name"][:28], "token": r["token"], "avatar": r["avatar_id"] or "rookie",
+                    "xp": lv["xp"], "level": lv["level"], "title": lv["title"],
+                    "clips": int(r["clips"]), "week": int(r["week"])})
+    return {"ranking": out}

@@ -979,6 +979,17 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
 .nc-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-bottom:12px}
 .nc-sticky{display:none}
 @media(max-width:760px){body.nc-landing .nc-sticky{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(5,8,10,.96) 35%)}.nc-sticky .btn{width:100%}body.nc-landing footer{padding-bottom:90px}body.nc-landing #supportFab{bottom:84px!important}}
+
+.nc-rank{max-width:860px;margin:18px auto 0;display:grid;gap:8px}
+.nc-rk{display:grid;grid-template-columns:44px 42px 1fr repeat(3,minmax(64px,auto));gap:12px;align-items:center;padding:12px 14px;background:#111214;border:1px solid #2b2b30;border-radius:14px}
+.nc-rk.top1{border-color:#facc15;box-shadow:0 0 18px rgba(250,204,21,.15)}.nc-rk.top2{border-color:#cbd5e1}.nc-rk.top3{border-color:#d97706}
+.nc-rk .pos{font-weight:800;font-size:18px;text-align:center;color:var(--muted)}.nc-rk.top1 .pos{color:#facc15}.nc-rk.top2 .pos{color:#cbd5e1}.nc-rk.top3 .pos{color:#d97706}
+.nc-rk .av{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-weight:800;color:#05080a;font-size:15px}
+.nc-rk .nm b{display:block;font-size:14px}.nc-rk .nm small{font-size:11.5px;color:var(--muted)}
+.nc-rk .st{text-align:right}.nc-rk .st b{display:block;font-size:15px;color:var(--accent)}.nc-rk .st small{font-size:10.5px;color:var(--muted)}
+.nc-rk.ex{opacity:.72}.nc-rk .tagx{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:#a1a1aa;border:1px solid #3f3f46;border-radius:6px;padding:1px 5px;margin-left:6px;vertical-align:2px}
+.nc-rank-note{font-size:11.5px;color:var(--muted);text-align:center;margin-top:6px}
+@media(max-width:600px){.nc-rk{grid-template-columns:30px 36px 1fr auto;gap:8px;padding:10px}.nc-rk .st.hide-m{display:none}.nc-rk .av{width:36px;height:36px}}
 </style>
 </head>
 <body class="yt-off">
@@ -1082,6 +1093,12 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
         <div><small>CRÉDITOS</small><b>Crédito do streamer</b><p>Cortou por link? A descrição já sai com o crédito e o link do canal.</p></div>
         <div><small>BUSCA</small><b>Encontre falas específicas</b><p>Indexe toda a gravação no navegador e busque palavras e expressões relacionadas.</p></div><div><small>CREATOR HUB</small><b>Evolua a cada corte</b><p>Ganhe XP, conquiste níveis e monte seu portfólio público.</p></div><div><small>BRASIL</small><b>PIX e preço em reais</b><p>PIX ou cartão, 30 dias de acesso, sem fidelidade e sem renovação automática.</p></div>
       </div>
+    </section>
+
+    <section class="lp-sec" id="ranking-sec">
+      <span class="home-overline home-center">CREATOR HUB</span><h2 class="lp-h">Ranking dos clipadores</h2>
+      <p class="sub" style="text-align:center">Quem mais corta na NEONCUT sobe de nível. Deixe seu portfólio público no Creator Hub para entrar no ranking.</p>
+      <div class="nc-rank" data-rank></div>
     </section>
 
     <section class="lp-sec" id="custo-beneficio">
@@ -1344,7 +1361,7 @@ h2{font-family:Inter,sans-serif!important;font-weight:800!important;text-transfo
       <div id="pixelSelected" class="pixel-hero"><p class="note">Carregando personagens…</p></div>
       <div id="pixelGrid" class="pixel-grid"></div>
       <p class="note" style="margin-top:12px">Personagens cosméticos são liberados conforme você evolui; seus cortes e planos não mudam.</p>
-    </section><div class="row" style="flex-wrap:wrap;margin:14px 0"><a class="btn ghost small" href="#oportunidades">Oportunidades</a><a class="btn ghost small" href="#nuvem">Fila em nuvem</a></div><div class="panel"><h3>Missões e conquistas</h3><p class="note">Bônus de XP cosmético, semana de segunda a domingo (UTC). Os mesmos cortes não pontuam duas vezes.</p><div id="missionList"></div></div>
+    </section><div class="row" style="flex-wrap:wrap;margin:14px 0"><a class="btn ghost small" href="#oportunidades">Oportunidades</a><a class="btn ghost small" href="#nuvem">Fila em nuvem</a></div><div class="panel"><h3>Ranking dos clipadores</h3><p class="note">Só aparece quem deixou o portfólio público, com o nome do perfil.</p><div class="nc-rank" data-rank></div></div><div class="panel"><h3>Missões e conquistas</h3><p class="note">Bônus de XP cosmético, semana de segunda a domingo (UTC). Os mesmos cortes não pontuam duas vezes.</p><div id="missionList"></div></div>
     <div class="panel" style="margin-top:16px"><h3>Indique e evolua</h3><p class="note">Ganhe 100 XP por amigo que fizer sua primeira compra aprovada e completar 7 dias. Até 20 indicações premiadas. Não vale autoindicação; XP não é dinheiro, desconto ou crédito de processamento.</p><div class="row"><input id="creatorInvite" readonly aria-label="Link de indicação" style="flex:1;min-width:0"><button class="btn small" id="copyInvite">Copiar link</button></div><p class="note" id="creatorRefStats"></p></div>
     <div class="panel" style="margin-top:16px"><h3>Seu portfólio</h3><p class="note">Mostre somente trabalhos próprios ou autorizados. Seu perfil começa privado; seu e-mail, vídeos e projetos não serão publicados.</p>
       <form id="portfolioForm" class="creatorform"><label class="f">Nome público<input id="portfolioName" maxlength="60" required></label><label class="f">Sobre seu trabalho<textarea id="portfolioBio" maxlength="280" rows="3"></textarea></label><label class="f">Tema<select id="portfolioTheme"></select></label><div id="portfolioLinks"></div><button class="btn ghost small" id="portfolioAdd" type="button">+ Adicionar trabalho</button><label class="check"><input type="checkbox" id="portfolioPublic"> Tornar meu portfólio público</label><button type="submit" class="btn">Salvar portfólio</button></form><div id="portfolioShare" class="row hidden" style="margin-top:12px"><a id="portfolioOpen" class="btn ghost small" target="_blank" rel="noopener">Ver perfil público</a><button class="btn ghost small" id="portfolioCopy">Copiar link</button></div><p id="portfolioMsg" class="note" role="status"></p></div>
@@ -5695,6 +5712,23 @@ window.__nc = { state: () => S };
   function upd(){var l=document.getElementById('vLanding');document.body.classList.toggle('nc-landing',!!l&&!l.classList.contains('hidden')&&!document.querySelector('.modal:not(.hidden)'));}
   setInterval(upd,700);window.addEventListener('hashchange',upd);upd();
   fetch('/api/stats/public').then(function(r){return r.ok?r.json():null}).then(function(d){if(!d||!(d.clips>=500))return;var e=document.getElementById('ncCount');e.textContent='+'+d.clips.toLocaleString('pt-BR')+' cortes já criados na NEONCUT';e.classList.remove('hidden');}).catch(function(){});
+})();
+</script>
+
+<script>
+(function(){
+  var LV=['#a1a1aa','#38bdf8','#a3e635','#facc15','#a855f7'];
+  var EX=[["CorteNinja",5,"Lenda",1840,184,23],["Vulgo Tesoura",5,"Lenda",1610,161,19],["Bia Highlights",4,"Elite",1290,129,17],["RPzinho Cuts",4,"Elite",980,98,12],["Noite Neon",3,"Especialista",640,64,9],["ZéDoCorte",3,"Especialista",410,41,6],["Mandy Clips",2,"Cortador",260,26,4],["Lucas Fuga RP",2,"Cortador",150,15,3]];
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function row(r,i,ex){var ini=r.name.replace(/[^A-Za-zÀ-ú0-9 ]/g,'').split(' ').filter(Boolean).slice(0,2).map(function(w){return w[0]}).join('').toUpperCase()||'?';
+    return '<div class="nc-rk'+(i<3?' top'+(i+1):'')+(ex?' ex':'')+'"><span class="pos">'+(i+1)+'º</span><span class="av" style="background:'+LV[Math.min(4,r.level-1)]+'">'+esc(ini)+'</span><span class="nm"><b>'+esc(r.name)+(ex?'<span class="tagx">EXEMPLO</span>':'')+'</b><small>Nível '+r.level+' · '+esc(r.title)+'</small></span><span class="st"><b>'+r.clips.toLocaleString('pt-BR')+'</b><small>cortes</small></span><span class="st hide-m"><b>'+r.week+'</b><small>na semana</small></span><span class="st hide-m"><b>'+r.xp.toLocaleString('pt-BR')+'</b><small>XP</small></span></div>'}
+  function draw(real){var list=real.slice(0,8),html='';list.forEach(function(r,i){html+=row(r,i,false)});
+    var need=Math.max(0,8-list.length);var ex=EX.slice(0,need).map(function(e){return{name:e[0],level:e[1],title:e[2],xp:e[3],clips:e[4],week:e[5]}});
+    var all=list.concat(ex).sort(function(a,b){return b.xp-a.xp});html='';all.forEach(function(r,i){html+=row(r,i,list.indexOf(r)<0)});
+    if(need)html+='<p class="nc-rank-note">Ranking em formação: perfis marcados como <b>EXEMPLO</b> são ilustrativos e saem conforme clipadores reais entram.</p>';
+    document.querySelectorAll('[data-rank]').forEach(function(el){el.innerHTML=html})}
+  draw([]);
+  fetch('/api/creator/ranking').then(function(r){return r.ok?r.json():null}).then(function(d){if(d&&d.ranking)draw(d.ranking)}).catch(function(){});
 })();
 </script>
 </body>
